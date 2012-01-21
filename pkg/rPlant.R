@@ -249,15 +249,40 @@ job.submit<-function(user.name, token, application, inputSeqs, jobName, nprocs){
 	}
 }
 
-#check the status of a job using the jobID from jobSubmit:
+#check the status of a job using the jobID from jobSubmit -- works!!
 job.status<-function(user.name, token, jobID){
 	curl.string<-"curl -X GET -sku"
 	curl.string<-paste(curl.string, user.name, sep=" '")
 	curl.string<-paste(curl.string, token, sep=":")
 	curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/job/", sep="' ")
-	curl.string<-paste(curl.string, jobName, sep="")
+	curl.string<-paste(curl.string, jobID, sep="")
+	res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
+	#Need to fix output. Not sure if result$status is from the submission or the status of the job: 
+	res
+}
+
+#delete the status of a job using the jobID from jobSubmit -- works!!
+job.delete<-function(user.name, token, jobID){
+	curl.string<-"curl -X DELETE -sku"
+	curl.string<-paste(curl.string, user.name, sep=" '")
+	curl.string<-paste(curl.string, token, sep=":")
+	curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/job/", sep="' ")
+	curl.string<-paste(curl.string, jobID, sep="")
 	res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
 	res
+}
+
+#retrieves a file from the archive directory (does not work):
+job.retrieve<-function(user.name, token, jobID, fileRetrieve){
+	curl.string<-"curl -X POST -sku"
+	curl.string<-paste(curl.string, user.name, sep=" '")
+	curl.string<-paste(curl.string, token, sep=":")
+	curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/job/", sep="' ")
+	curl.string<-paste(curl.string, jobID, sep="")
+	curl.string<-paste(curl.string, "output", sep="/")
+	curl.string<-paste(curl.string, fileRetrieve, sep="/")
+	res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
+	res	
 }
 
 #NOTES:
