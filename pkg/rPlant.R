@@ -217,22 +217,33 @@ app.info<-function(user.name, token, application){
 	res
 }
 
-#submit a job using an existing application:
-job.submit<-function(user.name, token, application, inputSeqs, outputName=NULL){
+#submit a job using an existing application -- works!!
+job.submit<-function(user.name, token, application, inputSeqs, jobName, nprocs){
 	curl.string<-"curl -X POST -sku"
 	curl.string<-paste(curl.string, user.name, sep=" '")
 	curl.string<-paste(curl.string, token, sep=":")
-	curl.string<-paste(curl.string, "-F 'application=", sep="' ")
+	curl.string<-paste(curl.string, "-d 'jobName=", sep="' ")
+	curl.string<-paste(curl.string, jobName, sep="")
+	curl.string<-paste(curl.string, "&softwareName=", sep="")
 	curl.string<-paste(curl.string, application, sep="")
-	curl.string<-paste(curl.string, "-F 'inputSeqs=", sep="' ")
+	curl.string<-paste(curl.string, "&archive=1", sep="")
+	curl.string<-paste(curl.string, "&inputSeqs=", sep="")
 	curl.string<-paste(curl.string, inputSeqs, sep="")
-#	curl.string<-paste(curl.string, "-F 'outputName=", sep="' ")
-#	curl.string<-paste(curl.string, outputName, sep="")
+	curl.string<-paste(curl.string, "&processorCount=", sep="")
+	curl.string<-paste(curl.string, nprocs, sep="")
+	curl.string<-paste(curl.string, "&archivePath=", sep="")
+	curl.string<-paste(curl.string, user.name, sep="/")
+	curl.string<-paste(curl.string, "analyses", sep="/")
+	curl.string<-paste(curl.string, jobName, sep="/")
+	curl.string<-paste(curl.string, "&requestedTime=01:00:00", sep="")
+	curl.string<-paste(curl.string, "&outputFormat=fasta&mode=auto", sep="")
 	curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/job", sep="' ")
 	res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
 
 	res
 }
+
+
 
 #NOTES:
 #Goal to login, upload a file, run muscle, and suck it back up in R, possibly even run a quick parsimony run to show how we can
