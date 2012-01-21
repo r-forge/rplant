@@ -217,7 +217,7 @@ app.info<-function(user.name, token, application){
 	res
 }
 
-#submit a job using an existing application -- works!! (I tried to minimize the input by the user here. Will need more works
+#submit a job using an existing application -- works!! (I tried to minimize the input by the user here. Will need more work
 #at customizing as we move forward:
 job.submit<-function(user.name, token, application, inputSeqs, jobName, nprocs){
 	curl.string<-"curl -X POST -sku"
@@ -240,16 +240,22 @@ job.submit<-function(user.name, token, application, inputSeqs, jobName, nprocs){
 	curl.string<-paste(curl.string, "&outputFormat=fasta&mode=auto", sep="")
 	curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/job", sep="' ")
 	res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
-	#Verbose output at this point. Status is a must, but everything else seems worth outputting as well
-	res
+	#Just a thought I had on the output:
+	if(res$status=="success"){
+		cat("Job submitted. You can check the status of your job using this id:", res$result$id, "\n")
+	}
+	else{
+		cat("Error.", res$message, "\n")
+	}
 }
 
-job.status<-function(user.name, token, jobName){
+#check the status of a job using the jobID from jobSubmit:
+job.status<-function(user.name, token, jobID){
 	curl.string<-"curl -X GET -sku"
 	curl.string<-paste(curl.string, user.name, sep=" '")
 	curl.string<-paste(curl.string, token, sep=":")
-	curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/job", sep="' ")
-	curl.string<-paste(curl.string, jobName, sep="/")
+	curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/job/", sep="' ")
+	curl.string<-paste(curl.string, jobName, sep="")
 	res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
 	res
 }
