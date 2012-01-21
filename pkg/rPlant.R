@@ -217,7 +217,8 @@ app.info<-function(user.name, token, application){
 	res
 }
 
-#submit a job using an existing application -- works!!
+#submit a job using an existing application -- works!! (I tried to minimize the input by the user here. Will need more works
+#at customizing as we move forward:
 job.submit<-function(user.name, token, application, inputSeqs, jobName, nprocs){
 	curl.string<-"curl -X POST -sku"
 	curl.string<-paste(curl.string, user.name, sep=" '")
@@ -239,11 +240,19 @@ job.submit<-function(user.name, token, application, inputSeqs, jobName, nprocs){
 	curl.string<-paste(curl.string, "&outputFormat=fasta&mode=auto", sep="")
 	curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/job", sep="' ")
 	res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
-
+	#Verbose output at this point. Status is a must, but everything else seems worth outputting as well
 	res
 }
 
-
+job.status<-function(user.name, token, jobName){
+	curl.string<-"curl -X GET -sku"
+	curl.string<-paste(curl.string, user.name, sep=" '")
+	curl.string<-paste(curl.string, token, sep=":")
+	curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/job", sep="' ")
+	curl.string<-paste(curl.string, jobName, sep="/")
+	res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
+	res
+}
 
 #NOTES:
 #Goal to login, upload a file, run muscle, and suck it back up in R, possibly even run a quick parsimony run to show how we can
