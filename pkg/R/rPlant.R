@@ -2,58 +2,49 @@ require(rjson)
 
 ##########################################AUTHENTICATION FUNCTIONS###########################################
 #a function for obtaining a token -- works!!
-token.get<-function(user.name, user.pwd, API=c("iplant", "cipres", "tnrs")){
+token.get<-function(user.name, user.pwd, API=match.arg("iPlant, cipres, TNRS")){
 	#Pastes together the string used to call a token -- not optimal, but easier to edit:
-	if (is.character(API)) {
-		if (API=="iplant") {
-			curl.string<-"curl -X POST -sku" 
-			curl.string<-paste(curl.string, user.name, sep=" '")
-			curl.string<-paste(curl.string, user.pwd, sep=":")
-			#Is the url always going to be the one used here?
-			curl.string<-paste(curl.string, "https://foundation.iplantc.org/auth-v1/", sep="' ")
-			res<-fromJSON(system(curl.string,intern=TRUE))
-			#Seems like the token is the only thing of interest to output:
-			return(res$result$token)
-		}
-		else {
-			warning("Not yet implemented")
-		}
+	if (API=="iPlant") {
+		curl.string<-"curl -X POST -sku" 
+		curl.string<-paste(curl.string, user.name, sep=" '")
+		curl.string<-paste(curl.string, user.pwd, sep=":")
+		#Is the url always going to be the one used here?
+		curl.string<-paste(curl.string, "https://foundation.iplantc.org/auth-v1/", sep="' ")
+		res<-fromJSON(system(curl.string,intern=TRUE))
+		#Seems like the token is the only thing of interest to output:
+		return(res$result$token)
+	}
+	else {
+		warning("Not yet implemented")
 	}
 }
 
 #a function for renewing a token -- works!!
-token.renew<-function(user.name, user.pwd, token, API=c("iplant", "cipres", "tnrs")){
+token.renew<-function(user.name, user.pwd, token){
 	#Pastes together the string used to renew a token.
 	#Seems clunky like this, but only way to incorporate user-supplied arguments:
-	if (is.character(API)) {
-		if (API=="iplant") {
-			curl.string<-"curl -X POST -sku" 
-			curl.string<-paste(curl.string, user.name, sep=" '")
-			curl.string<-paste(curl.string, user.pwd, sep=":")
-			curl.string<-paste(curl.string, "-d 'token=", sep="' ")
-			curl.string<-paste(curl.string, token, sep="")
-			#Is the url always going to be the one used here?
-			curl.string<-paste(curl.string, "https://foundation.iplantc.org/auth-v1/renew", sep="' ")
-			res<-fromJSON(system(curl.string,intern=TRUE))		
-			#Outputs a message of whether or not renewal was a success:
-			res$status
-		}
-		else {
-			warning("Not yet implemented")
-		}
-	}
+	curl.string<-"curl -X POST -sku" 
+	curl.string<-paste(curl.string, user.name, sep=" '")
+	curl.string<-paste(curl.string, user.pwd, sep=":")
+	curl.string<-paste(curl.string, "-d 'token=", sep="' ")
+	curl.string<-paste(curl.string, token, sep="")
+	#Is the url always going to be the one used here?
+	curl.string<-paste(curl.string, "https://foundation.iplantc.org/auth-v1/renew", sep="' ")
+	res<-fromJSON(system(curl.string,intern=TRUE))		
+	#Outputs a message of whether or not renewal was a success:
+	res$status
 }
 ##############################################################################################################
 
 
 ############################################FILE AND DATA FUNCTIONS###########################################
 #a function for uploading a file -- works!!
-file.upload<-function(user.name, token, file2upload, fileType){
+file.upload<-function(user.name, token, fileToUpload, fileType){
 	curl.string<-"curl -sku"
 	curl.string<-paste(curl.string, user.name, sep=" '")
 	curl.string<-paste(curl.string, token, sep=":")
 	curl.string<-paste(curl.string, "-F 'fileToUpload=", sep="' ")
-	curl.string<-paste(curl.string, file2upload, sep="@")
+	curl.string<-paste(curl.string, fileToUpload, sep="@")
 	curl.string<-paste(curl.string, "-F 'fileType=", sep="' ")
 	curl.string<-paste(curl.string, fileType, sep="")
 	curl.string<-paste(curl.string, "https://foundation.iplantc.org/io-v1/io/", sep="' ")
@@ -80,13 +71,13 @@ file.rename<-function(user.name, token, oldName, newName){
 }
 
 #move a file -- works!!
-file.move<-function(user.name, token, fileName, path2newdir){
+file.move<-function(user.name, token, fileName, path2directory){
 	curl.string<-"curl -sku"
 	curl.string<-paste(curl.string, user.name, sep=" '")
 	curl.string<-paste(curl.string, token, sep=":")	
 	curl.string<-paste(curl.string, "-X PUT -d 'newPath=", sep="' ")
 	curl.string<-paste(curl.string, user.name, sep="")
-	curl.string<-paste(curl.string, path2newdir, sep="/")
+	curl.string<-paste(curl.string, path2directory, sep="/")
 	curl.string<-paste(curl.string, fileName, sep="/")
 	curl.string<-paste(curl.string, "&action=move", sep="")
 	curl.string<-paste(curl.string, "https://foundation.iplantc.org/io-v1/io", sep="' ")
@@ -98,34 +89,19 @@ file.move<-function(user.name, token, fileName, path2newdir){
 }
 
 #delete a file -- works!!
-file.delete<-function(user.name, token, file2delete){
+file.delete<-function(user.name, token, fileDeleted){
 	curl.string<-"curl -sku"
 	curl.string<-paste(curl.string, user.name, sep=" '")
 	curl.string<-paste(curl.string, token, sep=":")	
 	curl.string<-paste(curl.string, "-X DELETE", sep="' ")
 	curl.string<-paste(curl.string, "https://foundation.iplantc.org/io-v1/io", sep=" ")
 	curl.string<-paste(curl.string, user.name, sep="/")
-	curl.string<-paste(curl.string,	file2delete, sep="/")
+	curl.string<-paste(curl.string,	fileDeleted, sep="/")
 	res<-fromJSON(system(curl.string,intern=TRUE))
 	#Should output a status saying "success" or "error"
 	res$status
 }
 
-#lists the supported file types -- does not work! It should. 
-file.support<-function(user.name, token){
-	curl.string<-"curl -X GET -sku"
-	curl.string<-paste(curl.string, user.name, sep=" '")
-	curl.string<-paste(curl.string, token, sep=":")
-	curl.string<-paste(curl.string, "https://foundation.iplantc.org/data-v1/data/tranforms", sep="' ")
-	res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
-	
-	res
-}
-
-##############################################################################################################
-
-
-##############################################DIRECTORY FUNCTIONS#############################################
 #list a directory -- works!!
 list.dir<-function(user.name, token, path2directory=NULL){
 	if(is.null(path2directory)){
@@ -188,18 +164,43 @@ make.dir<-function(user.name, token, newDirect, sub.dir=FALSE, path2parent=NULL)
 }
 
 #delete a (sub)directory -- works!!
-delete.dir<-function(user.name, token, delDirect){
-	#if NULL then directory to be deleted is in the parent directory
-	curl.string<-"curl -sku"
-	curl.string<-paste(curl.string, user.name, sep=" '")
-	curl.string<-paste(curl.string, token, sep=":")
-	curl.string<-paste(curl.string, "-X DELETE", sep="' ")
-	curl.string<-paste(curl.string, "https://foundation.iplantc.org/io-v1/io/", sep=" ")
-	curl.string<-paste(curl.string, user.name, sep="")
-	curl.string<-paste(curl.string, delDirect, sep="/")
-	res<-fromJSON(system(curl.string,intern=TRUE))
+delete.dir<-function(user.name, token, dirDelete, path2directory=NULL){
+	if(is.null(path2directory)){
+		#if NULL then directory to be deleted is in the parent directory
+		curl.string<-"curl -sku"
+		curl.string<-paste(curl.string, user.name, sep=" '")
+		curl.string<-paste(curl.string, token, sep=":")
+		curl.string<-paste(curl.string, "-X DELETE", sep="' ")
+		curl.string<-paste(curl.string, "https://foundation.iplantc.org/io-v1/io/", sep=" ")
+		curl.string<-paste(curl.string, user.name, sep="")
+		curl.string<-paste(curl.string, dirDelete, sep="/")
+		res<-fromJSON(system(curl.string,intern=TRUE))
+	}
+	else{
+		#else then directory to be deleted is nested somewhere in the parent directory, user-supplies the path:
+		curl.string<-"curl -sku"
+		curl.string<-paste(curl.string, user.name, sep=" '")
+		curl.string<-paste(curl.string, token, sep=":")
+		curl.string<-paste(curl.string, "-X DELETE", sep="' ")
+		curl.string<-paste(curl.string, "https://foundation.iplantc.org/io-v1/io/", sep=" ")
+		curl.string<-paste(curl.string, user.name, sep="")
+		curl.string<-paste(curl.string, path2directory, sep="/")
+		curl.string<-paste(curl.string, dirDelete, sep="/")
+		res<-fromJSON(system(curl.string,intern=TRUE))
+	}
 	#Output should be a JSON listing all the items in the directory of interest:
 	res$status
+}
+
+#lists the supported file types -- does not work! It should. 
+filetype.support<-function(user.name, token){
+	curl.string<-"curl -X GET -sku"
+	curl.string<-paste(curl.string, user.name, sep=" '")
+	curl.string<-paste(curl.string, token, sep=":")
+	curl.string<-paste(curl.string, "https://foundation.iplantc.org/data-v1/data/tranforms", sep="' ")
+	res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
+	
+	res
 }
 ##############################################################################################################
 
@@ -249,7 +250,7 @@ job.submit<-function(user.name, token, application, path2inputSeqs, jobName, npr
 	curl.string<-paste(curl.string, application, sep="")
 	curl.string<-paste(curl.string, "&archive=1", sep="")
 	curl.string<-paste(curl.string, "&inputSeqs=", sep="")
-	curl.string<-paste(curl.string, path2inputSeqs, sep="")
+	curl.string<-paste(curl.string, inputSeqs, sep="")
 	curl.string<-paste(curl.string, "&processorCount=", sep="")
 	curl.string<-paste(curl.string, nprocs, sep="")
 	curl.string<-paste(curl.string, "&archivePath=", sep="")
@@ -293,14 +294,14 @@ job.delete<-function(user.name, token, jobID){
 }
 
 #retrieves a file from the archive directory -- Does not work. Sent email to Matt Vaughn (1.21.12)
-job.retrieve<-function(user.name, token, jobID, file2retrieve){
+job.retrieve<-function(user.name, token, jobID, fileRetrieve){
 	curl.string<-"curl -X POST -sku"
 	curl.string<-paste(curl.string, user.name, sep=" '")
 	curl.string<-paste(curl.string, token, sep=":")
 	curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/job/", sep="' ")
 	curl.string<-paste(curl.string, jobID, sep="")
 	curl.string<-paste(curl.string, "output", sep="/")
-	curl.string<-paste(curl.string, file2retrieve, sep="/")
+	curl.string<-paste(curl.string, fileRetrieve, sep="/")
 	res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
 	res	
 }
