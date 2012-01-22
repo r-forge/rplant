@@ -1,9 +1,9 @@
 require(rjson)
 
+##########################################AUTHENTICATION FUNCTIONS###########################################
 #a function for obtaining a token -- works!!
 token.get<-function(user.name, user.pwd, API=match.arg("iPlant, cipres, TNRS")){
-	#Pastes together the string used to call a token:
-	#Seems clunky like this, but only way to incorporate user-supplied arguments.
+	#Pastes together the string used to call a token -- not optimal, but easier to edit:
 	if (API=="iPlant") {
 		curl.string<-"curl -X POST -sku" 
 		curl.string<-paste(curl.string, user.name, sep=" '")
@@ -34,7 +34,10 @@ token.renew<-function(user.name, user.pwd, token){
 	#Outputs a message of whether or not renewal was a success:
 	res$status
 }
+##############################################################################################################
 
+
+############################################FILE AND DATA FUNCTIONS###########################################
 #a function for uploading a file -- works!!
 file.upload<-function(user.name, token, fileToUpload, fileType){
 	curl.string<-"curl -sku"
@@ -99,6 +102,37 @@ file.delete<-function(user.name, token, fileDeleted){
 	res$status
 }
 
+#list a directory -- works!!
+list.dir<-function(user.name, token, path2directory=NULL){
+	if(is.null(path2directory)){
+		#if path2directory is NULL then you only want to list the items in the root directory:
+		curl.string<-"curl -sku"
+		curl.string<-paste(curl.string, user.name, sep=" '")
+		curl.string<-paste(curl.string, token, sep=":")
+		curl.string<-paste(curl.string, "https://foundation.iplantc.org/io-v1/io/list/", sep="' ")
+		curl.string<-paste(curl.string, user.name, sep="")
+		tmp<-fromJSON(system(curl.string,intern=TRUE))
+	}
+	else{
+		#else, you want to list some directory contained within the root, which you need to supply the path:
+		curl.string<-"curl -sku"
+		curl.string<-paste(curl.string, user.name, sep=" '")
+		curl.string<-paste(curl.string, token, sep=":")
+		curl.string<-paste(curl.string, "https://foundation.iplantc.org/io-v1/io/list/", sep="' ")
+		curl.string<-paste(curl.string, user.name, sep="")
+		curl.string<-paste(curl.string, path2directory, sep="/")
+		tmp<-fromJSON(system(curl.string,intern=TRUE))
+	}
+	#Output should be a JSON listing all the items in the directory of interest, I modified to just output name and filetype
+	res<-matrix(,length(tmp$result),2)
+	colnames(res)<-c("name", "type")
+	for (i in 1:length(tmp$result)){
+		res[i,1]<-tmp$result[[i]]$name
+		res[i,2]<-tmp$result[[i]]$type
+	}
+	res
+}
+
 #make a directory -- works!!
 make.dir<-function(user.name, token, newDirect, sub.dir=FALSE, path2parent=NULL){
 	if(sub.dir==FALSE){
@@ -127,37 +161,6 @@ make.dir<-function(user.name, token, newDirect, sub.dir=FALSE, path2parent=NULL)
 		res<-fromJSON(system(curl.string,intern=TRUE))
 	}
 	res$status
-}
-
-#list a directory -- works!!
-list.dir<-function(user.name, token, path2directory=NULL){
-	if(is.null(path2directory)){
-	#if path2directory is NULL then you only want to list the items in the root directory:
-		curl.string<-"curl -sku"
-		curl.string<-paste(curl.string, user.name, sep=" '")
-		curl.string<-paste(curl.string, token, sep=":")
-		curl.string<-paste(curl.string, "https://foundation.iplantc.org/io-v1/io/list/", sep="' ")
-		curl.string<-paste(curl.string, user.name, sep="")
-		tmp<-fromJSON(system(curl.string,intern=TRUE))
-	}
-	else{
-	#else, you want to list some directory contained within the root, which you need to supply the path:
-		curl.string<-"curl -sku"
-		curl.string<-paste(curl.string, user.name, sep=" '")
-		curl.string<-paste(curl.string, token, sep=":")
-		curl.string<-paste(curl.string, "https://foundation.iplantc.org/io-v1/io/list/", sep="' ")
-		curl.string<-paste(curl.string, user.name, sep="")
-		curl.string<-paste(curl.string, path2directory, sep="/")
-		tmp<-fromJSON(system(curl.string,intern=TRUE))
-	}
-	#Output should be a JSON listing all the items in the directory of interest:
-	res<-matrix(,length(tmp$result),2)
-	colnames(res)<-c("name", "type")
-	for (i in 1:length(tmp$result)){
-		res[i,1]<-tmp$result[[i]]$name
-		res[i,2]<-tmp$result[[i]]$type
-	}
-	res
 }
 
 #delete a (sub)directory -- works!!
@@ -189,6 +192,20 @@ delete.dir<-function(user.name, token, dirDelete, path2directory=NULL){
 	res$status
 }
 
+#lists the supported file types -- does not work! It should. 
+filetype.support<-function(user.name, token){
+	curl.string<-"curl -X GET -sku"
+	curl.string<-paste(curl.string, user.name, sep=" '")
+	curl.string<-paste(curl.string, token, sep=":")
+	curl.string<-paste(curl.string, "https://foundation.iplantc.org/data-v1/data/tranforms", sep="' ")
+	res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
+	
+	res
+}
+##############################################################################################################
+
+
+#############################################APPLICATION FUNCTIONS############################################
 #provides a list of applications owned or shared with user -- works!!
 app.list<-function(user.name, token){
 	curl.string<-"curl -sku"
@@ -205,7 +222,7 @@ app.list<-function(user.name, token){
 	res
 }
 
-#provides information regarding an application:
+#provides information regarding an application -- works!!
 app.info<-function(user.name, token, application){
 	curl.string<-"curl -X GET -sku"
 	curl.string<-paste(curl.string, user.name, sep=" '")
@@ -216,10 +233,14 @@ app.info<-function(user.name, token, application){
 	#This needs to be cleaned up. I think the relevant info is a) inputs, b) possible input parameters, and c) outputs:
 	res
 }
+##############################################################################################################
 
-#submit a job using an existing application -- works!! (I tried to minimize the input by the user here. Will need more work
-#at customizing as we move forward:
-job.submit<-function(user.name, token, application, inputSeqs, jobName, nprocs){
+
+#################################################JOB FUNCTIONS################################################
+
+#submit a job using an existing application -- works!! (I tried to minimize the input by the user here.). And yes,
+#the 'ransom note' code here is not optimal, but it works and it is easy for me to edit:
+job.submit<-function(user.name, token, application, path2inputSeqs, jobName, nprocs){
 	curl.string<-"curl -X POST -sku"
 	curl.string<-paste(curl.string, user.name, sep=" '")
 	curl.string<-paste(curl.string, token, sep=":")
@@ -236,7 +257,7 @@ job.submit<-function(user.name, token, application, inputSeqs, jobName, nprocs){
 	curl.string<-paste(curl.string, user.name, sep="/")
 	curl.string<-paste(curl.string, "analyses", sep="/")
 	curl.string<-paste(curl.string, jobName, sep="/")
-	curl.string<-paste(curl.string, "&requestedTime=01:00:00", sep="")
+	curl.string<-paste(curl.string, "&requestedTime=24:00:00", sep="")
 	curl.string<-paste(curl.string, "&outputFormat=fasta&mode=auto", sep="")
 	curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/job", sep="' ")
 	res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
@@ -258,7 +279,7 @@ job.status<-function(user.name, token, jobID){
 	curl.string<-paste(curl.string, jobID, sep="")
 	res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
 	#Need to fix output. Not sure if result$status is from the submission or the status of the job: 
-	res
+	res$result$status
 }
 
 #delete the status of a job using the jobID from jobSubmit -- works!!
@@ -272,7 +293,7 @@ job.delete<-function(user.name, token, jobID){
 	res
 }
 
-#retrieves a file from the archive directory (does not work):
+#retrieves a file from the archive directory -- Does not work. Sent email to Matt Vaughn (1.21.12)
 job.retrieve<-function(user.name, token, jobID, fileRetrieve){
 	curl.string<-"curl -X POST -sku"
 	curl.string<-paste(curl.string, user.name, sep=" '")
@@ -284,7 +305,6 @@ job.retrieve<-function(user.name, token, jobID, fileRetrieve){
 	res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
 	res	
 }
+##############################################################################################################
 
-#NOTES:
-#Goal to login, upload a file, run muscle, and suck it back up in R, possibly even run a quick parsimony run to show how we can
-#interface between the two platforms.
+
