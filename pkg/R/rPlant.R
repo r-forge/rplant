@@ -257,6 +257,8 @@ job.submit<-function(user.name, token, application, path2inputSeqs, jobName, npr
 	curl.string<-paste(curl.string, "&requestedTime=24:00:00", sep="")
 	curl.string<-paste(curl.string, "&outputFormat=fasta&mode=auto", sep="")
 	curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/job", sep="' ")
+print(curl.string)
+
 	res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
 	#Just a thought I had on the output:
 	if(res$status=="success"){
@@ -265,6 +267,7 @@ job.submit<-function(user.name, token, application, path2inputSeqs, jobName, npr
 	else{
 		cat("Error.", res$message, "\n")
 	}
+	return(res$result$id)
 }
 
 #check the status of a job using the jobID from jobSubmit -- works!!
