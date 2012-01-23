@@ -121,7 +121,6 @@ file.support<-function(user.name, token){
 	
 	res
 }
-
 ##############################################################################################################
 
 
@@ -200,7 +199,6 @@ delete.dir<-function(user.name, token, delDirect){
 	#Output should be a JSON listing all the items in the directory of interest:
 	res$status
 }
-
 ##############################################################################################################
 
 
@@ -277,7 +275,7 @@ job.status<-function(user.name, token, jobID){
 	curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/job/", sep="' ")
 	curl.string<-paste(curl.string, jobID, sep="")
 	res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
-	#Need to fix output. Not sure if result$status is from the submission or the status of the job: 
+
 	res$result$status
 }
 
