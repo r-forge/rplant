@@ -1,11 +1,11 @@
 require(rjson)
 
 ##########################################AUTHENTICATION FUNCTIONS###########################################
-#a function for obtaining a token -- works!!
 token.get<-function(user.name, user.pwd, API=c("iplant", "cipres", "tnrs")){
-#Pastes together the string used to call a token -- not optimal, but easier to edit:
+#a function for obtaining a token -- works!!
 	if (is.character(API)) {
 		if (API=="iplant") {
+			#Pastes together the string used to call a token -- not optimal, but easier to edit:
 			curl.string<-"curl -X POST -sku" 
 			curl.string<-paste(curl.string, user.name, sep=" '")
 			curl.string<-paste(curl.string, user.pwd, sep=":")
@@ -21,12 +21,12 @@ token.get<-function(user.name, user.pwd, API=c("iplant", "cipres", "tnrs")){
 	}
 }
 
-#a function for renewing a token -- works!!
 token.renew<-function(user.name, user.pwd, token, API=c("iplant", "cipres", "tnrs")){
-	#Pastes together the string used to renew a token.
-	#Seems clunky like this, but only way to incorporate user-supplied arguments:
+#a function for renewing a token -- works!!
 	if (is.character(API)) {
 		if (API=="iplant") {
+			#Pastes together the string used to renew a token.
+			#Seems clunky like this, but only way to incorporate user-supplied arguments:
 			curl.string<-"curl -X POST -sku" 
 			curl.string<-paste(curl.string, user.name, sep=" '")
 			curl.string<-paste(curl.string, user.pwd, sep=":")
@@ -47,8 +47,8 @@ token.renew<-function(user.name, user.pwd, token, API=c("iplant", "cipres", "tnr
 
 
 ############################################FILE AND DATA FUNCTIONS###########################################
-#a function for uploading a file -- works!!
 file.upload<-function(user.name, token, file2upload, fileType){
+#a function for uploading a file -- works!!
 	curl.string<-"curl -sku"
 	curl.string<-paste(curl.string, user.name, sep=" '")
 	curl.string<-paste(curl.string, token, sep=":")
@@ -63,8 +63,8 @@ file.upload<-function(user.name, token, file2upload, fileType){
 	res$status
 }
 
-#a function for uploading a file -- works!!
 file.rename<-function(user.name, token, oldName, newName){
+#a function for uploading a file -- works!!
 	curl.string<-"curl -sku"
 	curl.string<-paste(curl.string, user.name, sep=" '")
 	curl.string<-paste(curl.string, token, sep=":")	
@@ -79,8 +79,8 @@ file.rename<-function(user.name, token, oldName, newName){
 	res$status
 }
 
-#move a file -- works!!
 file.move<-function(user.name, token, fileName, path2newdir){
+#move a file -- works!!
 	curl.string<-"curl -sku"
 	curl.string<-paste(curl.string, user.name, sep=" '")
 	curl.string<-paste(curl.string, token, sep=":")	
@@ -97,8 +97,8 @@ file.move<-function(user.name, token, fileName, path2newdir){
 	res$status
 }
 
-#delete a file -- works!!
 file.delete<-function(user.name, token, file2delete){
+#delete a file -- works!!
 	curl.string<-"curl -sku"
 	curl.string<-paste(curl.string, user.name, sep=" '")
 	curl.string<-paste(curl.string, token, sep=":")	
@@ -111,8 +111,8 @@ file.delete<-function(user.name, token, file2delete){
 	res$status
 }
 
-#lists the supported file types -- does not work! It should. 
 file.support<-function(user.name, token){
+#lists the supported file types -- does not work! It should. 
 	curl.string<-"curl -X GET -sku"
 	curl.string<-paste(curl.string, user.name, sep=" '")
 	curl.string<-paste(curl.string, token, sep=":")
@@ -125,8 +125,8 @@ file.support<-function(user.name, token){
 
 
 ############################################DIRECTORY FUNCTIONS###############################################
-#list a directory -- works!!
 list.dir<-function(user.name, token, path2directory=NULL){
+#list a directory -- works!!
 	if(is.null(path2directory)){
 		#if path2directory is NULL then you only want to list the items in the root directory:
 		curl.string<-"curl -sku"
@@ -156,8 +156,8 @@ list.dir<-function(user.name, token, path2directory=NULL){
 	res
 }
 
-#make a directory -- works!!
 make.dir<-function(user.name, token, newDirect, sub.dir=FALSE, path2parent=NULL){
+#make a directory -- works!!
 	if(sub.dir==FALSE){
 		#if sub.dir is false, then you want to create a main directory:
 		curl.string<-"curl -sku"
@@ -186,8 +186,8 @@ make.dir<-function(user.name, token, newDirect, sub.dir=FALSE, path2parent=NULL)
 	res$status
 }
 
-#delete a (sub)directory -- works!!
 delete.dir<-function(user.name, token, delDirect){
+#delete a (sub)directory -- works!!
 	curl.string<-"curl -sku"
 	curl.string<-paste(curl.string, user.name, sep=" '")
 	curl.string<-paste(curl.string, token, sep=":")
@@ -203,8 +203,8 @@ delete.dir<-function(user.name, token, delDirect){
 
 
 #############################################APPLICATION FUNCTIONS############################################
-#provides a list of applications owned or shared with user -- works!!
 app.list<-function(user.name, token){
+#provides a list of applications owned or shared with user -- works!!
 	curl.string<-"curl -sku"
 	curl.string<-paste(curl.string, user.name, sep=" '")
 	curl.string<-paste(curl.string, token, sep=":")
@@ -219,8 +219,8 @@ app.list<-function(user.name, token){
 	res
 }
 
-#provides information regarding an application -- works!!
 app.info<-function(user.name, token, application){
+#provides information regarding an application -- works!!
 	curl.string<-"curl -X GET -sku"
 	curl.string<-paste(curl.string, user.name, sep=" '")
 	curl.string<-paste(curl.string, token, sep=":")
@@ -235,9 +235,8 @@ app.info<-function(user.name, token, application){
 
 #################################################JOB FUNCTIONS################################################
 
-#submit a job using an existing application -- works!! (I tried to minimize the input by the user here.). And yes,
-#the 'ransom note' code here is not optimal, but it works and it is easy for me to edit:
 job.submit<-function(user.name, token, application, path2inputSeqs, jobName, nprocs){
+#submit a job using an existing application -- works!! (I tried to minimize the input by the user here.). And yes, the 'ransom note' code here is not optimal, but it works and it is easy for me to edit:
 	curl.string<-"curl -X POST -sku"
 	curl.string<-paste(curl.string, user.name, sep=" '")
 	curl.string<-paste(curl.string, token, sep=":")
@@ -270,8 +269,8 @@ print(curl.string)
 	return(res$result$id)
 }
 
-#check the status of a job using the jobID from jobSubmit -- works!!
 job.status<-function(user.name, token, jobID){
+#check the status of a job using the jobID from jobSubmit -- works!!
 	curl.string<-"curl -X GET -sku"
 	curl.string<-paste(curl.string, user.name, sep=" '")
 	curl.string<-paste(curl.string, token, sep=":")
@@ -282,8 +281,8 @@ job.status<-function(user.name, token, jobID){
 	res$result$status
 }
 
-#delete the status of a job using the jobID from jobSubmit -- works!!
 job.delete<-function(user.name, token, jobID){
+#delete the status of a job using the jobID from jobSubmit -- works!!
 	curl.string<-"curl -X DELETE -sku"
 	curl.string<-paste(curl.string, user.name, sep=" '")
 	curl.string<-paste(curl.string, token, sep=":")
@@ -293,17 +292,82 @@ job.delete<-function(user.name, token, jobID){
 	res
 }
 
-#retrieves a file from the archive directory -- Does not work. Sent email to Matt Vaughn (1.21.12)
 job.retrieve<-function(user.name, token, jobID, file2retrieve){
-	curl.string<-"curl -X POST -sku"
-	curl.string<-paste(curl.string, user.name, sep=" '")
-	curl.string<-paste(curl.string, token, sep=":")
-	curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/job/", sep="' ")
-	curl.string<-paste(curl.string, jobID, sep="")
-	curl.string<-paste(curl.string, "output", sep="/")
-	curl.string<-paste(curl.string, file2retrieve, sep="/")
-	res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
-	res	
+#retrieves a file from the archive directory -- Does not work. Sent email to Matt Vaughn (1.21.12)
+#curl -X GET -sku "vaughn:XXXXXX" https://foundation.iplantc.org/io-v1/io/vaughn/analyses/muscle02/muscle-out.txt
+	job.status(user.name, token, jobID)->JS
+	if (JS == "ARCHIVING_FINISHED") {
+		curl.string<-"curl -X GET -sku"
+		curl.string<-paste(curl.string, user.name, sep=" '")
+		curl.string<-paste(curl.string, token, sep=":")
+		curl.string<-paste(curl.string, "https://foundation.iplantc.org/io-v1/io", sep="' ")
+		curl.string<-paste(curl.string, res$result$path, sep="' ")
+		curl.string<-paste(curl.string, jobID, sep="")
+		curl.string<-paste(curl.string, "output", sep="/")
+		curl.string<-paste(curl.string, file2retrieve, sep="/")
+		print(curl.string)
+		res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
+		return (res)
+	}
+	else {
+		warning("Job is ", JS)
+	}	
 }
 ##############################################################################################################
 
+#################################################TNRS FUNCTIONS################################################
+
+resolveNames<-function(names,maxPerCall=100,verbose=TRUE) {
+#takes a list of names and sends it to the iPlant TNRS site (http://tnrs.iplantcollaborative.org/)
+#names<-c("zea mays","acacia","solanum","saltea","rosa_rugoso")
+#returnedNames<-resolveNames(names)
+#print(returnedNames)
+
+  names<-sapply(names,sub,pattern="_",replacement=" ")
+  names<-sapply(names,URLencode)
+  callBase<-'http://tnrs.iplantc.org/tnrsm-svc/matchNames?retrieve=best&names='
+  newNames<-rep(NA,length(names))
+  namesInCall<-0
+  callActual<-callBase
+  startingPosition<-1
+  for (nameIndex in sequence(length(names))) {
+     namesInCall<-namesInCall+1
+     callActual<-paste(callActual,names[nameIndex],",",sep="")
+     if (namesInCall==maxPerCall || nameIndex==length(names)) {
+         returnedValues<-fromJSON(file=callActual)$items
+         for (returnIndex in sequence(length(returnedValues))) {
+            newNames[startingPosition+returnIndex-1]<-returnedValues[[returnIndex]]$nameScientific 
+         }
+         if(verbose) {
+            print(paste("finished ",nameIndex,"of ",length(names),"names")) 
+         }
+         startingPosition<-nameIndex+1
+         namesInCall<-0
+         callActual<-callBase
+     }
+  }
+  print("Ignore a warning message about incomplete final line")
+  if (length(newNames)!=length(names)) {
+    warning(paste("the input name list was",length(names),"long but the new one is ",length(newNames),"long"))
+  }
+  return(newNames)
+}
+
+
+
+compareTNRS<-function(original, TNRS, verbose=TRUE) {
+#takes a list of original taxonomic names (same ones given as "names in resolveNames) and compares to the returned names from TNRS
+#note that names are changed back to include an "_" instead of the " " they come with out of TNRS first, so that they do not count as taxonomic name changes
+	d=0
+	names2<-sapply(TNRS, sub, pattern=" ",replacement="_", USE.NAMES=F)
+	comp<-cbind(original, names2)
+	for (i in 1: dim(comp)[1]){
+		if(comp[i,1] != comp[i,2]){
+			d<-d+1
+			if(verbose){
+				print(paste(comp[i,1], " was changed to ", comp[i,2], cat("\n")))
+			}
+		}
+	}
+	print(paste(d, "taxa changed names according to TNRS"))
+}

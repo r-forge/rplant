@@ -8,12 +8,16 @@ attach(landplant.fasta)  #not working
 install.packages("seqinr")
 library(seqinr)
 read.fasta("/Users/BarbBanbury/Desktop/rplant/pkg/data/landplant.fasta.txt")->landplant.fasta
+attr(landplant.fasta, "name")->l
+resolveNames(l, maxPerCall=100)->k
 
+
+compareTNRS(l, k)
 
 ### Steps to complete MUSCLE job on iplant 
 
 # 1) Enter iPlant ID
-user.name="####"
+user.name="bbanbury"
 
 # 2) Authenticate user on iPlant, receive token for working locally or renew a token 
 token.get(user.name=user.name, user.pwd ="####", API="iplant")->token
@@ -40,6 +44,7 @@ job.status(user.name=user.name, token=token, jobID=myJob)
 
 #retreive results from MUSCLE job
 job.retreive()  #when Matt emails back
+job.retrieve(user.name=user.name, token=token, jobID=myJob, file2retrieve=NA)
 
 #Mistakes can be easily fixed by renaming files and deleting files, directories, or jobs
 file.rename(user.name=user.name, token=token, oldName="/rplant-MUSCLE/landplant.fasta.txt", newName="/rplant-MUSCLE/landplant.fasta")  
