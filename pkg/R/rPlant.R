@@ -269,7 +269,7 @@ print(curl.string)
 	return(res$result$id)
 }
 
-job.status<-function(user.name, token, jobID){
+job.status<-function(user.name, token, jobID, verbose=FALSE){
 #check the status of a job using the jobID from jobSubmit -- works!!
 	curl.string<-"curl -X GET -sku"
 	curl.string<-paste(curl.string, user.name, sep=" '")
@@ -277,8 +277,17 @@ job.status<-function(user.name, token, jobID){
 	curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/job/", sep="' ")
 	curl.string<-paste(curl.string, jobID, sep="")
 	res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
-
-	res$result$status
+	if (res$status == "error"){
+		return(paste("Error: ", res$message))
+	}
+	else {
+		if(verbose){
+			return(res)
+		}
+		else{
+			return(res$result$status)
+		}
+	}
 }
 
 job.delete<-function(user.name, token, jobID){
@@ -293,26 +302,64 @@ job.delete<-function(user.name, token, jobID){
 }
 
 job.retrieve<-function(user.name, token, jobID, file2retrieve){
-#retrieves a file from the archive directory -- Does not work. Sent email to Matt Vaughn (1.21.12)
+#retrieves a file from the archive directory -- works!!
 #curl -X GET -sku "vaughn:XXXXXX" https://foundation.iplantc.org/io-v1/io/vaughn/analyses/muscle02/muscle-out.txt
-	job.status(user.name, token, jobID)->JS
-	if (JS == "ARCHIVING_FINISHED") {
+	job.status(user.name, token, jobID, verbose=T)->JS
+	if (JS$res$status == "ARCHIVING_FINISHED") {
 		curl.string<-"curl -X GET -sku"
 		curl.string<-paste(curl.string, user.name, sep=" '")
 		curl.string<-paste(curl.string, token, sep=":")
 		curl.string<-paste(curl.string, "https://foundation.iplantc.org/io-v1/io", sep="' ")
-		curl.string<-paste(curl.string, res$result$path, sep="' ")
-		curl.string<-paste(curl.string, jobID, sep="")
-		curl.string<-paste(curl.string, "output", sep="/")
+		curl.string<-paste(curl.string, JS$result$archivePath, sep="")  #path to results directory
+		#curl.string<-paste(curl.string, "/", jobID, sep="")
+		#curl.string<-paste(curl.string, "output", sep="/")
 		curl.string<-paste(curl.string, file2retrieve, sep="/")
-		print(curl.string)
-		res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
-		return (res)
+		curl.string<-paste(curl.string, "-o", file2retrieve)
+		#print(curl.string)
+		#res2<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
+		res2<-paste(system(curl.string,intern=TRUE),sep="", collapse="")
+		print(paste("Downloaded", file2retrieve, "to", getwd(), "directory"))
 	}
 	else {
 		warning("Job is ", JS)
 	}	
 }
+
+job.output.list<-function(user.name, token, jobID){
+#Lists the output from a given job -- works!!
+	job.status(user.name, token, jobID, verbose=T)->JS
+	if (JS$res$status == "ARCHIVING_FINISHED") {
+		curl.string<-"curl -X GET -sku"
+		curl.string<-paste(curl.string, user.name, sep=" '")
+		curl.string<-paste(curl.string, token, sep=":")
+		curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/job/", sep="' ")
+		#curl.string<-paste(curl.string, res$result$path, sep="' ")  #add path after res here
+		curl.string<-paste(curl.string, jobID, sep="")
+		curl.string<-paste(curl.string, "output/list", sep="/")
+		#print(curl.string)
+		res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
+		print(paste("There are ", length(res$result), "output files"))
+		for(i in 1:length(res$result)){
+			print(res$result[[i]]$name)
+		}
+	}
+	else {
+		warning("Job is ", JS)
+	}	
+}
+
+
+job.history<-function(user.name, token){
+#List of jobs -- NOT working!!  
+	curl.string<-"curl -X GET -sku"
+	curl.string<-paste(curl.string, user.name, sep=" '")
+	curl.string<-paste(curl.string, token, sep=":")
+	curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/job/", sep="' ")
+	print(curl.string)
+	res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
+	return(res)
+}
+
 ##############################################################################################################
 
 #################################################TNRS FUNCTIONS################################################
