@@ -17,11 +17,11 @@ compareTNRS(l, k)
 ### Steps to complete MUSCLE job on iplant 
 
 # 1) Enter iPlant ID
-user.name="bbanbury"
+user.name="XXXX"
 
 # 2) Authenticate user on iPlant, receive token for working locally or renew a token 
-token.get(user.name=user.name, user.pwd ="####", API="iplant")->token
-token.renew(user.name=user.name, user.pwd ="####", token=token, API="iplant")
+token.get(user.name=user.name, user.pwd ="XXXX", API="iplant")->token
+token.renew(user.name=user.name, user.pwd ="XXXX", token=token, API="iplant")
 
 # 3) List what files are already available in the Data Store directory
 list.dir(user.name=user.name, token=token)
@@ -43,8 +43,8 @@ job.submit(user.name=user.name, token=token, application="muscle-ranger-2.0", pa
 job.status(user.name=user.name, token=token, jobID=myJob)
 
 #retreive results from MUSCLE job
-job.retreive()  #when Matt emails back
-job.retrieve(user.name=user.name, token=token, jobID=myJob, file2retrieve=NA)
+job.output.list(user.name=user.name, token=token, jobID=myJob)  #when Matt emails back
+job.retrieve(user.name=user.name, token=token, jobID=myJob, file2retrieve="XXXX")
 
 #Mistakes can be easily fixed by renaming files and deleting files, directories, or jobs
 file.rename(user.name=user.name, token=token, oldName="/rplant-MUSCLE/landplant.fasta.txt", newName="/rplant-MUSCLE/landplant.fasta")  
