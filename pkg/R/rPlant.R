@@ -303,7 +303,6 @@ job.delete<-function(user.name, token, jobID){
 
 job.retrieve<-function(user.name, token, jobID, file2retrieve){
 #retrieves a file from the archive directory -- works!!
-#curl -X GET -sku "vaughn:XXXXXX" https://foundation.iplantc.org/io-v1/io/vaughn/analyses/muscle02/muscle-out.txt
 	job.status(user.name, token, jobID, verbose=T)->JS
 	if (JS$res$status == "ARCHIVING_FINISHED") {
 		curl.string<-"curl -X GET -sku"
@@ -311,12 +310,8 @@ job.retrieve<-function(user.name, token, jobID, file2retrieve){
 		curl.string<-paste(curl.string, token, sep=":")
 		curl.string<-paste(curl.string, "https://foundation.iplantc.org/io-v1/io", sep="' ")
 		curl.string<-paste(curl.string, JS$result$archivePath, sep="")  #path to results directory
-		#curl.string<-paste(curl.string, "/", jobID, sep="")
-		#curl.string<-paste(curl.string, "output", sep="/")
 		curl.string<-paste(curl.string, file2retrieve, sep="/")
 		curl.string<-paste(curl.string, "-o", file2retrieve)
-		#print(curl.string)
-		#res2<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
 		res2<-paste(system(curl.string,intern=TRUE),sep="", collapse="")
 		print(paste("Downloaded", file2retrieve, "to", getwd(), "directory"))
 	}
@@ -365,39 +360,39 @@ job.history<-function(user.name, token){
 #################################################TNRS FUNCTIONS################################################
 
 resolveNames<-function(names,maxPerCall=100,verbose=TRUE) {
-#takes a list of names and sends it to the iPlant TNRS site (http://tnrs.iplantcollaborative.org/)
-#names<-c("zea mays","acacia","solanum","saltea","rosa_rugoso")
-#returnedNames<-resolveNames(names)
-#print(returnedNames)
-
-  names<-sapply(names,sub,pattern="_",replacement=" ")
-  names<-sapply(names,URLencode)
-  callBase<-'http://tnrs.iplantc.org/tnrsm-svc/matchNames?retrieve=best&names='
-  newNames<-rep(NA,length(names))
-  namesInCall<-0
-  callActual<-callBase
-  startingPosition<-1
-  for (nameIndex in sequence(length(names))) {
-     namesInCall<-namesInCall+1
-     callActual<-paste(callActual,names[nameIndex],",",sep="")
-     if (namesInCall==maxPerCall || nameIndex==length(names)) {
-         returnedValues<-fromJSON(file=callActual)$items
-         for (returnIndex in sequence(length(returnedValues))) {
-            newNames[startingPosition+returnIndex-1]<-returnedValues[[returnIndex]]$nameScientific 
-         }
-         if(verbose) {
-            print(paste("finished ",nameIndex,"of ",length(names),"names")) 
-         }
-         startingPosition<-nameIndex+1
-         namesInCall<-0
-         callActual<-callBase
-     }
-  }
-  print("Ignore a warning message about incomplete final line")
-  if (length(newNames)!=length(names)) {
-    warning(paste("the input name list was",length(names),"long but the new one is ",length(newNames),"long"))
-  }
-  return(newNames)
+	#takes a list of names and sends it to the iPlant TNRS site (http://tnrs.iplantcollaborative.org/)
+	#names<-c("zea mays","acacia","solanum","saltea","rosa_rugoso")
+	#returnedNames<-resolveNames(names)
+	#print(returnedNames)
+	names<-sapply(names,sub,pattern="_",replacement=" ")
+	names<-sapply(names,URLencode)
+	callBase<-'http://tnrs.iplantc.org/tnrsm-svc/matchNames?retrieve=best&names='
+	newNames<-rep(NA,length(names))
+	namesInCall<-0
+	callActual<-callBase
+	startingPosition<-1
+	for (nameIndex in sequence(length(names))) {
+		namesInCall<-namesInCall+1
+		callActual<-paste(callActual,names[nameIndex],",",sep="")
+		if (namesInCall==maxPerCall || nameIndex==length(names)) {
+			returnedValues<-fromJSON(file=callActual)$items
+			for (returnIndex in sequence(length(returnedValues))) {
+				newNames[startingPosition+returnIndex-1]<-returnedValues[[returnIndex]]$nameScientific 
+			}
+			if(verbose) {
+				print(paste("finished ",nameIndex,"of ",length(names),"names")) 
+			}
+			startingPosition<-nameIndex+1
+			namesInCall<-0
+			callActual<-callBase
+		}
+	}
+	print("Ignore a warning message about incomplete final line")
+	if (length(newNames)!=length(names)) {
+		warning(paste("the input name list was",length(names),"long but the new one is ",length(newNames),"long"))
+	}
+	newNames<-sapply(newNames, sub, pattern=" ",replacement="_", USE.NAMES=F)
+	return(newNames)
 }
 
 
