@@ -41,11 +41,10 @@ file.delete(user.name=user.name, token=token, file2delete="/rplant/landplant.fas
 delete.dir(user.name=user.name, token=token, delDirect="/rplant")
 job.delete(user.name=user.name, token=token, jobID=myJob)
 
-### (5) Gat NJ tree
-#read.fasta("/Users/Barb/Desktop/rplant/pkg/data/")->landplant.fasta  #read in .aln file
-#read.dna("~/Desktop/rplant/pkg/data/", format="fasta", as.matrix=T)->l  #makes into a table
-#dist.dna()
-#nj()
+### (5) Calculate N-J start tree
+read.alignment("/Users/BarbBanbury/psba.cln.aln", format="fasta")->landplant.aligned  #Load aligned sequences
+as.matrix(dist.alignment(landplant.aligned, matrix="similarity"))->dist.matrix  #Calculate distances
+nj(dist.matrix)->landplant.startTree  #Quick neighbor-joining tree
 
 
 
