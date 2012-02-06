@@ -2,11 +2,11 @@
 
 
 ### (1) Install packages and attach data (will only work on the latest version of R)
-install.packages("seqinr")  #package that supports manipulating fasta files
-install.packages("rplant", repos="http://R-Forge.R-project.org", type="source")  #package that interacts with iPlant's API
+#install.packages("seqinr")  #package that supports manipulating fasta files
+#install.packages("rplant", repos="http://R-Forge.R-project.org", type="source")  #package that interacts with iPlant's API
 library(seqinr) 
 library(rplant) 
-source("/Users/Barb/Desktop/rplant/pkg/R/rPlant.R")
+#source("/Users/BarbBanbury/Desktop/rplant/pkg/R/rPlant.R")
 data(landplant.fasta)  #not working
 attach(landplant.fasta)  #not working
 read.fasta("/Users/Barb/Desktop/rplant/pkg/data/landplant.fasta.txt")->landplant.fasta  #read in fasta file
