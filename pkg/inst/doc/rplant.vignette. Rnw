@@ -1,0 +1,49 @@
+\documentclass[a4paper]{article}
+%\VignetteIndexEntry{rPlant User Story: Anna}
+%\VignettePackage{rplant}
+\usepackage{seqinr}
+\usepackage{json}
+
+\newcommand{\code}{\texttt}
+\newcommand{\pkg}{\textsf}
+\newcommand{\rplant}{\pkg{rplant}}
+\newcommand{\seqinr}{\pkg{seqinr}}
+\newcommand{\json}{\pkg{json}}
+
+\author{Barb Banbury}
+\title{Example of how to use rplant: Anna's User Story}
+
+\begin{document}
+
+\maketitle
+
+<<echo=false,quiet=true>>=
+options(width=60)
+@ 
+
+A researcher, Anna, is interested in the diversification of land plants. The analyses she is interested in performing will require a phylogenetic tree. She wants to start her phylogenetic analysis with a start tree, since a phylogenetic analysis with more than19K species will take a while to run, but her sequences are not aligned nor are her species names checked for taxonomic standardization. She already uses R for concatenation and data analysis, and wants to be able to interact with the DE directly from R.
+
+\section{Preparation}
+Anna has a FASTA formatted file with nucleotide sequences she downloaded from NCBI (“landplant.fasta”). In R, she first installs the necessary packages and loads the FASTA file 
+
+<<>>=
+library(rplant) 
+data(landplant.fasta)  #not working
+attach(landplant.fasta)  #not working
+
+#read in fasta file
+read.fasta("/Users/Barb/Desktop/rplant/pkg/data/landplant.fasta.txt")->landplant.fasta  
+#extract species names from fasta file
+attr(landplant.fasta, "name")->speciesNames  
+#Checks species names in the fasta using TNRS
+resolveNames(speciesNames, maxPerCall=100, verbose=F)->TNRSspeciesNames
+#Compares original species names with post-TNRS names
+compareTNRS(speciesNames, TNRSspeciesNames)  
+#Replaces original FASTA species with corrected names
+attr(landplant.fasta, "name")<-TNRSspeciesNames  
+#Writes a fasta file
+write.fasta(landplant.fasta, file="corrected.landplant.fasta")  
+@ 
+
+
+
