@@ -26,24 +26,129 @@ A researcher, Anna, is interested in the diversification of land plants. The ana
 \section{Preparation}
 Anna has a FASTA formatted file with nucleotide sequences she downloaded from NCBI (“landplant.fasta”). In R, she first installs the necessary packages and loads the FASTA file 
 
-<<>>=
+<<eval=FALSE, results=hide>>=
+install.packages("rplant", repos="http://R-Forge.R-project.org", type="source") 
 library(rplant) 
-data(landplant.fasta)  #not working
-attach(landplant.fasta)  #not working
+data(landplant.fasta) 
+attach(landplant.fasta)  
 
 #read in fasta file
-read.fasta("/Users/Barb/Desktop/rplant/pkg/data/landplant.fasta.txt")->landplant.fasta  
+landplant.fasta<-read.fasta("/Users/Barb/Desktop/rplant/pkg/data/landplant.fasta.txt")
 #extract species names from fasta file
-attr(landplant.fasta, "name")->speciesNames  
+speciesNames<-attr(landplant.fasta, "name")  
+@ 
+
+\section{Using {\em rPlant} for TNRS}
+Anna next wants to use iPlant’s Taxonomic Name Resolution Service (TNRS) to make sure the species names on the FASTA are correct. To do this, she can extract species names from the FASTA file and use {/em rPlant’s} function \code{resolveNames()}, which connects to the TNRS API and automatically returns a list of corrected names. Before substituting in the list of new names, she will want to check how many (and potentially which) names have changed using the function \code{compareTNRS()}. 
+
+<<eval=FALSE, results=hide>>=
 #Checks species names in the fasta using TNRS
-resolveNames(speciesNames, maxPerCall=100, verbose=F)->TNRSspeciesNames
+TNRSspeciesNames<-resolveNames(speciesNames, maxPerCall=100, verbose=F)
 #Compares original species names with post-TNRS names
 compareTNRS(speciesNames, TNRSspeciesNames)  
 #Replaces original FASTA species with corrected names
-attr(landplant.fasta, "name")<-TNRSspeciesNames  
+TNRSspeciesNames<-attr(landplant.fasta, "name")
 #Writes a fasta file
 write.fasta(landplant.fasta, file="corrected.landplant.fasta")  
-@ 
+@
+
+Of the 19K species in her FASTA file, more than 2000 have changed names.  Anna can review which species names have changed, if she has concern using /code{verbose=TRUE}.
+
+\section{Using {\em rPlant} with the DE}
+Next Anna wants to align her sequences using MUSCLE via iPlant’s cyberinfrastructure. To access iPlant’s computing resources, Anna will need to be authenticated using her iPlant username and password (token.get()). Once she has a token, she can use {/em rPlant’s} functions to view the contents of her user directory in the Data Store (/code{list.dir()}), make or delete directories (/code{make.dir()}, /code{delete.dir())}, and upload, move, rename, or delete files (/code{file.upload()}, /code{file.move()}, /code{file.rename()}, /code{file.delete()}). Using these functions, Anna can upload her corrected FASTA file to a new working subdirectory. She can then submit her MUSCLE job to the cluster using the function /code{job.submit()}, which returns the job’s ID when successful. 
+
+<<eval=FALSE, results=hide>>=
+#Authenticate user on iPlant and receive token to work locally
+token.get(user.name, user.pwd, API="iplant")->token  
+#Renew token 
+token.renew(user.name, user.pwd, token, API="iplant")
+#List files in user directory
+list.dir(user.name, token) 
+#Upload a fasta formatted file (other supported file types can be found using file.support())
+file.upload(user.name, token, file2upload="corrected.landplant.fasta", fileType="FASTA-0")  
+#Make a new working directory in the DE
+make.dir(user.name, token, newDirect="rplant") 
+#Move the fasta file inside
+file.move(user.name, token, fileName="landplant.fasta", path2newdir="/rplant")  
+#List files in new subdirectory
+list.dir(user.name, token, path2directory="/rplant") 
+#Make sure that MUSCLE is loaded onto the iplant cluster
+app.list(user.name, token)  
+#List any aplication information
+app.info(user.name=user.name, token=token, application="muscle-ranger-2.0")  
+#Submit MUSCLE job
+myJob<-job.submit(user.name, token, application="muscle-ranger-2.0", path2inputSeqs="/<user.name>/rplant/corrected.landplant.fasta", jobName="MUSCLE", nprocs="1")  
+@
+
+Once the job is successfully submitted to the cluster, Anna can use /code{job.status()} to check the status of a job. This will return a single line with "QUEUEING", "RUNNING", "ARCHIVING_FINISHED", etc, unless /code{verbose=TRUE}. Anna can check and download the available output files (/code{job.output.list()}, /code{job.retrieve()}) once the job.status="ARCHIVING_FINISHED". 
+
+<<eval=FALSE, results=hide>>=
+#Check job status
+job.status(user.name, token, jobID=myJob) 
+#Once a job is complete, this will list output files
+job.output.list(user.name, token, jobID=myJob)  
+#Retreives file for downloading
+job.retrieve(user.name, token, jobID=myJob, file2retrieve="/rplant/landplant.fasta.aln") 
+@
+
+If Anna makes any mistakes along the way, several {/em rPlant} functions will help her delete or rename files, direcoties, or jobs.  
+
+<<eval=FALSE, results=hide>>=
+file.rename(user.name, token, oldName="/rplant-MUSCLE/landplant.fasta.txt", newName="/rplant-MUSCLE/landplant.fasta")  
+file.delete(user.name, token, file2delete="/rplant/landplant.fasta.txt")
+delete.dir(user.name, token, delDirect="/rplant")
+job.delete(user.name, token, jobID=myJob)
+@
+
+\section{Gatting a NJ tree}
+Once Anna has the alignment file, she can easily calculate a start tree for her analysis. 
+
+<<eval=FALSE, results=hide>>=
+#Load aligned sequences
+landplant.aligned<-read.alignment("/Users/BarbBanbury/psba.cln.aln", format="fasta")
+#Calculate distances
+dist.matrix<-as.matrix(dist.alignment(landplant.aligned, matrix="similarity")) 
+#Quick neighbor-joining tree
+landplant.startTree<-nj(dist.matrix)  
+@
+
+/section {Parallelization}
+One of the most powerful features of {/em rPlant} is its ability to parallelize jobs. For Anna’s example, this could mean multiple gene alignments. For what would be many repetitive clicks through the online GUI’s, {/em rPlant} is able to wrap in a loop that adds a total of five lines of code regardless of the number of genes. Furthermore, after executing a simple R script, {/em rPlant} will automatically check for job status updates and download results when they are complete. This drastically reduces user input and wait times. 
+
+<<eval=FALSE, results=hide>>=
+library(rplant) 
+token<-token.get(user.name, user.pwd, API="iplant")
+
+myFiles<-system("ls Gene*",intern=TRUE)
+for(gene in 1:length(myFiles)){
+	myFASTA<-read.fasta(myFiles[gene])
+	TNRSspeciesNames<-resolveNames(attr(myFASTA, "name"), maxPerCall=100)  
+	attr(myFASTA, "name")<-TNRSspeciesNames  
+	newFASTA<-paste("cGene", gene, ".fasta", sep="")
+	write.fasta(myFASTA, file=newFASTA)  
+	file.upload(user.name, token, file2upload=newFASTA, fileType="FASTA-0") 
+	myFile<-paste("/", user.name, "/", newFASTA, sep="")
+	myJob<-job.submit(user.name, token, application="muscle-ranger-2.0", path2inputSeqs=myFile, jobName="MUSCLE", nprocs="1")
+	myJobs<-append(myJobs, myJob)  
+}
+while(length(myJobs)>0) {
+	token.renew(user.name, user.pwd, token, API="iplant")
+	for (jobIndex in 1:length(myJobs)) {
+		if(job.status(user.name, token, jobID=myJob[jobIndex]) == "ARCHIVING_FINISHED"){
+			job.retrieve(user.name, token, jobID=myJob[jobIndex], file2retrieve=paste("cGene", jobIndex, ".aln", sep=""))
+			myJobs<-myJobs[-1*jobIndex]
+		}
+	}
+	Sys.sleep(600)
+}
+@
+
+
+
+
+
+
+
 
 
 
