@@ -353,11 +353,12 @@ job.history<-function(user.name, token, verbose=F){
 	curl.string<-paste(curl.string, user.name, sep=" '")
 	curl.string<-paste(curl.string, token, sep=":")
 	curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/jobs/list", sep="' ")
-	print(curl.string)
+	#print(curl.string)
 	res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
 	for (i in 1: length(res$result)){
 		job<-c(res$result[[i]]$id, res$result[[i]]$software, res$result[[i]]$status)	
-		jobList<-rbind(idList, id)
+		jobList<-rbind(jobList, job)
+		colnames(jobList)<-c("jobID", "application", "status")
 	}
 	if (verbose){
 		return(res)
