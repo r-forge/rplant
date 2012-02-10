@@ -11,6 +11,7 @@ token.get<-function(user.name, user.pwd, API=c("iplant", "cipres", "tnrs")){
 			curl.string<-paste(curl.string, user.pwd, sep=":")
 			#Is the url always going to be the one used here?
 			curl.string<-paste(curl.string, "https://foundation.iplantc.org/auth-v1/", sep="' ")
+			#print(curl.string)
 			res<-fromJSON(system(curl.string,intern=TRUE))
 			#Seems like the token is the only thing of interest to output:
 			return(res$result$token)
@@ -297,6 +298,7 @@ job.delete<-function(user.name, token, jobID){
 	curl.string<-paste(curl.string, token, sep=":")
 	curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/job/", sep="' ")
 	curl.string<-paste(curl.string, jobID, sep="")
+	print(curl.string)
 	res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
 	res
 }
@@ -344,15 +346,23 @@ job.output.list<-function(user.name, token, jobID){
 }
 
 
-job.history<-function(user.name, token){
-#List of jobs -- NOT working!!  
+job.history<-function(user.name, token, verbose=F){
+#List of jobs and their status
+	jobList<-c()
 	curl.string<-"curl -X GET -sku"
 	curl.string<-paste(curl.string, user.name, sep=" '")
 	curl.string<-paste(curl.string, token, sep=":")
-	curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/job/", sep="' ")
+	curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/jobs/list", sep="' ")
 	print(curl.string)
 	res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
-	return(res)
+	for (i in 1: length(res$result)){
+		job<-c(res$result[[i]]$id, res$result[[i]]$software, res$result[[i]]$status)	
+		jobList<-rbind(idList, id)
+	}
+	if (verbose){
+		return(res)
+	}
+	return(jobList)
 }
 
 ##############################################################################################################
