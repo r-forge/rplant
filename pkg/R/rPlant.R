@@ -292,14 +292,16 @@ job.status<-function(user.name, token, jobID, verbose=FALSE){
 
 job.delete<-function(user.name, token, jobID){
 #delete the status of a job using the jobID from jobSubmit -- works!!
-	curl.string<-"curl -X DELETE -sku"
-	curl.string<-paste(curl.string, user.name, sep=" '")
-	curl.string<-paste(curl.string, token, sep=":")
-	curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/job/", sep="' ")
-	curl.string<-paste(curl.string, jobID, sep="")
-	print(curl.string)
-	res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
-	res
+	for(job in 1:length(jobID)){
+		curl.string<-"curl -X DELETE -sku"
+		curl.string<-paste(curl.string, user.name, sep=" '")
+		curl.string<-paste(curl.string, token, sep=":")
+		curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/job/", sep="' ")
+		curl.string<-paste(curl.string, jobID[job], sep="")
+		print(curl.string)
+		res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
+		res
+	}
 }
 
 job.retrieve<-function(user.name, token, jobID, file2retrieve){
