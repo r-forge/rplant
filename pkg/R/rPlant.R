@@ -325,6 +325,7 @@ job.retrieve<-function(user.name, token, jobID, file2retrieve){
 
 job.output.list<-function(user.name, token, jobID){
 #Lists the output from a given job -- works!!
+	combRes<-c()
 	job.status(user.name, token, jobID, verbose=T)->JS
 	if (JS$res$status == "ARCHIVING_FINISHED") {
 		curl.string<-"curl -X GET -sku"
@@ -338,12 +339,14 @@ job.output.list<-function(user.name, token, jobID){
 		res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
 		print(paste("There are ", length(res$result), "output files"))
 		for(i in 1:length(res$result)){
-			print(res$result[[i]]$name)
+			#print(res$result[[i]]$name)
+			combRes<-append(combRes, res$result[[i]]$name)
 		}
 	}
 	else {
 		warning("Job is ", JS)
-	}	
+	}
+	return(combRes)	
 }
 
 
