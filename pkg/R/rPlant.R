@@ -1,4 +1,3 @@
-require(rjson)
 
 ##########################################AUTHENTICATION FUNCTIONS###########################################
 token.get<-function(user.name, user.pwd, API=c("iplant", "cipres", "tnrs")){
@@ -65,7 +64,7 @@ file.upload<-function(user.name, token, file2upload, fileType){
 }
 
 file.rename<-function(user.name, token, oldName, newName){
-#a function for uploading a file -- works!!
+#a function for renaming a file -- works!!
 	curl.string<-"curl -sku"
 	curl.string<-paste(curl.string, user.name, sep=" '")
 	curl.string<-paste(curl.string, token, sep=":")	
@@ -355,13 +354,15 @@ job.history<-function(user.name, token, verbose=F){
 	curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/jobs/list", sep="' ")
 	#print(curl.string)
 	res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
-	for (i in 1: length(res$result)){
-		job<-c(res$result[[i]]$id, res$result[[i]]$software, res$result[[i]]$status)	
-		jobList<-rbind(jobList, job)
-		colnames(jobList)<-c("jobID", "application", "status")
-	}
 	if (verbose){
 		return(res)
+	}
+	if(length(res$result) != 0){
+		for (i in 1: length(res$result)){
+			job<-c(res$result[[i]]$id, res$result[[i]]$software, res$result[[i]]$status)	
+			jobList<-rbind(jobList, job)
+			colnames(jobList)<-c("jobID", "application", "status")
+		}	
 	}
 	return(jobList)
 }
