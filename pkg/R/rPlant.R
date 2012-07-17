@@ -278,12 +278,11 @@ job.status<-function(user.name, token, jobID, verbose=FALSE){
 	curl.string<-paste(curl.string, jobID, sep="")
 	res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
 	if (res$status == "error"){
-		return(paste("Error: ", res$message))
+		print(paste("Error: ", res$message))
+		if(verbose){return(res)}
 	}
 	else {
-		if(verbose){
-			return(res)
-		}
+		if(verbose){return(res)}
 		else{
 			return(res$result$status)
 		}
@@ -325,26 +324,27 @@ job.retrieve<-function(user.name, token, jobID, file2retrieve){
 
 job.output.list<-function(user.name, token, jobID){
 #Lists the output from a given job -- works!!
-	combRes<-c()
-	job.status(user.name, token, jobID, verbose=T)->JS
-	if (JS$res$status == "ARCHIVING_FINISHED") {
-		curl.string<-"curl -X GET -sku"
-		curl.string<-paste(curl.string, user.name, sep=" '")
-		curl.string<-paste(curl.string, token, sep=":")
-		curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/job/", sep="' ")
-		#curl.string<-paste(curl.string, res$result$path, sep="' ")  #add path after res here
-		curl.string<-paste(curl.string, jobID, sep="")
-		curl.string<-paste(curl.string, "output/list", sep="/")
-		#print(curl.string)
-		res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
-		print(paste("There are ", length(res$result), "output files"))
-		for(i in 1:length(res$result)){
-			#print(res$result[[i]]$name)
-			combRes<-append(combRes, res$result[[i]]$name)
+	combRes<-vector("list", length=length(jobID))
+	names(combRes)<-paste("jobID", jobID, sep="")
+	for (job in 1:length(jobID)){
+		files<-c()
+		job.status(user.name, token, jobID[job], verbose=T)->JS
+		if (JS$res$status == "ARCHIVING_FINISHED") {
+			curl.string<-"curl -X GET -sku"
+			curl.string<-paste(curl.string, user.name, sep=" '")
+			curl.string<-paste(curl.string, token, sep=":")
+			curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/job/", sep="' ")
+			#curl.string<-paste(curl.string, res$result$path, sep="' ")  #add path after res here
+			curl.string<-paste(curl.string, jobID[job], sep="")
+			curl.string<-paste(curl.string, "output/list", sep="/")
+			res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
+			print(paste("There are ", length(res$result), "output files for job", jobID))
+			for(i in 1:length(res$result)){
+				files<-append(files, res$result[[i]]$name)
+			}
 		}
-	}
-	else {
-		warning("Job is ", JS)
+		else {files<-paste("Job is ", JS$res$status)}
+	combRes[[job]]<-files
 	}
 	return(combRes)	
 }
