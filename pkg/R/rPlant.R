@@ -1,11 +1,11 @@
 
-##########################################AUTHENTICATION FUNCTIONS###########################################
+##AUTHENTICATION FUNCTIONS##
 token.get<-function(user.name, user.pwd, API=c("iplant", "cipres", "tnrs")){
 	if (is.character(API)) {
 		if (API=="iplant") {
 			curl.string<-paste("curl -X POST -sku '", user.name, ":", user.pwd, "' https://foundation.iplantc.org/auth-v1/", sep="")
 			res<-fromJSON(system(curl.string,intern=TRUE))
-			if (res$status == "error"){ return(res$message)} #returns error
+			if (res$status == "error"){return(res$message)} #returns error
 			else (return(res$result$token)) #returns token
 		}
 		else {
@@ -26,76 +26,39 @@ token.renew<-function(user.name, user.pwd, token, API=c("iplant", "cipres", "tnr
 		}
 	}
 }
-##############################################################################################################
+##END##
 
 
-############################################FILE AND DATA FUNCTIONS###########################################
+##FILE AND DATA FUNCTIONS##
 file.upload<-function(user.name, token, file2upload, fileType){
-#a function for uploading a file -- works!!
-	curl.string<-"curl -sku"
-	curl.string<-paste(curl.string, user.name, sep=" '")
-	curl.string<-paste(curl.string, token, sep=":")
-	curl.string<-paste(curl.string, "-F 'fileToUpload=", sep="' ")
-	curl.string<-paste(curl.string, file2upload, sep="@")
-	curl.string<-paste(curl.string, "-F 'fileType=", sep="' ")
-	curl.string<-paste(curl.string, fileType, sep="")
-	curl.string<-paste(curl.string, "https://foundation.iplantc.org/io-v1/io/", sep="' ")
-	curl.string<-paste(curl.string, user.name, sep="")
+	curl.string<-paste("curl -sku '", user.name, ":", token, "' -F 'fileToUpload=@", file2upload, "' -F 'fileType=", fileType, "' https://foundation.iplantc.org/io-v1/io/", user.name, sep="")
 	res<-fromJSON(system(curl.string,intern=TRUE))
-	#Should output a status of success:
-	res$status
+	res$status #Should output a status of success:
 }
 
 file.rename<-function(user.name, token, oldName, newName){
-#a function for renaming a file -- works!!
-	curl.string<-"curl -sku"
-	curl.string<-paste(curl.string, user.name, sep=" '")
-	curl.string<-paste(curl.string, token, sep=":")	
-	curl.string<-paste(curl.string, "-X PUT -d 'newName=", sep="' ")
-	curl.string<-paste(curl.string, newName, sep="")
-	curl.string<-paste(curl.string, "&action=rename", sep="")
-	curl.string<-paste(curl.string, "https://foundation.iplantc.org/io-v1/io", sep="' ")
-	curl.string<-paste(curl.string, user.name, sep="/")
-	curl.string<-paste(curl.string,	oldName, sep="/")
+	curl.string<-paste("curl -sku '", user.name, ":", token, "' -X PUT -d 'newName=", newName, " &action=rename", "' https://foundation.iplantc.org/io-v1/io/", user.name, "/", oldName, sep="")
 	res<-fromJSON(system(curl.string,intern=TRUE))
-	#Should output a status saying "success" or something:
-	res$status
+	if (res$status == "error"){return(paste(res$status, ":", res$message))}
+	else {return(res$status)} 
 }
 
 file.move<-function(user.name, token, fileName, path2newdir){
-#move a file -- works!!
-	curl.string<-"curl -sku"
-	curl.string<-paste(curl.string, user.name, sep=" '")
-	curl.string<-paste(curl.string, token, sep=":")	
-	curl.string<-paste(curl.string, "-X PUT -d 'newPath=", sep="' ")
-	curl.string<-paste(curl.string, user.name, sep="")
-	curl.string<-paste(curl.string, path2newdir, sep="/")
-	curl.string<-paste(curl.string, fileName, sep="/")
-	curl.string<-paste(curl.string, "&action=move", sep="")
-	curl.string<-paste(curl.string, "https://foundation.iplantc.org/io-v1/io", sep="' ")
-	curl.string<-paste(curl.string, user.name, sep="/")
-	curl.string<-paste(curl.string,	fileName, sep="/")
+	curl.string<-paste("curl -sku '", user.name, ":", token, "' -X PUT -d 'newPath=", user.name, "/", path2newdir, "/", fileName, "&action=move", "' https://foundation.iplantc.org/io-v1/io/", user.name, "/", fileName, sep="")
 	res<-fromJSON(system(curl.string,intern=TRUE))
-	#Should output a status saying "success" or something:
-	res$status
+	if (res$status == "error"){return(paste(res$status, ":", res$message))}
+	else {return(res$status)} 
 }
 
 file.delete<-function(user.name, token, file2delete){
-#delete a file -- works!!
-	curl.string<-"curl -sku"
-	curl.string<-paste(curl.string, user.name, sep=" '")
-	curl.string<-paste(curl.string, token, sep=":")	
-	curl.string<-paste(curl.string, "-X DELETE", sep="' ")
-	curl.string<-paste(curl.string, "https://foundation.iplantc.org/io-v1/io", sep=" ")
-	curl.string<-paste(curl.string, user.name, sep="/")
-	curl.string<-paste(curl.string,	file2delete, sep="/")
+	curl.string<-paste("curl -sku '", user.name, ":", token, "' -X DELETE", " https://foundation.iplantc.org/io-v1/io/", user.name, "/", file2delete, "/", sep="")
 	res<-fromJSON(system(curl.string,intern=TRUE))
-	#Should output a status saying "success" or "error"
-	res$status
+	if (res$status == "error"){return(paste(res$status, ":", res$message))}
+	else {return(res$status)} 
 }
 
-file.support<-function(user.name, token){
-#lists the supported file types -- does not work! It should. 
+file.support<-function(user.name, token){ #lists the supported file types -- does not work! It should. 
+
 	curl.string<-"curl -X GET -sku"
 	curl.string<-paste(curl.string, user.name, sep=" '")
 	curl.string<-paste(curl.string, token, sep=":")
@@ -104,11 +67,11 @@ file.support<-function(user.name, token){
 	
 	res
 }
-##############################################################################################################
+##END##
 
 
-############################################DIRECTORY FUNCTIONS###############################################
-list.dir<-function(user.name, token, path2directory=NULL){
+##DIRECTORY FUNCTIONS##
+list.dir<-function(user.name, token, path2directory=NULL){ #make path2dir = ""?
 #list a directory -- works!!
 	if(is.null(path2directory)){
 		#if path2directory is NULL then you only want to list the items in the root directory:
@@ -182,7 +145,7 @@ delete.dir<-function(user.name, token, delDirect){
 	#Output should be a JSON listing all the items in the directory of interest:
 	res$status
 }
-##############################################################################################################
+##END##
 
 
 #############################################APPLICATION FUNCTIONS############################################
