@@ -1,19 +1,12 @@
 
 ##########################################AUTHENTICATION FUNCTIONS###########################################
 token.get<-function(user.name, user.pwd, API=c("iplant", "cipres", "tnrs")){
-#a function for obtaining a token -- works!!
 	if (is.character(API)) {
 		if (API=="iplant") {
-			#Pastes together the string used to call a token -- not optimal, but easier to edit:
-			curl.string<-"curl -X POST -sku" 
-			curl.string<-paste(curl.string, user.name, sep=" '")
-			curl.string<-paste(curl.string, user.pwd, sep=":")
-			#Is the url always going to be the one used here?
-			curl.string<-paste(curl.string, "https://foundation.iplantc.org/auth-v1/", sep="' ")
-			#print(curl.string)
+			curl.string<-paste("curl -X POST -sku '", user.name, ":", user.pwd, "' https://foundation.iplantc.org/auth-v1/", sep="")
 			res<-fromJSON(system(curl.string,intern=TRUE))
-			#Seems like the token is the only thing of interest to output:
-			return(res$result$token)
+			if (res$status == "error"){ return(res$message)} #returns error
+			else (return(res$result$token)) #returns token
 		}
 		else {
 			warning("Not yet implemented")
@@ -22,21 +15,11 @@ token.get<-function(user.name, user.pwd, API=c("iplant", "cipres", "tnrs")){
 }
 
 token.renew<-function(user.name, user.pwd, token, API=c("iplant", "cipres", "tnrs")){
-#a function for renewing a token -- works!!
 	if (is.character(API)) {
 		if (API=="iplant") {
-			#Pastes together the string used to renew a token.
-			#Seems clunky like this, but only way to incorporate user-supplied arguments:
-			curl.string<-"curl -X POST -sku" 
-			curl.string<-paste(curl.string, user.name, sep=" '")
-			curl.string<-paste(curl.string, user.pwd, sep=":")
-			curl.string<-paste(curl.string, "-d 'token=", sep="' ")
-			curl.string<-paste(curl.string, token, sep="")
-			#Is the url always going to be the one used here?
-			curl.string<-paste(curl.string, "https://foundation.iplantc.org/auth-v1/renew", sep="' ")
+			curl.string<-paste("curl -X POST -sku '", user.name, ":", user.pwd, "' -d 'token=", token, "' https://foundation.iplantc.org/auth-v1/renew",sep="")
 			res<-fromJSON(system(curl.string,intern=TRUE))		
-			#Outputs a message of whether or not renewal was a success:
-			res$status
+			res$status #Outputs a message renewal success
 		}
 		else {
 			warning("Not yet implemented")
