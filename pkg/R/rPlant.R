@@ -71,79 +71,31 @@ file.support<-function(user.name, token){ #lists the supported file types -- doe
 
 
 ##DIRECTORY FUNCTIONS##
-list.dir<-function(user.name, token, path2directory=NULL){ #make path2dir = ""?
-#list a directory -- works!!
-	if(is.null(path2directory)){
-		#if path2directory is NULL then you only want to list the items in the root directory:
-		curl.string<-"curl -sku"
-		curl.string<-paste(curl.string, user.name, sep=" '")
-		curl.string<-paste(curl.string, token, sep=":")
-		curl.string<-paste(curl.string, "https://foundation.iplantc.org/io-v1/io/list/", sep="' ")
-		curl.string<-paste(curl.string, user.name, sep="")
-		tmp<-fromJSON(system(curl.string,intern=TRUE))
-	}
-	else{
-		#else, you want to list some directory contained within the root, which you need to supply the path:
-		curl.string<-"curl -sku"
-		curl.string<-paste(curl.string, user.name, sep=" '")
-		curl.string<-paste(curl.string, token, sep=":")
-		curl.string<-paste(curl.string, "https://foundation.iplantc.org/io-v1/io/list/", sep="' ")
-		curl.string<-paste(curl.string, user.name, sep="")
-		curl.string<-paste(curl.string, path2directory, sep="/")
-		tmp<-fromJSON(system(curl.string,intern=TRUE))
-	}
-	#Output should be a JSON listing all the items in the directory of interest, I modified to just output name and filetype
+list.dir<-function(user.name, token, path2directory=""){ 
+	curl.string<-paste("curl -sku '", user.name, ":", token, "' https://foundation.iplantc.org/io-v1/io/list/", user.name, "/", path2directory, sep="")
+	tmp<-fromJSON(system(curl.string,intern=TRUE))
+
 	res<-matrix(,length(tmp$result),2)
 	colnames(res)<-c("name", "type")
 	for (i in 1:length(tmp$result)){
 		res[i,1]<-tmp$result[[i]]$name
 		res[i,2]<-tmp$result[[i]]$type
 	}
-	res
+	return(res)
 }
 
-make.dir<-function(user.name, token, newDirect, sub.dir=FALSE, path2parent=NULL){
-#make a directory -- works!!
-	if(sub.dir==FALSE){
-		#if sub.dir is false, then you want to create a main directory:
-		curl.string<-"curl -sku"
-		curl.string<-paste(curl.string, user.name, sep=" '")
-		curl.string<-paste(curl.string, token, sep=":")
-		curl.string<-paste(curl.string, "-X PUT -d 'dirName=", sep="' ")
-		curl.string<-paste(curl.string, newDirect, sep="")
-		curl.string<-paste(curl.string, "&action=mkdir", sep="")
-		curl.string<-paste(curl.string, "https://foundation.iplantc.org/io-v1/io/", sep="' ")
-		curl.string<-paste(curl.string, user.name, sep="", "/")
-		res<-fromJSON(system(curl.string,intern=TRUE))
-	}
-	else{
-		#else, then you want to create a subdirectory within a parent directory or a series of parent directories:
-		curl.string<-"curl -sku"
-		curl.string<-paste(curl.string, user.name, sep=" '")
-		curl.string<-paste(curl.string, token, sep=":")
-		curl.string<-paste(curl.string, "-X PUT -d 'dirName=", sep="' ")
-		curl.string<-paste(curl.string, newDirect, sep="")
-		curl.string<-paste(curl.string, "&action=mkdir", sep="")
-		curl.string<-paste(curl.string, "https://foundation.iplantc.org/io-v1/io/", sep="' ")
-		curl.string<-paste(curl.string, user.name, sep="")
-		curl.string<-paste(curl.string, path2parent, sep="/")
-		res<-fromJSON(system(curl.string,intern=TRUE))
-	}
-	res$status
+make.dir<-function(user.name, token, newDirect, path2parent=""){
+	curl.string<-paste("curl -sku '", user.name, ":", token, "' -X PUT -d 'dirName=", newDirect, "&action=mkdir' ", "https://foundation.iplantc.org/io-v1/io/", user.name, "/", path2parent, sep="")
+	res<-fromJSON(system(curl.string,intern=TRUE))
+	if (res$status == "error"){return(paste(res$status, ":", res$message))}
+	else {return(res$status)} 
 }
 
 delete.dir<-function(user.name, token, delDirect){
-#delete a (sub)directory -- works!!
-	curl.string<-"curl -sku"
-	curl.string<-paste(curl.string, user.name, sep=" '")
-	curl.string<-paste(curl.string, token, sep=":")
-	curl.string<-paste(curl.string, "-X DELETE", sep="' ")
-	curl.string<-paste(curl.string, "https://foundation.iplantc.org/io-v1/io/", sep=" ")
-	curl.string<-paste(curl.string, user.name, sep="")
-	curl.string<-paste(curl.string, delDirect, sep="/")
+	curl.string<-paste("curl -sku '", user.name, ":", token, "' -X DELETE https://foundation.iplantc.org/io-v1/io/", user.name, "/", delDirect, sep="")
 	res<-fromJSON(system(curl.string,intern=TRUE))
-	#Output should be a JSON listing all the items in the directory of interest:
-	res$status
+	if (res$status == "error"){return(paste(res$status, ":", res$message))}
+	else {return(res$status)} 
 }
 ##END##
 
