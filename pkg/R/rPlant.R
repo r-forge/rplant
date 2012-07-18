@@ -58,14 +58,9 @@ file.delete<-function(user.name, token, file2delete){
 }
 
 file.support<-function(user.name, token){ #lists the supported file types -- does not work! It should. 
-
-	curl.string<-"curl -X GET -sku"
-	curl.string<-paste(curl.string, user.name, sep=" '")
-	curl.string<-paste(curl.string, token, sep=":")
-	curl.string<-paste(curl.string, "https://foundation.iplantc.org/data-v1/data/tranforms", sep="' ")
+	curl.string<-paste("curl -X GET -sku '", user.name, ":", token, "' https://foundation.iplantc.org/data-v1/data/tranforms", sep="")
 	res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
-	
-	res
+	return(res) #might change when it works
 }
 ##END##
 
@@ -74,7 +69,6 @@ file.support<-function(user.name, token){ #lists the supported file types -- doe
 list.dir<-function(user.name, token, path2directory=""){ 
 	curl.string<-paste("curl -sku '", user.name, ":", token, "' https://foundation.iplantc.org/io-v1/io/list/", user.name, "/", path2directory, sep="")
 	tmp<-fromJSON(system(curl.string,intern=TRUE))
-
 	res<-matrix(,length(tmp$result),2)
 	colnames(res)<-c("name", "type")
 	for (i in 1:length(tmp$result)){
@@ -100,64 +94,35 @@ delete.dir<-function(user.name, token, delDirect){
 ##END##
 
 
-#############################################APPLICATION FUNCTIONS############################################
+##APPLICATION FUNCTIONS##
 app.list<-function(user.name, token){
-#provides a list of applications owned or shared with user -- works!!
-	curl.string<-"curl -sku"
-	curl.string<-paste(curl.string, user.name, sep=" '")
-	curl.string<-paste(curl.string, token, sep=":")
-	curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/apps/share/list", sep="' ")
-	#Added in the suppressWarnings due to strange errors that print. The errors are anything of concern as far as I can tell:
+	curl.string<-paste("curl -sku '", user.name, ":", token, "' https://foundation.iplantc.org/apps-v1/apps/share/list", sep="")
 	tmp<-suppressWarnings(fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse="")))
 	res<-matrix(,length(tmp$result))
 	colnames(res)="Application"
 	for (i in 1:length(tmp$result)){
 		res[i,1]<-tmp$result[[i]]$id
 	}
-	res
+	return(sort(res))
 }
 
-app.info<-function(user.name, token, application){
-#provides information regarding an application -- works!!
-	curl.string<-"curl -X GET -sku"
-	curl.string<-paste(curl.string, user.name, sep=" '")
-	curl.string<-paste(curl.string, token, sep=":")
-	curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/apps/share/name", sep="' ")
-	curl.string<-paste(curl.string, application, sep="/")
+app.info<-function(user.name, token, application, verbose=FALSE){
+	curl.string<-paste("curl -X GET -sku '", user.name, ":", token, "' https://foundation.iplantc.org/apps-v1/apps/share/name/", application, sep="") 
 	res<-fromJSON(system(curl.string,intern=TRUE))
-	#This needs to be cleaned up. I think the relevant info is a) inputs, b) possible input parameters, and c) outputs:
-	res
+	if(verbose){return(res)}
+	else{
+		res<-(list(application=res$result[[1]]$id, inputFileTypes=res$result[[1]]$inputs[[1]]$semantics$fileTypes, output=res$result[[1]]$outputs[[1]]$defaultValue)) #This needs to be cleaned up. I think the relevant info is a) inputs, b) possible input parameters, and c) outputs
+		return(res)
+	}
 }
-##############################################################################################################
+##END##
 
 
-#################################################JOB FUNCTIONS################################################
+##JOB FUNCTIONS##
 
-job.submit<-function(user.name, token, application, path2inputSeqs, jobName, nprocs){
-#submit a job using an existing application -- works!! (I tried to minimize the input by the user here.). And yes, the 'ransom note' code here is not optimal, but it works and it is easy for me to edit:
-	curl.string<-"curl -X POST -sku"
-	curl.string<-paste(curl.string, user.name, sep=" '")
-	curl.string<-paste(curl.string, token, sep=":")
-	curl.string<-paste(curl.string, "-d 'jobName=", sep="' ")
-	curl.string<-paste(curl.string, jobName, sep="")
-	curl.string<-paste(curl.string, "&softwareName=", sep="")
-	curl.string<-paste(curl.string, application, sep="")
-	curl.string<-paste(curl.string, "&archive=1", sep="")
-	curl.string<-paste(curl.string, "&inputSeqs=", sep="")
-	curl.string<-paste(curl.string, path2inputSeqs, sep="")
-	curl.string<-paste(curl.string, "&processorCount=", sep="")
-	curl.string<-paste(curl.string, nprocs, sep="")
-	curl.string<-paste(curl.string, "&archivePath=", sep="")
-	curl.string<-paste(curl.string, user.name, sep="/")
-	curl.string<-paste(curl.string, "analyses", sep="/")
-	curl.string<-paste(curl.string, jobName, sep="/")
-	curl.string<-paste(curl.string, "&requestedTime=24:00:00", sep="")
-	curl.string<-paste(curl.string, "&outputFormat=fasta&mode=auto", sep="")
-	curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/job", sep="' ")
-print(curl.string)
-
+job.submit<-function(user.name, token, application, path2inputSeqs, jobName, nprocs=1){ #expand for other aps and additional input files
+	curl.string<-paste("curl -X POST -sku '", user.name, ":", token, "' -d 'jobName=", jobName, "&softwareName=", application, "&archive=1&inputSeqs=", path2inputSeqs, "&processorCount=", nprocs, "&archivePath=/", user.name, "/analyses", jobName, "&requestedTime=24:00:00&outputFormat=fasta&mode=auto' https://foundation.iplantc.org/apps-v1/job", sep="")
 	res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
-	#Just a thought I had on the output:
 	if(res$status=="success"){
 		cat("Job submitted. You can check the status of your job using this id:", res$result$id, "\n")
 	}
@@ -165,18 +130,14 @@ print(curl.string)
 		cat("Error.", res$message, "\n")
 	}
 	return(res$result$id)
+	#also return or print citations
 }
 
 job.status<-function(user.name, token, jobID, verbose=FALSE){
-#check the status of a job using the jobID from jobSubmit -- works!!
-	curl.string<-"curl -X GET -sku"
-	curl.string<-paste(curl.string, user.name, sep=" '")
-	curl.string<-paste(curl.string, token, sep=":")
-	curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/job/", sep="' ")
-	curl.string<-paste(curl.string, jobID, sep="")
+	curl.string<-paste("curl -X GET -sku '", user.name, ":", token, "' https://foundation.iplantc.org/apps-v1/job/", jobID, sep="")
 	res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
 	if (res$status == "error"){
-		print(paste("Error: ", res$message))
+		print(paste("Error in jobID ", jobID, ":", res$message))
 		if(verbose){return(res)}
 	}
 	else {
@@ -188,32 +149,26 @@ job.status<-function(user.name, token, jobID, verbose=FALSE){
 }
 
 job.delete<-function(user.name, token, jobID){
-#delete the status of a job using the jobID from jobSubmit -- works!!
 	for(job in 1:length(jobID)){
-		curl.string<-"curl -X DELETE -sku"
-		curl.string<-paste(curl.string, user.name, sep=" '")
-		curl.string<-paste(curl.string, token, sep=":")
-		curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/job/", sep="' ")
-		curl.string<-paste(curl.string, jobID[job], sep="")
+		curl.string<-paste("curl -X DELETE -sku '", user.name, ":", token, "' https://foundation.iplantc.org/apps-v1/job/", jobID[job], sep="")
 		print(curl.string)
 		res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
 		res
 	}
 }
 
-job.retrieve<-function(user.name, token, jobID, file2retrieve){
-#retrieves a file from the archive directory -- works!!
-	job.status(user.name, token, jobID, verbose=T)->JS
+job.retrieve<-function(user.name, token, jobID, file2retrieve){ #what if file doesn't exist...make that an option with a return
+	fileList<-job.output.list(user.name, token, jobID)[[1]] #only will work on one jobID now
+	JS<-job.status(user.name, token, jobID, verbose=T)
 	if (JS$res$status == "ARCHIVING_FINISHED") {
-		curl.string<-"curl -X GET -sku"
-		curl.string<-paste(curl.string, user.name, sep=" '")
-		curl.string<-paste(curl.string, token, sep=":")
-		curl.string<-paste(curl.string, "https://foundation.iplantc.org/io-v1/io", sep="' ")
-		curl.string<-paste(curl.string, JS$result$archivePath, sep="")  #path to results directory
-		curl.string<-paste(curl.string, file2retrieve, sep="/")
-		curl.string<-paste(curl.string, "-o", file2retrieve)
-		res2<-paste(system(curl.string,intern=TRUE),sep="", collapse="")
-		print(paste("Downloaded", file2retrieve, "to", getwd(), "directory"))
+		for (file in 1:length(file2retrieve)){
+			if (file2retrieve[file] %in% fileList) { #if file exists in output then download
+				curl.string<-paste("curl -X GET -sku '", user.name, ":", token, "' https://foundation.iplantc.org/io-v1/io", JS$result$archivePath, "/", file2retrieve[file], " -o ", file2retrieve[file], sep="")
+				res<-paste(system(curl.string,intern=TRUE),sep="", collapse="")
+				print(paste("Downloaded", file2retrieve[file], "to", getwd(), "directory"))
+			}
+			else {return(paste(file2retrieve[file], "is not found within", jobID))}
+		}	
 	}
 	else {
 		warning("Job is ", JS)
@@ -221,20 +176,13 @@ job.retrieve<-function(user.name, token, jobID, file2retrieve){
 }
 
 job.output.list<-function(user.name, token, jobID){
-#Lists the output from a given job -- works!!
 	combRes<-vector("list", length=length(jobID))
 	names(combRes)<-paste("jobID", jobID, sep="")
 	for (job in 1:length(jobID)){
 		files<-c()
 		job.status(user.name, token, jobID[job], verbose=T)->JS
 		if (JS$res$status == "ARCHIVING_FINISHED") {
-			curl.string<-"curl -X GET -sku"
-			curl.string<-paste(curl.string, user.name, sep=" '")
-			curl.string<-paste(curl.string, token, sep=":")
-			curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/job/", sep="' ")
-			#curl.string<-paste(curl.string, res$result$path, sep="' ")  #add path after res here
-			curl.string<-paste(curl.string, jobID[job], sep="")
-			curl.string<-paste(curl.string, "output/list", sep="/")
+			curl.string<-paste("curl -X GET -sku '", user.name, ":", token, "' https://foundation.iplantc.org/apps-v1/job/", jobID[job], "/output/list", sep="")
 			res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
 			print(paste("There are ", length(res$result), "output files for job", jobID))
 			for(i in 1:length(res$result)){
@@ -249,13 +197,8 @@ job.output.list<-function(user.name, token, jobID){
 
 
 job.history<-function(user.name, token, verbose=F){
-#List of jobs and their status
 	jobList<-c()
-	curl.string<-"curl -X GET -sku"
-	curl.string<-paste(curl.string, user.name, sep=" '")
-	curl.string<-paste(curl.string, token, sep=":")
-	curl.string<-paste(curl.string, "https://foundation.iplantc.org/apps-v1/jobs/list", sep="' ")
-	#print(curl.string)
+	curl.string<-paste("curl -X GET -sku '", user.name, ":", token, "' https://foundation.iplantc.org/apps-v1/jobs/list", sep="")
 	res<-fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
 	if (verbose){
 		return(res)
@@ -270,9 +213,8 @@ job.history<-function(user.name, token, verbose=F){
 	return(jobList)
 }
 
-##############################################################################################################
 
-#################################################TNRS FUNCTIONS################################################
+##TNRS FUNCTIONS##
 
 resolveNames<-function(names,maxPerCall=100,verbose=TRUE) {
 	#takes a list of names and sends it to the iPlant TNRS site (http://tnrs.iplantcollaborative.org/)
