@@ -1,79 +1,110 @@
-#Google style: FunctionDoesThis(include verb), variable.names, 80 character lines, 2 space indent, spaces around operatios(+, -, =, <-), space after comma(not before), space before left paren, 
+# Google style: FunctionDoesThis(include verb), variable.names, 80 character lines, 2 space indent, spaces around operatios(+, -, =, <-), space after comma(not before), space before left paren, 
+#	1.	Copyright statement comment
+#	2.	Author comment
+#	3.	File description comment, including purpose of program, inputs, and outputs
+#	4.	source() and library() statements
+#	5.	Function definitions
+#	6.	Executed statements, if applicable (e.g., print, plot)
 
 
-##AUTHENTICATION FUNCTIONS##
-GetToken <- function(user.name, user.pwd, api=c("iplant", "cipres", "tnrs")) {
+# -- AUTHENTICATION FUNCTIONS -- #
+GetToken <- function(user.name, user.pwd, 
+                     api=c("iplant", "cipres", "tnrs")) {
   web <- "' https://foundation.iplantc.org/auth-v1/"
   if (is.character(api)) {
-    if (api=="iplant") {
-      curl.string <- paste("curl -X POST -sku '", user.name, ":", user.pwd, web, sep="")
+    if (api == "iplant") {
+      curl.string <- paste("curl -X POST -sku '", user.name, ":", user.pwd, 
+                           web, sep="")
       res <- fromJSON(system(curl.string, intern=TRUE))
-      if (res$status == "error") return(res$message) #returns error
-      else return(res$result$token) #returns token
+      if (res$status == "error") 
+        return(res$message)  # returns if error
+      else 
+        return(res$result$token)  # returns with token
     }
-    else warning("Not yet implemented")
+    else 
+      warning("Not yet implemented")
   }
 }
 
-RenewToken <- function(user.name, user.pwd, token, api=c("iplant", "cipres", "tnrs")) {
+RenewToken <- function(user.name, user.pwd, token, 
+                       api=c("iplant", "cipres", "tnrs")) {
   web <- "' https://foundation.iplantc.org/auth-v1/renew"
   if (is.character(api)) {
-    if (api=="iplant") {
-      curl.string <- paste("curl -X POST -sku '", user.name, ":", user.pwd, "' -d 'token=", token, web, sep="")
+    if (api == "iplant") {
+      curl.string <- paste("curl -X POST -sku '", user.name, ":", 
+                           user.pwd, "' -d 'token=", token, web, sep="")
       res <- fromJSON(system(curl.string, intern=TRUE))    
-      res$status #Outputs a message renewal success
+      res$status  # Outputs a message renewal success
     }
-    else warning("Not yet implemented")
+    else 
+      warning("Not yet implemented")
   }
 }
-##END##
+# -- END -- #
 
 
-##FILE AND DATA FUNCTIONS##
+# -- FILE AND DATA FUNCTIONS -- #
 UploadFile <- function(user.name, token, file.name, file.type) {
   web <- "' https://foundation.iplantc.org/io-v1/io/"
-  curl.string <- paste("curl -sku '", user.name, ":", token, "' -F 'file.name=@", file.name, "' -F 'file.type=", file.type, web, user.name, sep="")
+  curl.string <- paste("curl -sku '", user.name, ":", token, 
+                       "' -F 'file.name=@", file.name, "' -F 'file.type=", 
+                       file.type, web, user.name, sep="")
   res <- fromJSON(system(curl.string, intern=TRUE))
-  res$status #Should output a status of success:
+  res$status  # Should output a status of success:
 }
 
 RenameFile <- function(user.name, token, old.file.name, new.file.name) {
   web <- "' https://foundation.iplantc.org/io-v1/io/"
-  curl.string <- paste("curl -sku '", user.name, ":", token, "' -X PUT -d 'new.file.name=", new.file.name, " &action=rename", web, user.name, "/", old.file.name, sep="")
+  curl.string <- paste("curl -sku '", user.name, ":", token, 
+                       "' -X PUT -d 'new.file.name=", new.file.name, 
+                       " &action=rename", web, user.name, "/", 
+                       old.file.name, sep="")
   res <- fromJSON(system(curl.string, intern=TRUE))
-  if (res$status == "error") return(paste(res$status, ":", res$message))
-  else return(res$status)
+  if (res$status == "error") 
+    return(paste(res$status, ":", res$message))
+  else
+    return(res$status)
 }
 
 MoveFile <- function(user.name, token, file.name, path) {
   web <- "' https://foundation.iplantc.org/io-v1/io/"
-  curl.string <- paste("curl -sku '", user.name, ":", token, "' -X PUT -d 'newPath=", user.name, "/", path, "/", file.name, "&action=move", web, user.name, "/", file.name, sep="")
+  curl.string <- paste("curl -sku '", user.name, ":", token, 
+                       "' -X PUT -d 'newPath=", user.name, "/", path, 
+                       "/", file.name, "&action=move", web, user.name, 
+                       "/", file.name, sep="")
   res <- fromJSON(system(curl.string, intern=TRUE))
-  if (res$status == "error") return(paste(res$status, ":", res$message))
-  else {return(res$status)} 
+  if (res$status == "error")
+    return(paste(res$status, ":", res$message))
+  else
+    return(res$status)
 }
 
 DeleteFile <- function(user.name, token, file.name) {
   web <- " https://foundation.iplantc.org/io-v1/io/"
-  curl.string <- paste("curl -sku '", user.name, ":", token, "' -X DELETE", web, user.name, "/", file.name, "/", sep="")
+  curl.string <- paste("curl -sku '", user.name, ":", token, "' -X DELETE", 
+                       web, user.name, "/", file.name, "/", sep="")
   res <- fromJSON(system(curl.string, intern=TRUE))
-  if (res$status == "error") return(paste(res$status, ":", res$message))
-  else return(res$status)
+  if (res$status == "error")
+    return(paste(res$status, ":", res$message))
+  else
+    return(res$status)
 }
 
-SupportFile <- function(user.name, token) { #lists the supported file types -- does not work! It should. 
+SupportFile <- function(user.name, token) {  
+  # lists the supported file types -- does not work! It should. 
   web <- "' https://foundation.iplantc.org/data-v1/data/tranforms"
   curl.string <- paste("curl -X GET -sku '", user.name, ":", token, web, sep="")
   res <- fromJSON(paste(system(curl.string, intern=TRUE), sep="", collapse=""))
-  return(res) #might change when it works
+  return(res)  # might change when it works
 }
-##END##
+# -- END -- #
 
 
-##DIRECTORY FUNCTIONS##
+# -- DIRECTORY FUNCTIONS -- #
 ListDir <- function(user.name, token, path="") { 
   web <- "' https://foundation.iplantc.org/io-v1/io/list/"
-  curl.string <- paste("curl -sku '", user.name, ":", token, web, user.name, "/", path, sep="")
+  curl.string <- paste("curl -sku '", user.name, ":", token, web, user.name, 
+                       "/", path, sep="")
   tmp <- fromJSON(system(curl.string, intern=TRUE))
   res <- matrix(, length(tmp$result), 2)
   colnames(res) <- c("name", "type")
@@ -86,94 +117,131 @@ ListDir <- function(user.name, token, path="") {
 
 MakeDir <- function(user.name, token, dir.name, path="") {
   web <- "https://foundation.iplantc.org/io-v1/io/"
-  curl.string <- paste("curl -sku '", user.name, ":", token, "' -X PUT -d 'dir.name=", dir.name, "&action=mkdir' ", web, user.name, "/", path, sep="")
+  curl.string <- paste("curl -sku '", user.name, ":", token, 
+                       "' -X PUT -d 'dir.name=", dir.name, "&action=mkdir' ", 
+                       web, user.name, "/", path, sep="")
   res <- fromJSON(system(curl.string, intern=TRUE))
-  if (res$status == "error") return(paste(res$status, ":", res$message))
-  else return(res$status)
+  if (res$status == "error")
+    return(paste(res$status, ":", res$message))
+  else
+    return(res$status)
 }
 
 DeleteDir <- function(user.name, token, dir.name) {
   web <- "https://foundation.iplantc.org/io-v1/io/"
-  curl.string <- paste("curl -sku '", user.name, ":", token, "' -X DELETE", web,  user.name, "/", dir.name, sep="")
+  curl.string <- paste("curl -sku '", user.name, ":", token, "' -X DELETE", 
+                       web,  user.name, "/", dir.name, sep="")
   res <- fromJSON(system(curl.string, intern=TRUE))
-  if (res$status == "error") return(paste(res$status, ":", res$message))
-  else return(res$status)  
+  if (res$status == "error")
+    return(paste(res$status, ":", res$message))
+  else
+    return(res$status)  
 }
-##END##
+# -- END -- #
 
 
-##APPLICATION FUNCTIONS##
+# -- APPLICATION FUNCTIONS -- #
 ListApps <- function(user.name, token) {
   web <- "' https://foundation.iplantc.org/apps-v1/apps/share/list"
   curl.string <- paste("curl -sku '", user.name, ":", token, web, sep="")
-  tmp <- suppressWarnings(fromJSON(paste(system(curl.string, intern=TRUE),sep="", collapse="")))
+  tmp <- suppressWarnings(fromJSON(paste(system(curl.string, intern=TRUE), 
+                          sep="", collapse="")))
   res <- matrix(, length(tmp$result))
   colnames(res) <- "Application"
-  for (i in 1:length(tmp$result)) res[i, 1] <- tmp$result[[i]]$id
+  for (i in 1:length(tmp$result))
+    res[i, 1] <- tmp$result[[i]]$id
   return(sort(res))
 }
 
 GetAppInfo <- function(user.name, token, application, verbose=FALSE) {
+  # This needs to be cleaned up. I think the relevant info is 
+        # a) inputs, 
+        # b) possible input parameters, and 
+        # c) outputs
   web <- "' https://foundation.iplantc.org/apps-v1/apps/share/name/"
-  curl.string <- paste("curl -X GET -sku '", user.name, ":", token, web, application, sep="") 
+  curl.string <- paste("curl -X GET -sku '", user.name, ":", token, web, 
+                       application, sep="") 
   res <- fromJSON(system(curl.string, intern=TRUE))
-  if (verbose) return(res)
-  else return(list(application=res$result[[1]]$id, inputfile.types=res$result[[1]]$inputs[[1]]$semantics$file.types, output=res$result[[1]]$outputs[[1]]$defaultValue)) #This needs to be cleaned up. I think the relevant info is a) inputs, b) possible input parameters, and c) outputs
+  if (verbose)
+    return(res)
+  else
+    return(list(application=res$result[[1]]$id, 
+                input=res$result[[1]]$inputs[[1]]$semantics$file.types, 
+                output=res$result[[1]]$outputs[[1]]$defaultValue))  
 }
-##END##
+# -- END -- #
 
 
-##JOB FUNCTIONS##
-
-SubmitJob <- function(user.name, token, application, path, job.name, nprocs=1) { #expand for other aps and additional input files
+# -- JOB FUNCTIONS -- #
+SubmitJob <- function(user.name, token, application, path, job.name, nprocs=1) {  
+  # expand for other aps and additional input files
   web <- "https://foundation.iplantc.org/apps-v1/job"
-  curl.string <- paste("curl -X POST -sku '", user.name, ":", token, "' -d 'job.name=", job.name, "&softwareName=", application, "&archive=1&inputSeqs=", path, "&processorCount=", nprocs, "&archivePath=/", user.name, "/analyses", job.name, "&requestedTime=24:00:00&outputFormat=fasta&mode=auto' ", web, sep="")
+  curl.string <- paste("curl -X POST -sku '", user.name, ":", token, 
+                       "' -d 'job.name=", job.name, "&softwareName=",  
+                       application, "&archive=1&inputSeqs=", path, 
+                       "&processorCount=", nprocs, "&archivePath=/", 
+                       user.name, "/analyses", job.name, 
+                       "&requestedTime=24:00:00&outputFormat=fasta&mode=auto' ", 
+                       web, sep="")
   res <- fromJSON(paste(system(curl.string, intern=TRUE),sep="", collapse=""))
-  if (res$status == "success") cat("Job submitted. You can check the status of your job using this id:", res$result$id, "\n")
-  else cat("Error.", res$message, "\n")
+  if (res$status == "success")
+    cat("Job submitted. You can check the status of your job using this id:", 
+        res$result$id, "\n")
+  else
+    cat("Error.", res$message, "\n")
   return(res$result$id)
-  #also return or print citations
+  # also return or print citations
 }
 
 CheckJobStatus <- function(user.name, token, job.id, verbose=FALSE) {
   web <- "' https://foundation.iplantc.org/apps-v1/job/"
-  curl.string <- paste("curl -X GET -sku '", user.name, ":", token, web, job.id, sep="")
+  curl.string <- paste("curl -X GET -sku '", user.name, ":", token, web, job.id, 
+                       sep="")
   res <- fromJSON(paste(system(curl.string, intern=TRUE),sep="", collapse=""))
   if (res$status == "error") {
     print(paste("Error in job.id ", job.id, ":", res$message))
-    if (verbose) return(res)
+    if (verbose) 
+      return(res)
   }
   else {
-    if (verbose) return(res)
-    else return(res$result$status)
+    if (verbose)
+      return(res)
+    else
+      return(res$result$status)
   }
 }
 
 DeleteJob <- function(user.name, token, job.id) {
   web <- "' https://foundation.iplantc.org/apps-v1/job/"
   for (job in 1:length(job.id)) {
-    curl.string <- paste("curl -X DELETE -sku '", user.name, ":", token, web, job.id[job], sep="")
+    curl.string <- paste("curl -X DELETE -sku '", user.name, ":", token, web, 
+                         job.id[job], sep="")
     print(curl.string)
     res <- fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
     return(res)
   }
 }
 
-RetrieveJob <- function(user.name, token, job.id, files) { #what if file doesn't exist...make that an option with a return
+RetrieveJob <- function(user.name, token, job.id, files) {  
+  # what if file doesn't exist...make that an option with a return
   web <- "' https://foundation.iplantc.org/io-v1/io"
-  fileList <- ListJobOutput(user.name, token, job.id)[[1]] #only will work on one job.id now
+  fileList <- ListJobOutput(user.name, token, job.id)[[1]]  # only will work on one job.id now
   JS <- CheckJobStatus(user.name, token, job.id, verbose=T)
   if (JS$res$status == "ARCHIVING_FINISHED") {
     for (file in 1:length(files)) {
-      if (files[file] %in% fileList) { #if file exists in output then download
-        curl.string <- paste("curl -X GET -sku '", user.name, ":", token, web, JS$result$archivePath, "/", files[file], " -o ", files[file], sep="")
+      if (files[file] %in% fileList) {  # if file exists in output then download
+        curl.string <- paste("curl -X GET -sku '", user.name, ":", token, web, 
+                             JS$result$archivePath, "/", files[file], " -o ", 
+                             files[file], sep="")
         res <- paste(system(curl.string,intern=TRUE),sep="", collapse="")
         print(paste("Downloaded", files[file], "to", getwd(), "directory"))
       }
-      else return(paste(files[file], "is not found within", job.id))
+      else
+        return(paste(files[file], "is not found within", job.id))
     }
   }
-  else warning("Job is ", JS)
+  else
+    warning("Job is ", JS)
 }
 
 ListJobOutput <- function(user.name, token, job.id) {
@@ -184,12 +252,17 @@ ListJobOutput <- function(user.name, token, job.id) {
     files <- c()
     JS <- CheckJobStatus(user.name, token, job.id[job], verbose=T)
     if (JS$res$status == "ARCHIVING_FINISHED") {
-      curl.string <- paste("curl -X GET -sku '", user.name, ":", token, web, job.id[job], "/output/list", sep="")
-      res <- fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
-      print(paste("There are ", length(res$result), "output files for job", job.id))
-      for (i in 1:length(res$result)) files <- append(files, res$result[[i]]$name)
+      curl.string <- paste("curl -X GET -sku '", user.name, ":", token, web, 
+                           job.id[job], "/output/list", sep="")
+      res <- fromJSON(paste(system(curl.string,intern=TRUE),sep="", 
+                            collapse=""))
+      print(paste("There are ", length(res$result), "output files for job", 
+            job.id))
+      for (i in 1:length(res$result))
+        files <- append(files, res$result[[i]]$name)
     }
-    else files <- paste("Job is ", JS$res$status)
+    else
+      files <- paste("Job is ", JS$res$status)
     combRes[[job]] <- files
   }
   return(combRes)  
@@ -200,25 +273,27 @@ GetJobHistory <- function(user.name, token, verbose=F) {
   jobList <- c()
   curl.string <- paste("curl -X GET -sku '", user.name, ":", token, web, sep="")
   res <- fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
-  if (verbose) return(res)
+  if (verbose) 
+    return(res)
   if (length(res$result) != 0) {
     for (i in 1: length(res$result)) {
-      job <- c(res$result[[i]]$id, res$result[[i]]$software, res$result[[i]]$status)  
+      job <- c(res$result[[i]]$id, res$result[[i]]$software, 
+               res$result[[i]]$status)  
       jobList <- rbind(jobList, job)
       colnames(jobList) <- c("job.id", "application", "status")
     }  
   }
   return(jobList)
 }
+# -- END -- #
 
 
-##TNRS FUNCTIONS##
-
+# -- TNRS FUNCTIONS -- #
 ResolveNames <- function(names, max.per.call=100, verbose=TRUE) {
-  #takes a list of names and sends it to the iPlant TNRS site(http://tnrs.iplantcollaborative.org/)
-  #names <- c("zea mays","acacia","solanum","saltea","rosa_rugoso")
-  #returnedNames <- ResolveNames(names)
-  #print(returnedNames)
+  # takes a list of names and sends it to the iPlant TNRS site(http://tnrs.iplantcollaborative.org/)
+  # names <- c("zea mays","acacia","solanum","saltea","rosa_rugoso")
+  # returnedNames <- ResolveNames(names)
+  # print(returnedNames)
   names <- sapply(names, sub, pattern="_", replacement=" ")
   names <- sapply(names, URLencode)
   call.base <- 'http://tnrs.iplantc.org/tnrsm-svc/matchNames?retrieve=best&names='
@@ -231,15 +306,19 @@ ResolveNames <- function(names, max.per.call=100, verbose=TRUE) {
     actual.call <- paste(actual.call, names[name.index], ",", sep="")
     if (names.in.call == max.per.call || name.index == length(names)) {
       returned.values <- fromJSON(file=actual.call)$items
-      for (return.index in sequence(length(returned.values))) new.names[starting.position + return.index - 1] <- returned.values[[return.index]]$name.scientific
-      if (verbose) print(paste("finished ", name.index, "of ", length(names), "names")) 
+      for (return.index in sequence(length(returned.values))) 
+        new.names[starting.position + return.index - 1] <- returned.values[[return.index]]$name.scientific
+      if (verbose) 
+        print(paste("finished ", name.index, "of ", length(names), "names")) 
       starting.position <- name.index + 1
       names.in.call <- 0
       actual.call <- call.base
     }
   }
   print("Ignore a warning message about incomplete final line")
-  if (length(new.names) != length(names)) warning(paste("the input name list was", length(names), "long but the new one is ", length(new.names), "long"))
+  if (length(new.names) != length(names)) 
+    warning(paste("the input name list was", length(names), 
+                  "long but the new one is ", length(new.names), "long"))
   new.names <- sapply(new.names, sub, pattern=" ", replacement="_", USE.NAMES=F)
   return(print(new.names))
 }
@@ -247,16 +326,18 @@ ResolveNames <- function(names, max.per.call=100, verbose=TRUE) {
 
 
 CompareTNRS <- function(original, TNRS, verbose=TRUE) {
-#takes a list of original taxonomic names(same ones given as "names in ResolveNames) and compares to the returned names from TNRS
-#note that names are changed back to include an "_" instead of the " " they come with out of TNRS first, so that they do not count as taxonomic name changes
-  d=0
+# takes a list of original taxonomic names(same ones given as "names in ResolveNames) and compares to the returned names from TNRS
+# note that names are changed back to include an "_" instead of the " " they come with out of TNRS first, so that they do not count as taxonomic name changes
+  taxa.changed <- 0
   names2 <- sapply(TNRS, sub, pattern=" ",replacement="_", USE.NAMES=F)
   comp <- cbind(original, names2)
   for (i in 1: dim(comp)[1]){
-    if (comp[i, 1] != comp[i, 2]){
-      d <- d + 1
-      if (verbose) print(paste(comp[i, 1], " was changed to ", comp[i, 2], cat("\n")))
+    if (comp[i, 1] != comp[i, 2]) {
+      taxa.changed <- taxa.changed + 1
+      if (verbose)
+        print(paste(comp[i, 1], " was changed to ", comp[i, 2], cat("\n")))
     }
   }
-  print(paste(d, "taxa changed names according to TNRS"))
+  print(paste(taxa.changed, "taxa changed names according to TNRS"))
 }
+# -- END --#
