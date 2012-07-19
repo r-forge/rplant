@@ -63,7 +63,7 @@ RenameFile <- function(user.name, token, old.file.name, new.file.name) {
     return(res$status)
 }
 
-MoveFile <- function(user.name, token, file.name, path) {
+MoveFile <- function(user.name, token, file.name, path="") {
   web <- "' https://foundation.iplantc.org/io-v1/io/"
   curl.string <- paste("curl -sku '", user.name, ":", token, 
                        "' -X PUT -d 'newPath=", user.name, "/", path, 
@@ -170,7 +170,7 @@ GetAppInfo <- function(user.name, token, application, verbose=FALSE) {
 
 
 # -- JOB FUNCTIONS -- #
-SubmitJob <- function(user.name, token, application, path, job.name, nprocs=1) {  
+SubmitJob <- function(user.name, token, application, job.name, path="", nprocs=1) {  
   # expand for other aps and additional input files
   web <- "https://foundation.iplantc.org/apps-v1/job"
   curl.string <- paste("curl -X POST -sku '", user.name, ":", token, 
@@ -265,7 +265,7 @@ ListJobOutput <- function(user.name, token, job.id) {
   return(combRes)  
 }
 
-GetJobHistory <- function(user.name, token, verbose=F) {
+GetJobHistory <- function(user.name, token, verbose=FALSE) {
   web <- "' https://foundation.iplantc.org/apps-v1/jobs/list"
   jobList <- c()
   curl.string <- paste("curl -X GET -sku '", user.name, ":", token, web, sep="")
@@ -340,13 +340,12 @@ CompareTNRS <- function(original, TNRS, verbose=TRUE) {
 # -- END --#
 
 
-GetCitations <- function(function.name=match.arg(arg=priorFn, choices=c("muscle-ranger-2.0"), 
-                         several.ok=TRUE), style="Bibtex") {
+GetCitations <- function(application, save=FALSE, file="") {
   # Returns citations for programs and analyses
-  if (function.name == "muscle-ranger-2.0") {
+  if (application == "muscle-ranger-2.0") {
     citations<-vector("list")
-    citations[[1]] <- print(bibentry(bibtype="Article", title="MUSCLE: multiple sequence alignment with high accuracy and high throughput", author="Edgar, R. C.", journal="Nucleic Acids Res", number="32(5)", pages="1792-97", year="2004", doi="10.1093/nar/gkh340", url="http://www.drive5.com/muscle"), style=style)
-    citations[[2]] <- print(bibentry(bibtype="Article", title="MUSCLE: a multiple sequence alignment method with reduced time and space complexity", author="Edgar, R. C.", journal="BMC Bioinformatics", number="5(113)", year="2004", doi="10.1186/1471-2105-5-113", url="http://www.drive5.com/muscle"), style=style)
+    citations[[1]] <- print(bibentry(bibtype="Article", title="MUSCLE: multiple sequence alignment with high accuracy and high throughput", author="Edgar, R. C.", journal="Nucleic Acids Res", number="32(5)", pages="1792-97", year="2004", doi="10.1093/nar/gkh340", url="http://www.drive5.com/muscle"))
+    citations[[2]] <- print(bibentry(bibtype="Article", title="MUSCLE: a multiple sequence alignment method with reduced time and space complexity", author="Edgar, R. C.", journal="BMC Bioinformatics", number="5(113)", year="2004", doi="10.1186/1471-2105-5-113", url="http://www.drive5.com/muscle"))
     #print(citations)
     return(citations)
   }
