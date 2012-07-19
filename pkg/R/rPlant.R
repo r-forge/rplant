@@ -174,10 +174,10 @@ SubmitJob <- function(user.name, token, application, job.name, path="", nprocs=1
   # expand for other aps and additional input files
   web <- "https://foundation.iplantc.org/apps-v1/job"
   curl.string <- paste("curl -X POST -sku '", user.name, ":", token, 
-                       "' -d 'job.name=", job.name, "&softwareName=",  
+                       "' -d 'jobName=", job.name, "&softwareName=",  
                        application, "&archive=1&inputSeqs=", path, 
                        "&processorCount=", nprocs, "&archivePath=/", 
-                       user.name, "/analyses", job.name, 
+                       user.name, "/analyses/", job.name, 
                        "&requestedTime=24:00:00&outputFormat=fasta&mode=auto' ", 
                        web, sep="")
   res <- fromJSON(paste(system(curl.string, intern=TRUE),sep="", collapse=""))
@@ -186,7 +186,7 @@ SubmitJob <- function(user.name, token, application, job.name, path="", nprocs=1
         res$result$id, "\n")
   else
     cat("Error.", res$message, "\n")
-  return(res$result$id)
+    return(res$result$id)
   # also return or print citations
 }
 
@@ -213,9 +213,11 @@ DeleteJob <- function(user.name, token, job.id) {
   for (job in 1:length(job.id)) {
     curl.string <- paste("curl -X DELETE -sku '", user.name, ":", token, web, 
                          job.id[job], sep="")
-    print(curl.string)
-    res <- fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
-    return(res)
+    res <- fromJSON(paste(system(curl.string, intern=TRUE),sep="", collapse=""))
+    if (res$status == "success")
+      print(paste("job.id", job.id[job], "was sucessfully deleted"))
+    else
+      print(paste("job.id", job.id[job], res$status, ":", res$message))
   }
 }
 
@@ -230,7 +232,7 @@ RetrieveJob <- function(user.name, token, job.id, files) {
         curl.string <- paste("curl -X GET -sku '", user.name, ":", token, web, 
                              JS$result$archivePath, "/", files[file], " -o ", 
                              files[file], sep="")
-        res <- paste(system(curl.string,intern=TRUE),sep="", collapse="")
+        res <- paste(system(curl.string, intern=TRUE),sep="", collapse="")
         print(paste("Downloaded", files[file], "to", getwd(), "directory"))
       }
       else
