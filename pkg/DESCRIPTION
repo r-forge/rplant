@@ -1,10 +1,10 @@
 Package: rPlant
-Version: 1.1
-Date: 2012-1-22
+Version: 1.2
+Date: 2012-7-19
 Title: R interface to the iPlant Discovery Environment
-Author: Jeremy M. Beaulieu <jeremy.beaulieu@yale.edu>, Barb Banbury <bbanbury@utk.edu>, Brian O'Meara <bomeara@utk.edu>
-Maintainer: Jeremy M. Beaulieu <jeremy.beaulieu@yale.edu>, Barb Banbury <bbanbury@utk.edu>, Brian O'Meara <bomeara@utk.edu>
-Depends: rjson, seqinr
+Author: Barb Banbury <bbanbury@utk.edu>, Jeremy M. Beaulieu <jeremy.beaulieu@yale.edu>, Brian O'Meara <bomeara@utk.edu>
+Maintainer: Barb Banbury <bbanbury@utk.edu>
+Depends: rjson, seqinr, knitcitations
 Repository/R-Forge/Project: rplant
 Description: An R interface to the iPlant DE (and, in the future, other phyloinformatics web apps, like the CIPRES Science Gateway)
 License: GPL (>= 2)

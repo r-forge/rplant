@@ -1,2 +1,2 @@
-export(token.get, token.renew, file.delete, file.upload, file.rename, file.move, file.support, list.dir, make.dir, delete.dir, app.info, app.list, job.submit, job.status, job.delete, job.retrieve, job.output.list, job.history, resolveNames, compareTNRS)
-import(rjson, seqinr)
+export(GetToken, RenewToken, UploadFile, RenameFile, MoveFile, DeleteFile, SupportFile, ListDir, MakeDir, DeleteDir, ListApps, GetAppInfo, SubmitJob, CheckJobStatus, DeleteJob, RetrieveJob, ListJobOutput, GetJobHistory, ResolveNames, CompareTNRS, GetCitations)
+import(rjson, seqinr, knitcitations)

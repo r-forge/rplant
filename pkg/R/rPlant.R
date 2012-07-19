@@ -1,11 +1,5 @@
-# Google style: FunctionDoesThis(include verb), variable.names, 80 character lines, 2 space indent, spaces around operatios(+, -, =, <-), space after comma(not before), space before left paren, 
-#	1.	Copyright statement comment
-#	2.	Author comment
-#	3.	File description comment, including purpose of program, inputs, and outputs
-#	4.	source() and library() statements
-#	5.	Function definitions
-#	6.	Executed statements, if applicable (e.g., print, plot)
-
+# Copyright (c) 2012, University of Tennessee
+# rPlant directly interacts with iplant's command-line API for the Discovery Environment (DE)
 
 # -- AUTHENTICATION FUNCTIONS -- #
 GetToken <- function(user.name, user.pwd, 
@@ -50,7 +44,10 @@ UploadFile <- function(user.name, token, file.name, file.type) {
                        "' -F 'file.name=@", file.name, "' -F 'file.type=", 
                        file.type, web, user.name, sep="")
   res <- fromJSON(system(curl.string, intern=TRUE))
-  res$status  # Should output a status of success:
+  if (res$status == "error") 
+    return(paste(res$status, ":", res$message))
+  else
+    return(res$status)
 }
 
 RenameFile <- function(user.name, token, old.file.name, new.file.name) {
@@ -341,3 +338,18 @@ CompareTNRS <- function(original, TNRS, verbose=TRUE) {
   print(paste(taxa.changed, "taxa changed names according to TNRS"))
 }
 # -- END --#
+
+
+GetCitations <- function(function.name=match.arg(arg=priorFn, choices=c("muscle-ranger-2.0"), 
+                         several.ok=TRUE), style="Bibtex") {
+  # Returns citations for programs and analyses
+  if (function.name == "muscle-ranger-2.0") {
+    citations<-vector("list")
+    citations[[1]] <- print(bibentry(bibtype="Article", title="MUSCLE: multiple sequence alignment with high accuracy and high throughput", author="Edgar, R. C.", journal="Nucleic Acids Res", number="32(5)", pages="1792-97", year="2004", doi="10.1093/nar/gkh340", url="http://www.drive5.com/muscle"), style=style)
+    citations[[2]] <- print(bibentry(bibtype="Article", title="MUSCLE: a multiple sequence alignment method with reduced time and space complexity", author="Edgar, R. C.", journal="BMC Bioinformatics", number="5(113)", year="2004", doi="10.1186/1471-2105-5-113", url="http://www.drive5.com/muscle"), style=style)
+    #print(citations)
+    return(citations)
+  }
+}
+
+
