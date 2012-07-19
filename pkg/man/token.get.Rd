@@ -1,23 +1,27 @@
-\name{token.get}
-\alias{token.get}
-\alias{token.renew}
+\name{GetToken}
+\alias{GetToken}
+\alias{RenewToken}
 \title{Authentication functions}
 \description{
 	Authenticates users and provides tokens to be used in place of unencrypted passwords
 }
 \usage{
-token.get(user.name, user.pwd, API=c("iplant", "cipres", "tnrs"))
-token.renew(user.name, user.pwd, token, API=c("iplant", "cipres", "tnrs"))
+GetToken(user.name, user.pwd, api=c("iplant", "cipres", "tnrs"))
+RenewToken(user.name, user.pwd, token, api=c("iplant", "cipres", "tnrs"))
 }
 \arguments{
-	\item{user.name}{an iPlant accepted user name.}
-	\item{user.pwd}{an iPlant accepted password.}
-	\item{token}{a token used in place of unencrypted passwords.}
-	\item{API}{the API to interfaced with, currently only the iPlant API is supported.}
+	\item{user.name}{iPlant Discovery Environment user name}
+	\item{user.pwd}{iPlant Discovery Environment password}
+	\item{token}{a validation tool used in place of unencrypted passwords}
+	\item{api}{the API to interfaced with, currently only the iPlant API is supported.}
 }
 \details{
-	More soon.
+	The authentication functions will issue and renew an iPlant token.  Tokens expire after 2 hours unless renewed.  
 }
 \value{
 	A token used in place of an unencrypted password.
+}
+\examples{
+	token<-GetToken("User", "SecretPassword", api="iplant")
+	RenewToken("User, "SecretPassword", token, api="iplant")
 }
