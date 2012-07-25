@@ -41,8 +41,9 @@ RenewToken <- function(user.name, user.pwd, token,
 UploadFile <- function(user.name, token, file.name, file.type) {
   web <- "' https://foundation.iplantc.org/io-v1/io/"
   curl.string <- paste("curl -sku '", user.name, ":", token, 
-                       "' -F 'file.name=@", file.name, "' -F 'file.type=", 
+                       "' -F 'fileToUpload=@", file.name, "' -F 'fileType=", 
                        file.type, web, user.name, sep="")
+print(curl.string)
   res <- fromJSON(system(curl.string, intern=TRUE))
   if (res$status == "error") 
     return(paste(res$status, ":", res$message))
