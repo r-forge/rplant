@@ -1,6 +1,7 @@
 \name{rplant-package}
 \alias{rplant-package}
 \alias{rplant}
+\alias{rPlant}
 \docType{package}
 \title{rplant}
 \description{
