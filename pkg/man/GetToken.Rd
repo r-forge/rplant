@@ -22,6 +22,6 @@ RenewToken(user.name, user.pwd, token, api=c("iplant", "cipres", "tnrs"))
 	A token used in place of an unencrypted password.
 }
 \examples{
-	token<-GetToken("User", "SecretPassword", api="iplant")
-	RenewToken("User", "SecretPassword", token, api="iplant")
+	#token<-GetToken("User", "SecretPassword", api="iplant")
+	#RenewToken("User", "SecretPassword", token, api="iplant")
 }
