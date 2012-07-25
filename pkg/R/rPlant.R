@@ -115,7 +115,7 @@ ListDir <- function(user.name, token, path="") {
 MakeDir <- function(user.name, token, dir.name, path="") {
   web <- "https://foundation.iplantc.org/io-v1/io/"
   curl.string <- paste("curl -sku '", user.name, ":", token, 
-                       "' -X PUT -d 'newDirect=", dir.name, "&action=mkdir' ", 
+                       "' -X PUT -d 'dirName=", dir.name, "&action=mkdir' ", 
                        web, user.name, "/", path, sep="")
   res <- fromJSON(system(curl.string, intern=TRUE))
   if (res$status == "error")
@@ -128,7 +128,6 @@ DeleteDir <- function(user.name, token, dir.name) {
   web <- "https://foundation.iplantc.org/io-v1/io/"
   curl.string <- paste("curl -sku '", user.name, ":", token, "' -X DELETE ", 
                        web,  user.name, "/", dir.name, sep="")
-print(curl.string)
   res <- fromJSON(system(curl.string, intern=TRUE))
   if (res$status == "error")
     return(paste(res$status, ":", res$message))
