@@ -53,8 +53,8 @@ UploadFile <- function(user.name, token, file.name, file.type) {
 RenameFile <- function(user.name, token, old.file.name, new.file.name) {
   web <- "' https://foundation.iplantc.org/io-v1/io/"
   curl.string <- paste("curl -sku '", user.name, ":", token, 
-                       "' -X PUT -d 'new.file.name=", new.file.name, 
-                       " &action=rename", web, user.name, "/", 
+                       "' -X PUT -d 'newName=", 
+                       new.file.name, "&action=rename", web, user.name, "/", 
                        old.file.name, sep="")
   res <- fromJSON(system(curl.string, intern=TRUE))
   if (res$status == "error") 
@@ -115,7 +115,7 @@ ListDir <- function(user.name, token, path="") {
 MakeDir <- function(user.name, token, dir.name, path="") {
   web <- "https://foundation.iplantc.org/io-v1/io/"
   curl.string <- paste("curl -sku '", user.name, ":", token, 
-                       "' -X PUT -d 'dir.name=", dir.name, "&action=mkdir' ", 
+                       "' -X PUT -d 'newDirect=", dir.name, "&action=mkdir' ", 
                        web, user.name, "/", path, sep="")
   res <- fromJSON(system(curl.string, intern=TRUE))
   if (res$status == "error")
@@ -126,8 +126,9 @@ MakeDir <- function(user.name, token, dir.name, path="") {
 
 DeleteDir <- function(user.name, token, dir.name) {
   web <- "https://foundation.iplantc.org/io-v1/io/"
-  curl.string <- paste("curl -sku '", user.name, ":", token, "' -X DELETE", 
+  curl.string <- paste("curl -sku '", user.name, ":", token, "' -X DELETE ", 
                        web,  user.name, "/", dir.name, sep="")
+print(curl.string)
   res <- fromJSON(system(curl.string, intern=TRUE))
   if (res$status == "error")
     return(paste(res$status, ":", res$message))
