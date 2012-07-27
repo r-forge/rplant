@@ -23,7 +23,7 @@ GetJobHistory(user.name, token, verbose=FALSE)
 	\item{job.name}{the name to give the job being submitted}
 	\item{nprocs}{the number of processors to be allocated to the job, default = 1}
 	\item{job.id}{the unique ID number given to a submitted job} 
-	\item{path}{the path to any directory other than users home}
+	\item{path}{optional path to a user's subdirectory; default path is empty, which leads to the home directory}
 	\item{verbose}{optional screen output that displays all of the results from the api, default = FALSE}
 	\item{files}{names of output files to download, can be one or many}
 }
@@ -37,8 +37,15 @@ GetJobHistory(user.name, token, verbose=FALSE)
 	\code{\link{ListApps}}
 }
 \examples{
+	# Submit a MUSCLE job using landplant data, which will return a job.id
 	# myJob<-SubmitJob("User", token, application="muscle-ranger-2.0", path="/rplant/landplant.fasta.txt", job.name="MUSCLE", nprocs="1")
+	
+	# Check the status of any job
 	# CheckJobStatus("User", token, myJob, verbose=F)
+	
+	# Lists and output files a job has created
 	# ListJobOutput("User", token, myJob)  
+	
+	# Download output files
 	# RetrieveJob("User", token, myJob, ListJobOutput("User", token, myJob))
 }

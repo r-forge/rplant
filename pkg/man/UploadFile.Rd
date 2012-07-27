@@ -22,7 +22,7 @@ SupportFile(user.name, token)
 	\item{file.type}{format of file that is to be uploaded. Currently 34 file formats supported} 
 	\item{old.file.name}{the name of the file to be renamed}
 	\item{new.file.name}{the new name of the file to be renamed} 
-	\item{path}{the path to any directory other than users home}   
+	\item{path}{optional path to a sub directory; default path is empty, which leads to a users home directory}
 }
 \details{
 	The function SupportFile provides a list of the supported file types that can be uploaded onto iPlant. Currently does not work.
@@ -35,9 +35,15 @@ SupportFile(user.name, token)
 	Text listing action as either being a "success" or "error". If an error, then a message stating the error should also be reported.  
 }
 \examples{
-	# UploadFile("User", token, file.name="/rplant/pkg/data/corrected.landplant.fasta", file.type="FASTA-0")
-	# RenameFile("User", token, "corrected.landplant.fasta", "clp.fasta")
+	# Upload a file to the DE
+	# UploadFile("User", token, file.name="landplant.fasta", file.type="FASTA-0")
+
+	# Rename a file 
+	# RenameFile("User", token, old.file.name="landplant.fasta", new.file.name="clp.fasta")
+	
+	# Move a file from the home directory to a subdirectory
 	# MoveFile("User", token, fileName="clp.fasta", path="/newDirectory") 				
-	# DeleteFile("User", token, "corrected.landplant.fasta")
+	
+	# DeleteFile("User", token, "landplant.fasta")
 	# SupportFile("User", token)  
 }	
