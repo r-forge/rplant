@@ -37,7 +37,7 @@ GetJobHistory(user.name, token, verbose=FALSE)
 	\code{\link{ListApps}}
 }
 \examples{
-	# myJob<-SubmitJob("User", token, application="muscle-ranger-2.0", path="/rplant/landplant.fasta.txt", jobName="MUSCLE", nprocs="1")
+	# myJob<-SubmitJob("User", token, application="muscle-ranger-2.0", path="/rplant/landplant.fasta.txt", job.name="MUSCLE", nprocs="1")
 	# CheckJobStatus("User", token, myJob, verbose=F)
 	# ListJobOutput("User", token, myJob)  
 	# RetrieveJob("User", token, myJob, ListJobOutput("User", token, myJob))
