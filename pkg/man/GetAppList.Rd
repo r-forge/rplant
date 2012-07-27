@@ -19,6 +19,6 @@ GetAppInfo(user.name, token, application, verbose=FALSE)
 	A list of applications deployed in the DE.
 }
 \examples{
-	#ListApps("User, token)
+	#ListApps("User", token)
 	#GetAppInfo("User", token, "muscle-ranger-2.0", verbose=T)
 }

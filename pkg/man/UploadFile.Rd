@@ -35,9 +35,9 @@ SupportFile(user.name, token)
 	Text listing action as either being a "success" or "error". If an error, then a message stating the error should also be reported.  
 }
 \examples{
-	# UploadFile("User", token, file.name="/rplant/pkg/data/corrected.landplant.fasta", fileType="FASTA-0")
-	# RenameFile("User, token, "corrected.landplant.fasta", "clp.fasta")
-	# MoveFile("User", token, fileName="clp.fasta", path2newdir="/newDirectory") 				
+	# UploadFile("User", token, file.name="/rplant/pkg/data/corrected.landplant.fasta", file.type="FASTA-0")
+	# RenameFile("User", token, "corrected.landplant.fasta", "clp.fasta")
+	# MoveFile("User", token, fileName="clp.fasta", path="/newDirectory") 				
 	# DeleteFile("User", token, "corrected.landplant.fasta")
 	# SupportFile("User", token)  
 }	
