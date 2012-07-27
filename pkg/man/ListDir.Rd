@@ -14,7 +14,7 @@ DeleteDir(user.name, token, dir.name)
 \arguments{
 	\item{user.name}{iPlant Discovery Environment user name}
 	\item{token}{a validation tool used in place of unencrypted passwords}
-	\item{path}{the path to any directory other than users home}   
+	\item{path}{optional path to a user's sub directory; default path is empty, which leads to the home directory}
 	\item{dir.name}{name of subdirectory to be modified in the users home iPlant directory. If the subdirectory is not in the home directory, the the path should also be specified (i.e. "/path/file")}
 }
 \value{
@@ -24,8 +24,16 @@ DeleteDir(user.name, token, dir.name)
 	\code{\link{UploadFile}}
 }
 \examples{
-	#ListDir("User", token, path="")
-	#MakeDir("User", token, "newDirectory", path="rplant")
-	#DeleteDir("User", token, "/rplant/newDirectory")
+	# Lists the contents of a user's home directory
+	# ListDir("User", token, path="")
+	
+	# Makes a new subdirectory in the users home directory
+	# MakeDir("User", token, dir.name="rplant", path="")
+	
+	# Lists the contents of a user's subdirectory
+	# ListDir("User", token, path="rplant")
+	
+	# Deletes a subdirectory
+	# DeleteDir("User", token, dir.name="/rplant/newDirectory")
 }
 
