@@ -162,9 +162,16 @@ GetAppInfo <- function(user.name, token, application, verbose=FALSE) {
   if (verbose)
     return(res)
   else
-    return(list(application=res$result[[1]]$id, 
-                input=res$result[[1]]$inputs[[1]]$semantics$file.types, 
-                output=res$result[[1]]$outputs[[1]]$defaultValue))  
+    app.info<-c()
+    for (input in sequence(length(res$result[[1]]$inputs)))
+      app.info <- rbind(app.info, c("input", res$result[[1]]$inputs[[input]]$id,
+                        res$result[[1]]$inputs[[input]]$semantics$fileTypes[1]))
+    for (output in sequence(length(res$result[[1]]$output)))
+      app.info <- rbind(app.info, c("output", res$result[[1]]$output[[output]]$id,
+                        res$result[[1]]$output[[output]]$semantics$fileTypes[1])) 
+                        # this seems to vary depending on the application
+    colnames(app.info)<-c("kind", "id", "fileType")
+    return(list(application=res$result[[1]]$id, app.info))  
 }
 # -- END -- #
 
@@ -180,6 +187,7 @@ SubmitJob <- function(user.name, token, application, job.name, path="", nprocs=1
                        user.name, "/analyses/", job.name, 
                        "&requestedTime=24:00:00&outputFormat=fasta&mode=auto' ", 
                        web, sep="")
+                       print(curl.string)
   res <- fromJSON(paste(system(curl.string, intern=TRUE),sep="", collapse=""))
   if (res$status == "success")
     cat("Job submitted. You can check the status of your job using this id:", 
