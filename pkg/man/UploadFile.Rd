@@ -18,7 +18,7 @@ SupportFile(user.name, token)
 \arguments{
 	\item{user.name}{iPlant Discovery Environment user name}
 	\item{token}{a validation tool used in place of unencrypted passwords}
-	\item{file.name}{name of file to be modified in the users home iPlant directory. If the file is not in the home directory, then the path should also be specified (i.e. "/path/file")}
+	\item{file.name}{name of file to be modified in the users home iPlant directory.  This file cannot be an object in the R workspace.  If the file is not in the home directory, then the path should also be specified (i.e. "/path/file")}
 	\item{file.type}{format of file that is to be uploaded. Currently 34 file formats supported} 
 	\item{old.file.name}{the name of the file to be renamed}
 	\item{new.file.name}{the new name of the file to be renamed} 
@@ -35,15 +35,19 @@ SupportFile(user.name, token)
 	Text listing action as either being a "success" or "error". If an error, then a message stating the error should also be reported.  
 }
 \examples{
+        # Write .fasta file to home directory
+        # data(landplant.fasta)
+        # write.fasta(sequences=landplant.fasta,names=names(landplant.fasta),file.out="lp.fasta")        
+
 	# Upload a file to the DE
-	# UploadFile("User", token, file.name="landplant.fasta", file.type="FASTA-0")
+	# UploadFile("User", token, file.name="lp.fasta", file.type="FASTA-0")
 
 	# Rename a file 
-	# RenameFile("User", token, old.file.name="landplant.fasta", new.file.name="clp.fasta")
+	# RenameFile("User", token, old.file.name="lp.fasta", new.file.name="lplant.fasta")
 	
 	# Move a file from the home directory to a subdirectory
-	# MoveFile("User", token, fileName="clp.fasta", path="/newDirectory") 				
-	
-	# DeleteFile("User", token, "landplant.fasta")
+	# MoveFile("User", token, fileName="lplant.fasta", path="/newDirectory") 				
+	# Delete a file on the DE
+	# DeleteFile("User", token, "lplant.fasta")
 	# SupportFile("User", token)  
 }	
