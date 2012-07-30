@@ -46,7 +46,7 @@ SupportFile(user.name, token)
 	# RenameFile("User", token, old.file.name="lp.fasta", new.file.name="lplant.fasta")
 	
 	# Move a file from the home directory to a subdirectory
-	# MoveFile("User", token, fileName="lplant.fasta", path="/newDirectory") 				
+	# MoveFile("User", token, file.name="lplant.fasta", path="/newDirectory") 				
 	# Delete a file on the DE
 	# DeleteFile("User", token, "lplant.fasta")
 	# SupportFile("User", token)  
