@@ -43,19 +43,25 @@ UploadFile <- function(user.name, token, file.name, file.type) {
   curl.string <- paste("curl -sku '", user.name, ":", token, 
                        "' -F 'fileToUpload=@", file.name, "' -F 'fileType=", 
                        file.type, web, user.name, sep="")
+  #Automatically makes two necessary directories
+  MakeDir(user.name, token, "analyses", path="")
+  MakeDir(user.name, token, "rplant", path="")
   res <- fromJSON(system(curl.string, intern=TRUE))
+  #Moves the file that was just uploaded in to the rplant folder
+  MoveFile(user.name, token, file.name, path="rplant")
   if (res$status == "error") 
     return(paste(res$status, ":", res$message))
   else
     return(res$status)
 }
 
-RenameFile <- function(user.name, token, old.file.name, new.file.name) {
+RenameFile <- function(user.name, token, old.file.name, new.file.name, path) {
   web <- "' https://foundation.iplantc.org/io-v1/io/"
   curl.string <- paste("curl -sku '", user.name, ":", token, 
                        "' -X PUT -d 'newName=", 
                        new.file.name, "&action=rename", web, user.name, "/", 
-                       old.file.name, sep="")
+                       path, "/", old.file.name, sep="")
+  print(curl.string)
   res <- fromJSON(system(curl.string, intern=TRUE))
   if (res$status == "error") 
     return(paste(res$status, ":", res$message))
