@@ -61,7 +61,6 @@ RenameFile <- function(user.name, token, old.file.name, new.file.name, path) {
                        "' -X PUT -d 'newName=", 
                        new.file.name, "&action=rename", web, user.name, "/", 
                        path, "/", old.file.name, sep="")
-  print(curl.string)
   res <- fromJSON(system(curl.string, intern=TRUE))
   if (res$status == "error") 
     return(paste(res$status, ":", res$message))
