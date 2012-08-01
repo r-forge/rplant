@@ -9,20 +9,21 @@
 	Functions for uploading and manipulating files in the iPlant infrastructure
 }
 \usage{
-UploadFile(user.name, token, file.name, file.type)
-RenameFile(user.name, token, old.file.name, new.file.name)
-MoveFile(user.name, token, file.name, path)
-DeleteFile(user.name, token, file.name)
+UploadFile(user.name, token, file.name, file.path, file.type)
+RenameFile(user.name, token, old.file.name, new.file.name, file.path)
+MoveFile(user.name, token, file.name, file.path, end.path)
+DeleteFile(user.name, token, file.name, file.path)
 SupportFile(user.name, token)
 }
 \arguments{
 	\item{user.name}{iPlant Discovery Environment user name}
 	\item{token}{a validation tool used in place of unencrypted passwords}
-	\item{file.name}{name of file to be modified in the users home iPlant directory.  This file cannot be an object in the R workspace.  If the file is not in the home directory, then the path should also be specified (i.e. "/path/file")}
+	\item{file.name}{Name of file to be modified.  This file cannot be an object in the R workspace.}
 	\item{file.type}{format of file that is to be uploaded. Currently 34 file formats supported} 
 	\item{old.file.name}{the name of the file to be renamed}
 	\item{new.file.name}{the new name of the file to be renamed} 
-	\item{path}{optional path to a sub directory; default path is empty, which leads to a users home directory}
+	\item{file.path}{optional path to a sub directory where file is located; default path is empty which leads to a users home directory}
+	\item{end.path}{optional path to destination sub directory where file is moved to; default path is empty which leads to a users home directory}
 }
 \details{
 	The function SupportFile provides a list of the supported file types that can be uploaded onto iPlant. Currently does not work.
@@ -36,18 +37,21 @@ SupportFile(user.name, token)
 }
 \examples{
         # Write .fasta file to home directory
-        # data(landplant.fasta)
-        # write.fasta(sequences=landplant.fasta,names=names(landplant.fasta),file.out="lp.fasta")        
+        data(landplant.fasta)
+        write.fasta(sequences=landplant.fasta,names=names(landplant.fasta),file.out="lp.fasta")        
 
 	# Upload a file to the DE
-	# UploadFile("User", token, file.name="lp.fasta", file.type="FASTA-0")
+	UploadFile("User", token, file.name="landplant.fasta", file.type="FASTA-0")
+	# UploadFile("User", token, file.name="landplant.fasta", file.path="/path/", file.type="FASTA-0")
 
 	# Rename a file 
-	# RenameFile("User", token, old.file.name="lp.fasta", new.file.name="lplant.fasta")
+	RenameFile("User", token, old.file.name="landplant.fasta", new.file.name="lp.fasta", file.path="/rplant/")
 	
 	# Move a file from the home directory to a subdirectory
-	# MoveFile("User", token, file.name="lplant.fasta", path="/newDirectory") 				
+	MoveFile("User", token, file.name="lp.fasta", file.path="", end.path="/rplant/")
+
 	# Delete a file on the DE
-	# DeleteFile("User", token, "lplant.fasta")
+	DeleteFile("User", token, file.name="lplant.fasta", file.path="/rplant/")
+
 	# SupportFile("User", token)  
 }	
