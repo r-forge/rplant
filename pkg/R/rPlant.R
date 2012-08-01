@@ -182,7 +182,9 @@ GetAppInfo <- function(user.name, token, application, verbose=FALSE) {
 
 
 # -- JOB FUNCTIONS -- #
-SubmitJob <- function(user.name, token, application, job.name, path="", nprocs=1) {  
+SubmitJob <- function(user.name, token, application, job.name, path="", nprocs=1) {
+  #Automatically make analyses directory
+  MakeDir(user.name, token, "analyses", path="")
   # expand for other aps and additional input files
   web <- "https://foundation.iplantc.org/apps-v1/job"
   curl.string <- paste("curl -X POST -sku '", user.name, ":", token, 
