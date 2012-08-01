@@ -7,15 +7,15 @@
 	Functions for listing the contents of a directory, making new directories, or deleting entire directories in the iPlant infrastructure
 }
 \usage{
-ListDir(user.name, token, path="")
-MakeDir(user.name, token, dir.name, path="")
-DeleteDir(user.name, token, dir.name)
+ListDir(user.name, token, dir.path="")
+MakeDir(user.name, token, dir.name, dir.path="")
+DeleteDir(user.name, token, dir.name, dir.path="")
 }
 \arguments{
 	\item{user.name}{iPlant Discovery Environment user name}
 	\item{token}{a validation tool used in place of unencrypted passwords}
-	\item{path}{optional path to a user's sub directory; default path is empty, which leads to the home directory}
-	\item{dir.name}{name of subdirectory to be modified in the users home iPlant directory. If the subdirectory is not in the home directory, the the path should also be specified (i.e. "/path/file")}
+	\item{dir.path}{optional path to a user's sub directory; default path is empty, which leads to the home directory}
+	\item{dir.name}{name of subdirectory to be modified in the users home iPlant directory.}
 }
 \value{
 	Text listing action as either being a "success" or "error". If an error, then a message stating the error should also be reported.  
@@ -25,15 +25,15 @@ DeleteDir(user.name, token, dir.name)
 }
 \examples{
 	# Lists the contents of a user's home directory
-	# ListDir("User", token, path="")
+	# ListDir("User", token, dir.path="")
 	
 	# Makes a new subdirectory in the users home directory
-	# MakeDir("User", token, dir.name="rplant", path="")
+	# MakeDir("User", token, dir.name="rplant", dir.path="")
 	
 	# Lists the contents of a user's subdirectory
-	# ListDir("User", token, path="rplant")
+	# ListDir("User", token, dir.path="/rplant/")
 	
 	# Deletes a subdirectory
-	# DeleteDir("User", token, dir.name="/rplant/newDirectory")
+	# DeleteDir("User", token, dir.name="newDirectory", dir.path="/rplant/")
 }
 
