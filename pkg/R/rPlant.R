@@ -64,8 +64,8 @@ UploadFile <- function(user.name, token, file.name, file.path="", file.type) {
                        file.name, "' -F 'fileType=", 
                        file.type, web, user.name, sep="")
   #Automatically makes two necessary directories
-  MakeDir(user.name, token, "analyses", path="")
-  MakeDir(user.name, token, "rplant", path="")
+  MakeDir(user.name, token, "analyses", dir.path="")
+  MakeDir(user.name, token, "rplant", dir.path="")
   res <- fromJSON(system(curl.string, intern=TRUE))
   #Moves the file that was just uploaded in to the rplant folder
   MoveFile(user.name, token, file.name, file.path="", end.path="rplant")
@@ -288,7 +288,7 @@ GetAppInfo <- function(user.name, token, application, verbose=FALSE) {
 
 SubmitJob <- function(user.name, token, application, job.name, file.name, file.path="", nprocs=1) {
   #Automatically make analyses directory
-  MakeDir(user.name, token, "analyses", path="")
+  MakeDir(user.name, token, "analyses", dir.path="")
   # expand for other aps and additional input files
   web <- "https://foundation.iplantc.org/apps-v1/job"
   curl.string <- paste("curl -X POST -sku '", user.name, ":", token, 
