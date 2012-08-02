@@ -47,11 +47,11 @@ SupportFile(user.name, token)
 	# Rename a file 
 	RenameFile("User", token, old.file.name="landplant.fasta", new.file.name="lp.fasta", file.path="/rplant/")
 	
-	# Move a file from the home directory to a subdirectory
-	MoveFile("User", token, file.name="lp.fasta", file.path="", end.path="/rplant/")
+	# Move a file from the subdirectory rplant to the home directory
+	MoveFile("User", token, file.name="lp.fasta", file.path="/rplant/", end.path="")
 
-	# Delete a file on the DE
-	DeleteFile("User", token, file.name="lplant.fasta", file.path="/rplant/")
+	# Delete a file in the home directory
+	DeleteFile("User", token, file.name="lp.fasta", file.path="")
 
-	# SupportFile("User", token)  
+	SupportFile("User", token)  
 }	
