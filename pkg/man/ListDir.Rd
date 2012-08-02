@@ -24,16 +24,13 @@ DeleteDir(user.name, token, dir.name, dir.path="")
 	\code{\link{UploadFile}}
 }
 \examples{
-	# Lists the contents of a user's home directory
-	# ListDir("User", token, dir.path="")
+	# Makes the subdirectory named "new" in the users rplant directory
+	MakeDir("User", token, dir.name="new", dir.path="/rplant/")
 	
-	# Makes a new subdirectory in the users home directory
-	# MakeDir("User", token, dir.name="rplant", dir.path="")
+	# Lists the contents of a user's subdirectory "new"
+	ListDir("User", token, dir.path="/rplant/new/")
 	
-	# Lists the contents of a user's subdirectory
-	# ListDir("User", token, dir.path="/rplant/")
-	
-	# Deletes a subdirectory
-	# DeleteDir("User", token, dir.name="newDirectory", dir.path="/rplant/")
+	# Deletes the subdirectory "new"
+	DeleteDir("User", token, dir.name="new", dir.path="/rplant/")
 }
 
