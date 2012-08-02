@@ -39,17 +39,17 @@ GetJobHistory(user.name, token, verbose=FALSE)
 }
 \examples{
 	# Submit a MUSCLE job using landplant data, which will return a job.id
-	myJob <- SubmitJob(user.name, token, application="muscle-ranger-2.0", file.name="lp.fasta", file.path="/rplant/", job.name="job", nprocs="1")
+	# myJob <- SubmitJob(user.name, token, application="muscle-ranger-2.0", file.name="lp.fasta", file.path="/rplant/", job.name="job", nprocs="1")
 	
 	# Check the status of any job
-	CheckJobStatus("User", token, myJob, verbose=F)
+	# CheckJobStatus("User", token, myJob, verbose=F)
 	
 	# Lists and output files a job has created
-	ListJobOutput("User", token, myJob)  
+	# ListJobOutput("User", token, myJob)  
 	
 	# Download output files
-	RetrieveJob("User", token, myJob, ListJobOutput("User", token, myJob))
+	# RetrieveJob("User", token, myJob, ListJobOutput("User", token, myJob))
 
 	# View job history
-	GetJobHistory(user.name, token, verbose=FALSE)
+	# GetJobHistory(user.name, token, verbose=FALSE)
 }
