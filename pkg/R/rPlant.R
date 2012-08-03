@@ -38,49 +38,30 @@ RenewToken <- function(user.name, user.pwd, token,
 
 
 # -- FILE AND DATA FUNCTIONS -- #
-#UploadFile <- function(user.name, token, file.name, file.type) {
-#  web <- "' https://foundation.iplantc.org/io-v1/io/"
-#  curl.string <- paste("curl -sku '", user.name, ":", token, 
-#                       "' -F 'fileToUpload=@", 
-#                       file.name, "' -F 'fileType=", 
-#                       file.type, web, user.name, sep="")
-#  print(curl.string)
-#  #Automatically makes two necessary directories
-#  MakeDir(user.name, token, "analyses", path="")
-#  MakeDir(user.name, token, "rplant", path="")
-#  res <- fromJSON(system(curl.string, intern=TRUE))
-#  #Moves the file that was just uploaded in to the rplant folder
-#  MoveFile(user.name, token, file.name, file.path="", end.path="rplant")
-#  if (res$status == "error") 
-#    return(paste(res$status, ":", res$message))
-#  else
-#    return(res$status)
-#}
-
-UploadFile <- function(user.name, token, file.name, file.path="", file.type) {
+UploadFile <- function(user.name, token, local.file.name, local.file.path="", file.type) {
   web <- "' https://foundation.iplantc.org/io-v1/io/"
   curl.string <- paste("curl -sku '", user.name, ":", token, 
-                       "' -F 'fileToUpload=@", file.path, 
-                       file.name, "' -F 'fileType=", 
+                       "' -F 'fileToUpload=@", local.file.path, 
+                       local.file.name, "' -F 'fileType=", 
                        file.type, web, user.name, sep="")
   #Automatically makes two necessary directories
-  MakeDir(user.name, token, "analyses", dir.path="")
-  MakeDir(user.name, token, "rplant", dir.path="")
+  MakeDir(user.name, token, "analyses", DE.dir.path="")
+  MakeDir(user.name, token, "rplant", DE.dir.path="")
   res <- fromJSON(system(curl.string, intern=TRUE))
   #Moves the file that was just uploaded in to the rplant folder
-  MoveFile(user.name, token, file.name, file.path="", end.path="rplant")
+  MoveFile(user.name, token, local.file.name, DE.file.path="", DE.end.path="rplant")
   if (res$status == "error") 
     return(paste(res$status, ":", res$message))
   else
     return(res$status)
 }
 
-RenameFile <- function(user.name, token, old.file.name, new.file.name, file.path="") {
+RenameFile <- function(user.name, token, old.DE.file.name, new.DE.file.name, DE.file.path="") {
   web <- "' https://foundation.iplantc.org/io-v1/io/"
   curl.string <- paste("curl -sku '", user.name, ":", token, 
                        "' -X PUT -d 'newName=", 
-                       new.file.name, "&action=rename", web, user.name, "/", 
-                       file.path, "/", old.file.name, sep="")
+                       new.DE.file.name, "&action=rename", web, user.name, "/", 
+                       DE.file.path, "/", old.DE.file.name, sep="")
   res <- fromJSON(system(curl.string, intern=TRUE))
   if (res$status == "error") 
     return(paste(res$status, ":", res$message))
@@ -88,25 +69,12 @@ RenameFile <- function(user.name, token, old.file.name, new.file.name, file.path
     return(res$status)
 }
 
-#MoveFile <- function(user.name, token, file.name, path="") {
-#  web <- "' https://foundation.iplantc.org/io-v1/io/"
-#  curl.string <- paste("curl -sku '", user.name, ":", token, 
-#                       "' -X PUT -d 'newPath=", user.name, "/", path, 
-#                       "/", file.name, "&action=move", web, user.name, 
-#                       "/", file.name, sep="")
-#  res <- fromJSON(system(curl.string, intern=TRUE))
-#  if (res$status == "error")
-#    return(paste(res$status, ":", res$message))
-#  else
-#    return(res$status)
-#}
-
-MoveFile <- function(user.name, token, file.name, file.path="", end.path="") {
+MoveFile <- function(user.name, token, DE.file.name, DE.file.path="", DE.end.path="") {
   web <- "' https://foundation.iplantc.org/io-v1/io/"
   curl.string <- paste("curl -sku '", user.name, ":", token, 
-                       "' -X PUT -d 'newPath=", user.name, "/", end.path, 
-                       "/", file.name, "&action=move", web, user.name, 
-                       "/", file.path, "/", file.name, sep="")
+                       "' -X PUT -d 'newPath=", user.name, "/", DE.end.path, 
+                       "/", DE.file.name, "&action=move", web, user.name, 
+                       "/", DE.file.path, "/", DE.file.name, sep="")
   res <- fromJSON(system(curl.string, intern=TRUE))
   if (res$status == "error")
     return(paste(res$status, ":", res$message))
@@ -114,21 +82,10 @@ MoveFile <- function(user.name, token, file.name, file.path="", end.path="") {
     return(res$status)
 }
 
-#DeleteFile <- function(user.name, token, file.name) {
-#  web <- " https://foundation.iplantc.org/io-v1/io/"
-#  curl.string <- paste("curl -sku '", user.name, ":", token, "' -X DELETE", 
-#                       web, user.name, "/", file.name, "/", sep="")
-#  res <- fromJSON(system(curl.string, intern=TRUE))
-#  if (res$status == "error")
-#    return(paste(res$status, ":", res$message))
-#  else
-#    return(res$status)
-#}
-
-DeleteFile <- function(user.name, token, file.name, file.path) {
+DeleteFile <- function(user.name, token, DE.file.name, DE.file.path) {
   web <- " https://foundation.iplantc.org/io-v1/io/"
   curl.string <- paste("curl -sku '", user.name, ":", token, "' -X DELETE", 
-                       web, user.name, "/", file.path, "/", file.name, "/", sep="")
+                       web, user.name, "/", DE.file.path, "/", DE.file.name, "/", sep="")
   res <- fromJSON(system(curl.string, intern=TRUE))
   if (res$status == "error")
     return(paste(res$status, ":", res$message))
@@ -146,24 +103,10 @@ SupportFile <- function(user.name, token) {
 # -- END -- #
 
 # -- DIRECTORY FUNCTIONS -- #
-#ListDir <- function(user.name, token, path="") { 
-#  web <- "' https://foundation.iplantc.org/io-v1/io/list/"
-#  curl.string <- paste("curl -sku '", user.name, ":", token, web, user.name, 
-#                       "/", path, sep="")
-#  tmp <- fromJSON(system(curl.string, intern=TRUE))
-#  res <- matrix(, length(tmp$result), 2)
-#  colnames(res) <- c("name", "type")
-#  for (i in 1:length(tmp$result)){
-#   res[i, 1] <- tmp$result[[i]]$name
-#    res[i, 2] <- tmp$result[[i]]$type
-#  }
-#  return(res)
-#}
-
-ListDir <- function(user.name, token, dir.path="") { 
+ListDir <- function(user.name, token, DE.dir.path="") { 
   web <- "' https://foundation.iplantc.org/io-v1/io/list/"
   curl.string <- paste("curl -sku '", user.name, ":", token, web, user.name, 
-                       "/", dir.path, sep="")
+                       "/", DE.dir.path, sep="")
   tmp <- fromJSON(system(curl.string, intern=TRUE))
   res <- matrix(, length(tmp$result), 2)
   colnames(res) <- c("name", "type")
@@ -174,23 +117,11 @@ ListDir <- function(user.name, token, dir.path="") {
   return(res)
 }
 
-#MakeDir <- function(user.name, token, dir.name, path="") {
-#  web <- "https://foundation.iplantc.org/io-v1/io/"
-#  curl.string <- paste("curl -sku '", user.name, ":", token, 
-#                       "' -X PUT -d 'dirName=", dir.name, "&action=mkdir' ", 
-#                       web, user.name, "/", dir.path, sep="")
-#  res <- fromJSON(system(curl.string, intern=TRUE))
-#  if (res$status == "error")
-#    return(paste(res$status, ":", res$message))
-#  else
-#    return(res$status)
-#}
-
-MakeDir <- function(user.name, token, dir.name, dir.path="") {
+MakeDir <- function(user.name, token, DE.dir.name, DE.dir.path="") {
   web <- "https://foundation.iplantc.org/io-v1/io/"
   curl.string <- paste("curl -sku '", user.name, ":", token, 
-                       "' -X PUT -d 'dirName=", dir.name, "&action=mkdir' ", 
-                       web, user.name, "/", dir.path, sep="")
+                       "' -X PUT -d 'dirName=", DE.dir.name, "&action=mkdir' ", 
+                       web, user.name, "/", DE.dir.path, sep="")
   res <- fromJSON(system(curl.string, intern=TRUE))
   if (res$status == "error")
     return(paste(res$status, ":", res$message))
@@ -198,21 +129,10 @@ MakeDir <- function(user.name, token, dir.name, dir.path="") {
     return(res$status)
 }
 
-#DeleteDir <- function(user.name, token, dir.name) {
-#  web <- "https://foundation.iplantc.org/io-v1/io/"
-#  curl.string <- paste("curl -sku '", user.name, ":", token, "' -X DELETE ", 
-#                       web,  user.name, "/", dir.name, sep="")
-#  res <- fromJSON(system(curl.string, intern=TRUE))
-#  if (res$status == "error")
-#    return(paste(res$status, ":", res$message))
-#  else
-#    return(res$status)  
-#}
-
-DeleteDir <- function(user.name, token, dir.name, dir.path) {
+DeleteDir <- function(user.name, token, DE.dir.name, DE.dir.path) {
   web <- "https://foundation.iplantc.org/io-v1/io/"
   curl.string <- paste("curl -sku '", user.name, ":", token, "' -X DELETE ", 
-                       web,  user.name, "/", dir.path, "/", dir.name, sep="")
+                       web,  user.name, "/", DE.dir.path, "/", DE.dir.name, sep="")
   res <- fromJSON(system(curl.string, intern=TRUE))
   if (res$status == "error")
     return(paste(res$status, ":", res$message))
@@ -263,38 +183,15 @@ GetAppInfo <- function(user.name, token, application, verbose=FALSE) {
 
 
 # -- JOB FUNCTIONS -- #
-#SubmitJob <- function(user.name, token, application, job.name, path="", nprocs=1) {
-#  #Automatically make analyses directory
-#  MakeDir(user.name, token, "analyses", path="")
-#  # expand for other aps and additional input files
-#  web <- "https://foundation.iplantc.org/apps-v1/job"
-#  curl.string <- paste("curl -X POST -sku '", user.name, ":", token, 
-#                       "' -d 'jobName=", job.name, "&softwareName=",  
-#                       application, "&archive=1&inputSeqs=", path,
-#                       "&processorCount=", nprocs, "&archivePath=/", 
-#                       user.name, "/analyses/", job.name, 
-#                       "&requestedTime=24:00:00&outputFormat=fasta&mode=auto' ", 
-#                       web, sep="")
-#                       print(curl.string)
-#  res <- fromJSON(paste(system(curl.string, intern=TRUE),sep="", collapse=""))
-#  if (res$status == "success")
-#    cat("Job submitted. You can check the status of your job using this id:", 
-#        res$result$id, "\n")
-#  else
-#    cat("Error.", res$message, "\n")
-#    return(res$result$id)
-#  # also return or print citations
-#}
-
-SubmitJob <- function(user.name, token, application, job.name, file.name, file.path="", nprocs=1) {
+SubmitJob <- function(user.name, token, application, job.name, DE.file.name, DE.file.path="", nprocs=1) {
   #Automatically make analyses directory
-  MakeDir(user.name, token, "analyses", dir.path="")
+  MakeDir(user.name, token, "analyses", DE.dir.path="")
   # expand for other aps and additional input files
   web <- "https://foundation.iplantc.org/apps-v1/job"
   curl.string <- paste("curl -X POST -sku '", user.name, ":", token, 
                        "' -d 'jobName=", job.name, "&softwareName=",  
-                       application, "&archive=1&inputSeqs=", file.path, "/",
-                       file.name, "&processorCount=", nprocs, "&archivePath=/", 
+                       application, "&archive=1&inputSeqs=", DE.file.path, "/",
+                       DE.file.name, "&processorCount=", nprocs, "&archivePath=/", 
                        user.name, "/analyses/", job.name, 
                        "&requestedTime=24:00:00&outputFormat=fasta&mode=auto' ", 
                        web, sep="")
@@ -308,7 +205,6 @@ SubmitJob <- function(user.name, token, application, job.name, file.name, file.p
     return(res$result$id)
   # also return or print citations
 }
-
 
 CheckJobStatus <- function(user.name, token, job.id, verbose=FALSE) {
   web <- "' https://foundation.iplantc.org/apps-v1/job/"
