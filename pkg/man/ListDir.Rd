@@ -7,15 +7,15 @@
 	Functions for listing the contents of a directory, making new directories, or deleting entire directories in the iPlant infrastructure
 }
 \usage{
-ListDir(user.name, token, dir.path="")
-MakeDir(user.name, token, dir.name, dir.path="")
-DeleteDir(user.name, token, dir.name, dir.path="")
+ListDir(user.name, token, DE.dir.path="")
+MakeDir(user.name, token, DE.dir.name, DE.dir.path="")
+DeleteDir(user.name, token, DE.dir.name, DE.dir.path="")
 }
 \arguments{
 	\item{user.name}{iPlant Discovery Environment user name}
 	\item{token}{a validation tool used in place of unencrypted passwords}
-	\item{dir.path}{optional path to a user's sub directory; default path is empty, which leads to the home directory}
-	\item{dir.name}{name of subdirectory to be modified in the users home iPlant directory.}
+	\item{DE.dir.path}{optional path to a user's sub directory on the Discovery Environment (DE); default path is empty, which leads to the home directory}
+	\item{DE.dir.name}{name of subdirectory to be modified on the DE in the users home iPlant directory.}
 }
 \value{
 	Text listing action as either being a "success" or "error". If an error, then a message stating the error should also be reported.  
@@ -24,13 +24,16 @@ DeleteDir(user.name, token, dir.name, dir.path="")
 	\code{\link{UploadFile}}
 }
 \examples{
-	# Makes the subdirectory named "new" in the users rplant directory
-	# MakeDir("User", token, dir.name="new", dir.path="/rplant/")
-	
-	# Lists the contents of a user's subdirectory "new"
-	# ListDir("User", token, dir.path="/rplant/new/")
-	
-	# Deletes the subdirectory "new"
-	# DeleteDir("User", token, dir.name="new", dir.path="/rplant/")
+# Makes the subdirectory named "new" in the users rplant directory
+# MakeDir("User", token, DE.dir.name="new", DE.dir.path="/rplant/")
+             
+# Lists the contents of a user's subdirectory "new"
+# ListDir("User", token, DE.dir.path="/rplant/new/")
+
+# Lists the contents of a user's subdirectory "rplant"
+# ListDir("User", token, DE.dir.path="/rplant/")
+
+# Deletes the subdirectory "new"
+# DeleteDir("User", token, DE.dir.name="new", DE.dir.path="/rplant/")
 }
 
