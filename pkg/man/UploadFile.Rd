@@ -9,21 +9,23 @@
 	Functions for uploading and manipulating files in the iPlant infrastructure
 }
 \usage{
-UploadFile(user.name, token, file.name, file.path, file.type)
-RenameFile(user.name, token, old.file.name, new.file.name, file.path)
-MoveFile(user.name, token, file.name, file.path, end.path)
-DeleteFile(user.name, token, file.name, file.path)
+UploadFile(user.name, token, local.file.name, local.file.path, file.type)
+RenameFile(user.name, token, old.DE.file.name, new.DE.file.name, DE.file.path)
+MoveFile(user.name, token, DE.file.name, DE.file.path, DE.end.path)
+DeleteFile(user.name, token, DE.file.name, DE.file.path)
 SupportFile(user.name, token)
 }
 \arguments{
 	\item{user.name}{iPlant Discovery Environment user name}
 	\item{token}{a validation tool used in place of unencrypted passwords}
-	\item{file.name}{Name of file to be modified.  This file cannot be an object in the R workspace.}
+	\item{local.file.name}{Name of local file on user's computer.  This file cannot be an object in the R workspace.}
+	\item{DE.file.name}{Name of file to be modified on the Discovery Environment (DE).}
 	\item{file.type}{format of file that is to be uploaded. Currently 34 file formats supported} 
-	\item{old.file.name}{the name of the file to be renamed}
-	\item{new.file.name}{the new name of the file to be renamed} 
-	\item{file.path}{optional path to a sub directory where file is located; default path is empty which leads to a users home directory}
-	\item{end.path}{optional path to destination sub directory where file is moved to; default path is empty which leads to a users home directory}
+	\item{old.DE.file.name}{the name of the file on DE to be renamed}
+	\item{new.DE.file.name}{the new name of the file on DE to be renamed} 
+	\item{local.file.path}{optional path to a sub directory where local file on user's computer is located; default path is empty which leads to a users home directory}
+	\item{DE.file.path}{optional path to a sub directory where file on DE is located; default path is empty which leads to a users home directory}
+	\item{DE.end.path}{optional path to destination sub directory where file on DE is moved to; default path is empty which leads to a users home directory}
 }
 \details{
 	The function SupportFile provides a list of the supported file types that can be uploaded onto iPlant. Currently does not work.
@@ -36,22 +38,22 @@ SupportFile(user.name, token)
 	Text listing action as either being a "success" or "error". If an error, then a message stating the error should also be reported.  
 }
 \examples{
-        # Write .fasta file to home directory
-        # data(landplant.fasta)
-        # write.fasta(sequences=landplant.fasta,names=names(landplant.fasta),file.out="lp.fasta")        
+# Write .fasta file to home directory
+# data(landplant.fasta)
+# write.fasta(sequences=landplant.fasta,names=names(landplant.fasta),file.out="landplant.fasta") 
+         
+# Upload a file to the DE
+# UploadFile("User", token, local.file.name="landplant.fasta", file.type="FASTA-0")
+# UploadFile("User", token, local.file.name="landplant.fasta", local.file.path="/path/", file.type="FASTA-0")
+     
+# Rename a file 
+# RenameFile("User", token, old.DE.file.name="landplant.fasta", new.DE.file.name="lp.fasta", DE.file.path="/rplant/")
+             
+# Move a file from the subdirectory rplant to the home directory
+# MoveFile("User", token, DE.file.name="lp.fasta", DE.file.path="/rplant/", DE.end.path="")
+     
+# Delete a file in the home directory
+# DeleteFile("User", token, DE.file.name="lp.fasta", DE.file.path="")
 
-	# Upload a file to the DE
-	# UploadFile("User", token, file.name="landplant.fasta", file.type="FASTA-0")
-	# UploadFile("User", token, file.name="landplant.fasta", file.path="/path/", file.type="FASTA-0")
-
-	# Rename a file 
-	# RenameFile("User", token, old.file.name="landplant.fasta", new.file.name="lp.fasta", file.path="/rplant/")
-	
-	# Move a file from the subdirectory rplant to the home directory
-	# MoveFile("User", token, file.name="lp.fasta", file.path="/rplant/", end.path="")
-
-	# Delete a file in the home directory
-	# DeleteFile("User", token, file.name="lp.fasta", file.path="")
-
-	# SupportFile("User", token)  
+# SupportFile("User", token)  
 }	
