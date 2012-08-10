@@ -39,8 +39,8 @@ SupportFile(user.name, token)
 }
 \examples{
 # Write .fasta file to home directory
-# data(landplant.fasta)
-# write.fasta(sequences=ex.lp.fasta,names=names(landplant.fasta),file.out="ex.lp.fasta") 
+# data(ex.lp.fasta)
+# write.fasta(sequences=ex.lp.fasta,names=names(ex.lp.fasta),file.out="ex.lp.fasta") 
          
 # Upload a file to the DE
 # UploadFile("User", token, local.file.name="ex.lp.fasta", file.type="FASTA-0")
