@@ -163,8 +163,13 @@ GetAppInfo <- function(user.name, token, application, verbose=FALSE) {
         # c) outputs
   web <- "' https://foundation.iplantc.org/apps-v1/apps/share/name/"
   curl.string <- paste("curl -X GET -sku '", user.name, ":", token, web, 
-                       application, sep="") 
-  res <- fromJSON(system(curl.string, intern=TRUE))
+                       application, sep="")
+  qq <- system(curl.string, intern=TRUE)
+  qq1 <- NULL
+  for (i in c(1:length(qq))){
+    qq1 <- paste(qq1,qq[i],sep="")
+  }
+  res <- fromJSON(qq1)
   if (verbose)
     return(res)
   else
@@ -256,7 +261,7 @@ RetrieveJob <- function(user.name, token, job.id, files) {
     }
   }
   else
-    warning("Job is ", JS)
+    warning("Job is ", JS$res$status)
 }
 
 ListJobOutput <- function(user.name, token, job.id) {
