@@ -197,12 +197,12 @@ SubmitJob <- function(user.name, token, application, job.name, DE.file.name, DE.
   web <- "https://foundation.iplantc.org/apps-v1/job"
   curl.string <- paste("curl -X POST -sku '", user.name, ":", token, 
                        "' -d 'jobName=", job.name, "&softwareName=",  
-                       application, "&archive=1&inputSeqs=", DE.file.path, "/",
-                       DE.file.name, "&processorCount=", nprocs, "&archivePath=/", 
+                       application, "&archive=1&inputSeqs=", "/", 
+                       user.name, "/", DE.file.path, "/", DE.file.name, 
+                       "&processorCount=", nprocs, "&archivePath=/", 
                        user.name, "/analyses/", job.name, 
                        "&requestedTime=24:00:00&outputFormat=fasta&mode=auto' ", 
                        web, sep="")
-                       print(curl.string)
   res <- fromJSON(paste(system(curl.string, intern=TRUE),sep="", collapse=""))
   if (res$status == "success")
     cat("Job submitted. You can check the status of your job using this id:", 
@@ -238,7 +238,7 @@ DeleteJob <- function(user.name, token, job.id) {
                          job.id[job], sep="")
     res <- fromJSON(paste(system(curl.string, intern=TRUE),sep="", collapse=""))
     if (res$status == "success")
-      print(paste("job.id", job.id[job], "was sucessfully deleted"))
+      print(paste("job.id", job.id[job], "was successfully deleted"))
     else
       print(paste("job.id", job.id[job], res$status, ":", res$message))
   }
