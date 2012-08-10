@@ -170,6 +170,7 @@ GetAppInfo <- function(user.name, token, application, verbose=FALSE) {
     qq1 <- paste(qq1,qq[i],sep="")
   }
   res <- fromJSON(qq1)
+  if (length(res$result[[1]]$inputs)==0){return(list(application=res$result[[1]]$id, NA))}else{
   if (verbose)
     return(res)
   else
@@ -182,7 +183,8 @@ GetAppInfo <- function(user.name, token, application, verbose=FALSE) {
                         res$result[[1]]$output[[output]]$semantics$fileTypes[1])) 
                         # this seems to vary depending on the application
     colnames(app.info)<-c("kind", "id", "fileType")
-    return(list(application=res$result[[1]]$id, app.info))  
+    return(list(application=res$result[[1]]$id, app.info))
+  }
 }
 # -- END -- #
 
