@@ -40,14 +40,14 @@ SupportFile(user.name, token)
 \examples{
 # Write .fasta file to home directory
 # data(landplant.fasta)
-# write.fasta(sequences=landplant.fasta,names=names(landplant.fasta),file.out="landplant.fasta") 
+# write.fasta(sequences=ex.lp.fasta,names=names(landplant.fasta),file.out="ex.lp.fasta") 
          
 # Upload a file to the DE
-# UploadFile("User", token, local.file.name="landplant.fasta", file.type="FASTA-0")
-# UploadFile("User", token, local.file.name="landplant.fasta", local.file.path="/path/", file.type="FASTA-0")
+# UploadFile("User", token, local.file.name="ex.lp.fasta", file.type="FASTA-0")
+# UploadFile("User", token, local.file.name="ex.lp.fasta", local.file.path="/path/", file.type="FASTA-0")
      
 # Rename a file 
-# RenameFile("User", token, old.DE.file.name="landplant.fasta", new.DE.file.name="lp.fasta", DE.file.path="/rplant/")
+# RenameFile("User", token, old.DE.file.name="ex.lp.fasta", new.DE.file.name="lp.fasta", DE.file.path="/rplant/")
              
 # Move a file from the subdirectory rplant to the home directory
 # MoveFile("User", token, DE.file.name="lp.fasta", DE.file.path="/rplant/", DE.end.path="")
