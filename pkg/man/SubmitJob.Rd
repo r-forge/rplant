@@ -51,8 +51,11 @@ GetJobHistory(user.name, token, verbose=FALSE)
 # ListJobOutput("User", token, myJob)  
              
 # Download output files
-# RetrieveJob("User", token, myJob, ListJobOutput("User", token, myJob))
+# RetrieveJob("User", token, myJob, ListJobOutput("User", token, myJob)[[1]])
      
 # View job history
 # GetJobHistory("User", token, verbose=FALSE)
+
+# Delete Job
+# DeleteJob("User", token, myJob)
 }
