@@ -1,2 +1,2 @@
-export(GetToken, RenewToken, UploadFile, RenameFile, MoveFile, DeleteFile, SupportFile, ListDir, MakeDir, DeleteDir, ListApps, GetAppInfo, SubmitJob, CheckJobStatus, DeleteJob, RetrieveJob, ListJobOutput, GetJobHistory, ResolveNames, CompareTNRS, GetCitations)
+export(GetToken, RenewToken, UploadFile, RenameFile, MoveFile, DeleteFile, SupportFile, ListDir, MakeDir, DeleteDir, ListApps, GetAppInfo, SubmitJob, CheckJobStatus, DeleteJob, RetrieveJob, ListJobOutput, GetJobHistory, ResolveNames, CompareTNRS, GetCitations, RunMuscle, RunPhylip)
 import(rjson, seqinr, knitcitations)
