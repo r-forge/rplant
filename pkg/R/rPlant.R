@@ -47,7 +47,7 @@ UploadFile <- function(user.name, token, local.file.name, local.file.path="", fi
   #Automatically makes two necessary directories
   MakeDir(user.name, token, "analyses", DE.dir.path="")
   MakeDir(user.name, token, "rplant", DE.dir.path="")
-  res <- suppressWarnings(fromJSON(paste(system(curl.string, intern=TRUE),sep="", collapse="")))
+  res <- paste(system(curl.string, intern=TRUE),sep="", collapse="")
   #Moves the file that was just uploaded in to the rplant folder
   MoveFile(user.name, token, local.file.name, DE.file.path="", DE.end.path="rplant")
   if (res$status == "error") 
@@ -251,7 +251,7 @@ RetrieveJob <- function(user.name, token, job.id, files) {
         curl.string <- paste("curl -X GET -sku '", user.name, ":", token, web, 
                              JS$result$archivePath, "/", files[file], " -o ", 
                              files[file], sep="")
-        res <- suppressWarnings(fromJSON(paste(system(curl.string, intern=TRUE),sep="", collapse="")))
+        res <- paste(system(curl.string, intern=TRUE),sep="", collapse="")
         print(paste("Downloaded", files[file], "to", getwd(), "directory"))
       }
       else
