@@ -337,7 +337,6 @@ ResolveNames <- function(names, max.per.call=100, verbose=TRUE) {
     actual.call <- paste(actual.call, names[name.index], ",", sep="")
     if (names.in.call == max.per.call || name.index == length(names)) {
       returned.values <- fromJSON(file=actual.call)$items
-      print(returned.values)
       for (return.index in sequence(length(returned.values))) 
         new.names[starting.position + return.index - 1] <- returned.values[[return.index]]$nameScientific
       if (verbose) 
