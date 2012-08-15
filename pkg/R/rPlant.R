@@ -99,10 +99,16 @@ DeleteFile <- function(user.name, token, DE.file.name, DE.file.path) {
 
 SupportFile <- function(user.name, token) {  
   # lists the supported file types -- does not work! It should. 
-  web <- "' https://foundation.iplantc.org/data-v1/data/tranforms"
+  web <- "' https://foundation.iplantc.org/io-v1/data/transforms/"
   curl.string <- paste("curl -X GET -sku '", user.name, ":", token, web, sep="")
   res <- fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
-  return(res)  # might change when it works
+  if(res[[1]] == "success"){
+    file.types<-c()
+    for(i in 1:length(res[[3]])){
+      file.types<-c(file.types, res[[3]][[i]]$name)
+    }
+  }
+  return(file.types)
 }
 # -- END -- #
 
