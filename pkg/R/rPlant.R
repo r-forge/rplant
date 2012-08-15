@@ -101,7 +101,7 @@ SupportFile <- function(user.name, token) {
   # lists the supported file types -- does not work! It should. 
   web <- "' https://foundation.iplantc.org/io-v1/data/transforms/"
   curl.string <- paste("curl -X GET -sku '", user.name, ":", token, web, sep="")
-  res <- fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
+  res <- fromJSON(paste(system(curl.string,intern=TRUE), sep="", collapse=""))
   if(res[[1]] == "success"){
     file.types<-c()
     for(i in 1:length(res[[3]])){
@@ -325,8 +325,8 @@ ResolveNames <- function(names, max.per.call=100, verbose=TRUE) {
   # names <- c("zea mays","acacia","solanum","saltea","rosa_rugoso")
   # returnedNames <- ResolveNames(names)
   # print(returnedNames)
-  names <- sapply(names, sub, pattern="_", replacement=" ")
-  names <- sapply(names, URLencode)
+  names <- sapply(names, sub, pattern="_", replacement=" ", USE.NAMES = FALSE)
+  names <- sapply(names, URLencode, USE.NAMES = FALSE)
   call.base <- 'http://tnrs.iplantc.org/tnrsm-svc/matchNames?retrieve=best&names='
   new.names <- rep(NA, length(names))
   names.in.call <- 0
@@ -337,8 +337,9 @@ ResolveNames <- function(names, max.per.call=100, verbose=TRUE) {
     actual.call <- paste(actual.call, names[name.index], ",", sep="")
     if (names.in.call == max.per.call || name.index == length(names)) {
       returned.values <- fromJSON(file=actual.call)$items
+      print(returned.values)
       for (return.index in sequence(length(returned.values))) 
-        new.names[starting.position + return.index - 1] <- returned.values[[return.index]]$name.scientific
+        new.names[starting.position + return.index - 1] <- returned.values[[return.index]]$nameScientific
       if (verbose) 
         print(paste("finished ", name.index, "of ", length(names), "names")) 
       starting.position <- name.index + 1
