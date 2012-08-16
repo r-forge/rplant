@@ -25,15 +25,15 @@ DeleteDir(user.name, token, DE.dir.name, DE.dir.path="")
 }
 \examples{
 # Makes the subdirectory named "new" in the users rplant directory
-# MakeDir("User", token, DE.dir.name="new", DE.dir.path="/rplant/")
+# MakeDir("User", token, DE.dir.name="new", DE.dir.path="/data/")
              
 # Lists the contents of a user's subdirectory "new"
-# ListDir("User", token, DE.dir.path="/rplant/new/")
+# ListDir("User", token, DE.dir.path="/data/new/")
 
 # Lists the contents of a user's subdirectory "rplant"
-# ListDir("User", token, DE.dir.path="/rplant/")
+# ListDir("User", token, DE.dir.path="/data/")
 
 # Deletes the subdirectory "new"
-# DeleteDir("User", token, DE.dir.name="new", DE.dir.path="/rplant/")
+# DeleteDir("User", token, DE.dir.name="new", DE.dir.path="/data/")
 }
 
