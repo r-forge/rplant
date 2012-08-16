@@ -359,12 +359,12 @@ ResolveNames <- function(names, max.per.call=100, verbose=TRUE) {
 
 
 
-CompareTNRS <- function(original, TNRS, verbose=TRUE) {
-# takes a list of original taxonomic names(same ones given as "names in ResolveNames) and compares to the returned names from TNRS
+CompareNames <- function(old.names, new.names, verbose=TRUE) {
+# takes a list of old.names taxonomic names(same ones given as "names in ResolveNames) and compares to the returned names from TNRS
 # note that names are changed back to include an "_" instead of the " " they come with out of TNRS first, so that they do not count as taxonomic name changes
   taxa.changed <- 0
-  names2 <- sapply(TNRS, sub, pattern=" ",replacement="_", USE.NAMES=F)
-  comp <- cbind(original, names2)
+  names2 <- sapply(new.names, sub, pattern=" ",replacement="_", USE.NAMES=F)
+  comp <- cbind(old.names, names2)
   for (i in 1: dim(comp)[1]){
     if (comp[i, 1] != comp[i, 2]) {
       taxa.changed <- taxa.changed + 1
