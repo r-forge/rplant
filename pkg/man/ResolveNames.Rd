@@ -7,7 +7,7 @@
 }
 \usage{
 ResolveNames(names, max.per.call=100, verbose=TRUE) 
-CompareTNRS(original.names, TNRS, verbose=TRUE)
+CompareTNRS(original, TNRS, verbose=TRUE)
 }
 \arguments{
 	\item{names}{Names to be resolved}
