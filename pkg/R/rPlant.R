@@ -321,6 +321,9 @@ GetJobHistory <- function(user.name, token, verbose=FALSE) {
 
 # -- TNRS FUNCTIONS -- #
 ResolveNames <- function(names, max.per.call=100, verbose=TRUE) {
+  max.per.call <- 100
+  names <- speciesNames
+  verbose <- FALSE
   # takes a list of names and sends it to the iPlant TNRS site(http://tnrs.iplantcollaborative.org/)
   # names <- c("zea mays","acacia","solanum","saltea","rosa_rugoso")
   # returnedNames <- ResolveNames(names)
@@ -332,12 +335,13 @@ ResolveNames <- function(names, max.per.call=100, verbose=TRUE) {
   names.in.call <- 0
   actual.call <- call.base
   starting.position <- 1
+  
   for (name.index in sequence(length(names))) {
     names.in.call <- names.in.call + 1
     actual.call <- paste(actual.call, names[name.index], ",", sep="")
     if (names.in.call == max.per.call || name.index == length(names)) {
-      returned.values <- fromJSON(file=actual.call)$items
-      for (return.index in sequence(length(returned.values))) 
+      returned.values <- suppressWarnings(fromJSON(file=actual.call)$items)
+      for (return.index in sequence(length(returned.values)))
         new.names[starting.position + return.index - 1] <- returned.values[[return.index]]$nameScientific
       if (verbose) 
         print(paste("finished ", name.index, "of ", length(names), "names")) 
@@ -346,7 +350,6 @@ ResolveNames <- function(names, max.per.call=100, verbose=TRUE) {
       actual.call <- call.base
     }
   }
-  print("Ignore a warning message about incomplete final line")
   if (length(new.names) != length(names)) 
     warning(paste("the input name list was", length(names), 
                   "long but the new one is ", length(new.names), "long"))
