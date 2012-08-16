@@ -9,7 +9,7 @@ GetToken <- function(user.name, user.pwd,
     if (api == "iplant") {
       curl.string <- paste("curl -X POST -sku '", user.name, ":", user.pwd, 
                            web, sep="")
-      res <- fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
+      res <- suppressWarnings(fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse="")))
       if (res$status == "error") 
         return(res$message)  # returns if error
       else 
@@ -27,8 +27,8 @@ RenewToken <- function(user.name, user.pwd, token,
     if (api == "iplant") {
       curl.string <- paste("curl -X POST -sku '", user.name, ":", 
                            user.pwd, "' -d 'token=", token, web, sep="")
-#     res <- suppressWarnings(fromJSON(paste(system(curl.string, intern=TRUE),sep="", collapse="")))
-      res <- fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
+     res <- suppressWarnings(fromJSON(paste(system(curl.string, intern=TRUE),sep="", collapse="")))
+#     res <- fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
       res$status  # Outputs a message renewal success
     }
     else 
@@ -49,10 +49,10 @@ UploadFile <- function(user.name, token, local.file.name, local.file.path="", fi
   #Automatically makes two necessary directories
   MakeDir(user.name, token, "analyses", DE.dir.path="")
   MakeDir(user.name, token, "data", DE.dir.path="")
-  res <- fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
+  res <- suppressWarnings(fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse="")))
 
   #Moves the file that was just uploaded in to the rplant folder
-  MoveFile(user.name, token, local.file.name, DE.file.path="", DE.end.path="rplant")
+  MoveFile(user.name, token, local.file.name, DE.file.path="", DE.end.path="/data/")
   if (res$status == "error") 
     return(paste(res$status, ":", res$message))
   else
@@ -65,7 +65,7 @@ RenameFile <- function(user.name, token, old.DE.file.name, new.DE.file.name, DE.
                        "' -X PUT -d 'newName=", 
                        new.DE.file.name, "&action=rename", web, user.name, "/", 
                        DE.file.path, "/", old.DE.file.name, sep="")
-  res <- fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
+  res <- suppressWarnings(fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse="")))
   if (res$status == "error") 
     return(paste(res$status, ":", res$message))
   else
@@ -78,7 +78,7 @@ MoveFile <- function(user.name, token, DE.file.name, DE.file.path="", DE.end.pat
                        "' -X PUT -d 'newPath=", user.name, "/", DE.end.path, 
                        "/", DE.file.name, "&action=move", web, user.name, 
                        "/", DE.file.path, "/", DE.file.name, sep="")
-  res <- fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
+  res <- suppressWarnings(fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse="")))
   if (res$status == "error")
     return(paste(res$status, ":", res$message))
   else
@@ -90,7 +90,7 @@ DeleteFile <- function(user.name, token, DE.file.name, DE.file.path) {
   curl.string <- paste("curl -sku '", user.name, ":", token, "' -X DELETE", 
                        web, user.name, "/", DE.file.path, 
                        "/", DE.file.name, "/", sep="")
-  res <- fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
+  res <- suppressWarnings(fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse="")))
   if (res$status == "error")
     return(paste(res$status, ":", res$message))
   else
@@ -101,7 +101,7 @@ SupportFile <- function(user.name, token) {
   # lists the supported file types -- does not work! It should. 
   web <- "' https://foundation.iplantc.org/io-v1/data/transforms/"
   curl.string <- paste("curl -X GET -sku '", user.name, ":", token, web, sep="")
-  res <- fromJSON(paste(system(curl.string,intern=TRUE), sep="", collapse=""))
+  res <- suppressWarnings(fromJSON(paste(system(curl.string,intern=TRUE), sep="", collapse="")))
   if(res[[1]] == "success"){
     file.types<-c()
     for(i in 1:length(res[[3]])){
@@ -132,7 +132,7 @@ MakeDir <- function(user.name, token, DE.dir.name, DE.dir.path="") {
   curl.string <- paste("curl -sku '", user.name, ":", token, 
                        "' -X PUT -d 'dirName=", DE.dir.name, "&action=mkdir' ", 
                        web, user.name, "/", DE.dir.path, sep="")
-  res <- fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
+  res <- suppressWarnings(fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse="")))
   if (res$status == "error")
     return(paste(res$status, ":", res$message))
   else
@@ -143,7 +143,7 @@ DeleteDir <- function(user.name, token, DE.dir.name, DE.dir.path) {
   web <- "https://foundation.iplantc.org/io-v1/io/"
   curl.string <- paste("curl -sku '", user.name, ":", token, "' -X DELETE ", 
                        web,  user.name, "/", DE.dir.path, "/", DE.dir.name, sep="")
-  res <- fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
+  res <- suppressWarnings(fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse="")))
   if (res$status == "error")
     return(paste(res$status, ":", res$message))
   else
@@ -174,7 +174,7 @@ GetAppInfo <- function(user.name, token, application, verbose=FALSE) {
   web <- "' https://foundation.iplantc.org/apps-v1/apps/share/name/"
   curl.string <- paste("curl -X GET -sku '", user.name, ":", token, web, 
                        application, sep="")
-  res <- fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
+  res <- suppressWarnings(fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse="")))
   if (length(res$result[[1]]$inputs)==0){return(list(application=res$result[[1]]$id, NA))}else{
   if (verbose)
     return(res)
@@ -222,7 +222,7 @@ CheckJobStatus <- function(user.name, token, job.id, verbose=FALSE) {
   web <- "' https://foundation.iplantc.org/apps-v1/job/"
   curl.string <- paste("curl -X GET -sku '", user.name, ":", token, web, job.id, 
                        sep="")
-  res <- fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
+  res <- suppressWarnings(fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse="")))
   if (res$status == "error") {
     print(paste("Error in job.id ", job.id, ":", res$message))
     if (verbose) 
@@ -241,7 +241,7 @@ DeleteJob <- function(user.name, token, job.id) {
   for (job in 1:length(job.id)) {
     curl.string <- paste("curl -X DELETE -sku '", user.name, ":", token, web, 
                          job.id[job], sep="")
-  res <- fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
+    res <- suppressWarnings(fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse="")))
     if (res$status == "success")
       print(paste("job.id", job.id[job], "was successfully deleted"))
     else
@@ -260,7 +260,7 @@ RetrieveJob <- function(user.name, token, job.id, files, zip=TRUE) {
         curl.string <- paste("curl -X GET -sku '", user.name, ":", token, web, 
                              JS$result$archivePath, "/", files[file], " -o ", 
                              files[file], sep="")
-        res <- paste(system(curl.string, intern=TRUE),sep="", collapse="")
+        res <- suppressWarnings(paste(system(curl.string, intern=TRUE),sep="", collapse=""))
         print(paste("Downloaded", files[file], "to", getwd(), "directory"))
       }else{
         return(paste(files[file], "is not found within", job.id))
@@ -285,8 +285,8 @@ ListJobOutput <- function(user.name, token, job.id) {
     if (JS$res$status == "ARCHIVING_FINISHED") {
       curl.string <- paste("curl -X GET -sku '", user.name, ":", token, web, 
                            job.id[job], "/output/list", sep="")
-      res <- fromJSON(paste(system(curl.string,intern=TRUE),sep="", 
-                            collapse=""))
+      res <- suppressWarnings(fromJSON(paste(system(curl.string,intern=TRUE),sep="", 
+                            collapse="")))
       print(paste("There are ", length(res$result), "output files for job", 
             job.id))
       for (i in 1:length(res$result))
@@ -303,7 +303,7 @@ GetJobHistory <- function(user.name, token, verbose=FALSE) {
   web <- "' https://foundation.iplantc.org/apps-v1/jobs/list"
   jobList <- c()
   curl.string <- paste("curl -X GET -sku '", user.name, ":", token, web, sep="")
-  res <- fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
+  res <- suppressWarnings(fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse="")))
   if (verbose) 
     return(res)
   if (length(res$result) != 0) {
