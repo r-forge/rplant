@@ -13,7 +13,7 @@
 SubmitJob(user.name, token, application, job.name, DE.file.name, DE.file.path, nprocs=1)
 CheckJobStatus(user.name, token, job.id, verbose=FALSE)
 DeleteJob(user.name, token, job.id)
-RetrieveJob(user.name, token, job.id, files)
+RetrieveJob(user.name, token, job.id, files, zip)
 GetJobHistory(user.name, token, verbose=FALSE)
 }
 \arguments{
@@ -27,6 +27,7 @@ GetJobHistory(user.name, token, verbose=FALSE)
 	\item{DE.file.path}{optional path to a user's subdirectory on the DE; default path is empty, which leads to the home directory}
 	\item{verbose}{optional screen output that displays all of the results from the api, default = FALSE}
 	\item{files}{names of output files to download, can be one or many}
+	\item{zip}{zip job files together, default is TRUE}
 }
 \details{
 	Application must match an application name directly out of the DE, to ensure, you can check using \code{ListApps}. The job.id is returned after submitting, and it is used to check the status or download results. It can also be retrieved using \code{GetJobHistory}.
@@ -39,11 +40,11 @@ GetJobHistory(user.name, token, verbose=FALSE)
 }
 \examples{
 # Upload a file to the DE
-# UploadFile("User", token, local.file.name="landplant.fasta", file.type="FASTA-0")
+# UploadFile("User", token, local.file.name="ex.lp.fasta", file.type="FASTA-0")
 
 # Submit a MUSCLE job using landplant data, which will return a job.id
-# myJob <- SubmitJob("User", token, application="muscle-ranger-2.0", DE.file.name="landplant.fasta", DE.file.path="/rplant/", job.name="job", nprocs="1")
-             
+# myJob <- SubmitJob("User", application="muscle-ranger-2.0", DE.file.name="ex.lp.fasta", DE.file.path="/data/", job.name="MUSCLE", nprocs="1")
+
 # Check the status of any job
 # CheckJobStatus("User", token, myJob, verbose=F)
              
