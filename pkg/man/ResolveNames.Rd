@@ -1,13 +1,13 @@
 \name{ResolveNames}
 \alias{ResolveNames}
-\alias{compareTNRS}
+\alias{CompareNames}
 \title{Resolving Names}
 \description{
 	Function ResolveNames changes names that aren't quite correct while compareTNRS will compare the new list of names to the original list of names to see which names changed.
 }
 \usage{
 ResolveNames(names, max.per.call=100, verbose=TRUE) 
-CompareTNRS(original, TNRS, verbose=TRUE)
+CompareNames(original, TNRS, verbose=TRUE)
 }
 \arguments{
 	\item{names}{Names to be resolved}
@@ -25,5 +25,5 @@ CompareTNRS(original, TNRS, verbose=TRUE)
 
 	# TNRSspeciesNames<-ResolveNames(speciesNames, 100, verbose=F)
 
-	# CompareTNRS(speciesNames, TNRSspeciesNames, verbose=TRUE)
+	# CompareNames(speciesNames, TNRSspeciesNames, verbose=TRUE)
 }
