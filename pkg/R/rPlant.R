@@ -379,6 +379,8 @@ CompareTNRS <- function(original, TNRS, verbose=TRUE) {
 
 GetCitations <- function(application, save=FALSE, file="") {
   # Returns citations for programs and analyses
+  # So we are going to make the library of citations.  I would suggest we make a bibtex entry alongside these entries, someone might want a different citation method.
+  # save and file currently do not work.
   if (application == "muscle-ranger-2.0") {
     citations<-vector("list")
     citations[[1]] <- print(bibentry(bibtype="Article", title="MUSCLE: multiple sequence alignment with high accuracy and high throughput", author="Edgar, R. C.", journal="Nucleic Acids Res", number="32(5)", pages="1792-97", year="2004", doi="10.1093/nar/gkh340", url="http://www.drive5.com/muscle"))
