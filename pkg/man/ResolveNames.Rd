@@ -7,14 +7,14 @@
 }
 \usage{
 ResolveNames(names, max.per.call=100, verbose=TRUE) 
-CompareNames(original, TNRS, verbose=TRUE)
+CompareNames(old.names, new.names, verbose=TRUE)
 }
 \arguments{
 	\item{names}{Names to be resolved}
 	\item{max.per.call}{, default is 100}
 	\item{verbose}{optional screen output that displays all of the results from the api, default = TRUE}
-	\item{original}{original names}
-	\item{TNRS}{new names}
+	\item{old.names}{original names}
+	\item{new.names}{new names}
 }
 \value{
 	The list of names.
