@@ -322,7 +322,6 @@ GetJobHistory <- function(user.name, token, verbose=FALSE) {
 # -- TNRS FUNCTIONS -- #
 ResolveNames <- function(names, max.per.call=100, verbose=TRUE) {
   max.per.call <- 100
-  names <- speciesNames
   verbose <- FALSE
   # takes a list of names and sends it to the iPlant TNRS site(http://tnrs.iplantcollaborative.org/)
   # names <- c("zea mays","acacia","solanum","saltea","rosa_rugoso")
@@ -377,17 +376,22 @@ CompareNames <- function(old.names, new.names, verbose=TRUE) {
 # -- END --#
 
 
-GetCitations <- function(application, save=FALSE, file="") {
+GetCitations <- function(application, save=FALSE, file="rPlant.bib") {
   # Returns citations for programs and analyses
   # So we are going to make the library of citations.  I would suggest we make a bibtex entry alongside these entries, someone might want a different citation method.
   # save and file currently do not work.
+  citations<-c()
   if (application == "muscle-ranger-2.0") {
-    citations<-vector("list")
-    citations[[1]] <- print(bibentry(bibtype="Article", title="MUSCLE: multiple sequence alignment with high accuracy and high throughput", author="Edgar, R. C.", journal="Nucleic Acids Res", number="32(5)", pages="1792-97", year="2004", doi="10.1093/nar/gkh340", url="http://www.drive5.com/muscle"))
-    citations[[2]] <- print(bibentry(bibtype="Article", title="MUSCLE: a multiple sequence alignment method with reduced time and space complexity", author="Edgar, R. C.", journal="BMC Bioinformatics", number="5(113)", year="2004", doi="10.1186/1471-2105-5-113", url="http://www.drive5.com/muscle"))
-    #print(citations)
-    return(citations)
+  	citations <-append(citations, ref("10.1093/nar/gkh340"))
+  	citations <-append(citations, ref("10.1186/1471-2105-5-113"))
   }
+  if (application == "") {
+  	
+  }
+  if(save)
+    write.bibtex(citations, file=file, append=T) 
+  else  
+    return(citations)
 }
 
 
