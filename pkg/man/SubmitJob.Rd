@@ -3,6 +3,7 @@
 \alias{CheckJobStatus}
 \alias{DeleteJob}
 \alias{RetrieveJob}
+\alias{ListJobOutput}
 \alias{GetJobHistory}
 
 \title{Executing analytical applications}
@@ -14,6 +15,7 @@ SubmitJob(user.name, token, application, job.name, DE.file.name, DE.file.path, n
 CheckJobStatus(user.name, token, job.id, verbose=FALSE)
 DeleteJob(user.name, token, job.id)
 RetrieveJob(user.name, token, job.id, files, zip)
+ListJobOutput(user.name, token, job.id)
 GetJobHistory(user.name, token, verbose=FALSE)
 }
 \arguments{

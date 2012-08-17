@@ -1,5 +1,5 @@
-#convert fasta file to phylip
 ConvertFastaToPhylip <- function(fasta.file, file.name="phylipFile.phy") {
+  # Maybe add an argument for shortening taxon names
   phylipFile<-paste(length(fasta.file), length(fasta.file[[1]]))
   write(phylipFile, file="phylipFile.phy")
   for (i in sequence(length(fasta.file))){
