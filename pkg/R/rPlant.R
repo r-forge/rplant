@@ -307,8 +307,8 @@ GetJobHistory <- function(user.name, token, verbose=FALSE) {
     return(res)
   if (length(res$result) != 0) {
     for (i in 1: length(res$result)) {
-      job <- c(res$result[[i]]$id, res$result[[i]]$name,
-<              res$result[[i]]$software, res$result[[i]]$status)  
+      job <- c(res$result[[i]]$id, res$result[[i]]$name, 
+               res$result[[i]]$software, res$result[[i]]$status)  
       jobList <- rbind(jobList, job)
       colnames(jobList) <- c("job.id", "job.name", "application", "status")
     }  
