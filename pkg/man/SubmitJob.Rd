@@ -11,7 +11,7 @@
 	Functions for executing and managing analytical applications deployed in the iPlant infrastructure
 }
 \usage{
-SubmitJob(user.name, token, application, job.name, DE.file.name, DE.file.path, nprocs=1)
+SubmitJob(user.name, token, application, flags, DE.file.name, DE.file.path="", job.name, nprocs=1)
 CheckJobStatus(user.name, token, job.id, verbose=FALSE)
 DeleteJob(user.name, token, job.id)
 RetrieveJob(user.name, token, job.id, files, zip)
@@ -23,6 +23,7 @@ GetJobHistory(user.name, token, verbose=FALSE)
 	\item{DE.file.name}{name of file to be evaluated on the Discovery Environment (DE).}
 	\item{token}{a validation tool used in place of unencrypted passwords}
 	\item{application}{name of DE application}
+	\item{flags}{Optional flags for input files}
 	\item{job.name}{the name to give the job being submitted}
 	\item{nprocs}{the number of processors to be allocated to the job, default = 1}
 	\item{job.id}{the unique ID number given to a submitted job} 

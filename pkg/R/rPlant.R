@@ -195,10 +195,9 @@ GetAppInfo <- function(user.name, token, application, verbose=FALSE) {
 
 
 # -- JOB FUNCTIONS -- #
-SubmitJob <- function(user.name, token, application, job.name, DE.file.name, DE.file.path="", nprocs=1) {
-  #Automatically make analyses directory
+SubmitJob <- function(user.name, token, application, flags, DE.file.name, DE.file.path="", job.name, nprocs=1) {
+  #Automatically make analyses directory; will not overwrite if already present
   MakeDir(user.name, token, "analyses", DE.dir.path="")
-  # expand for other aps and additional input files
   web <- "https://foundation.iplantc.org/apps-v1/job"
   curl.string <- paste("curl -X POST -sku '", user.name, ":", token, 
                        "' -d 'jobName=", job.name, "&softwareName=",  
@@ -308,10 +307,10 @@ GetJobHistory <- function(user.name, token, verbose=FALSE) {
     return(res)
   if (length(res$result) != 0) {
     for (i in 1: length(res$result)) {
-      job <- c(res$result[[i]]$id, res$result[[i]]$software, 
-               res$result[[i]]$status)  
+      job <- c(res$result[[i]]$id, res$result[[i]]$name,
+<              res$result[[i]]$software, res$result[[i]]$status)  
       jobList <- rbind(jobList, job)
-      colnames(jobList) <- c("job.id", "application", "status")
+      colnames(jobList) <- c("job.id", "job.name", "application", "status")
     }  
   }
   return(jobList)
