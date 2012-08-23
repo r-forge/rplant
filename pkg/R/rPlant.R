@@ -199,6 +199,7 @@ SubmitJob <- function(user.name, token, application, flags, DE.file.name, DE.fil
   #Automatically make analyses directory; will not overwrite if already present
   MakeDir(user.name, token, "analyses", DE.dir.path="")
   web <- "https://foundation.iplantc.org/apps-v1/job"
+    
   curl.string <- paste("curl -X POST -sku '", user.name, ":", token, 
                        "' -d 'jobName=", job.name, "&softwareName=",  
                        application, "&archive=1&inputSeqs=", "/", 
@@ -326,8 +327,9 @@ ResolveNames <- function(names, max.per.call=100, verbose=TRUE) {
   # names <- c("zea mays","acacia","solanum","saltea","rosa_rugoso")
   # returnedNames <- ResolveNames(names)
   # print(returnedNames)
-  names <- sapply(names, sub, pattern="_", replacement=" ", USE.NAMES = FALSE)
+  names <- sapply(names, sub, pattern="_", replacement=" ", USE.NAMES=FALSE)
   names <- sapply(names, URLencode, USE.NAMES = FALSE)
+  names <- sapply(names, sub, pattern="=", replacement="", USE.NAMES=FALSE)
   call.base <- 'http://tnrs.iplantc.org/tnrsm-svc/matchNames?retrieve=best&names='
   new.names <- rep(NA, length(names))
   names.in.call <- 0
