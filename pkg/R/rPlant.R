@@ -320,6 +320,8 @@ GetJobHistory <- function(user.name, token, verbose=FALSE) {
 
 
 # -- TNRS FUNCTIONS -- #
+# Make a function for dealing with names seperate from tnrs functions
+
 ResolveNames <- function(names, max.per.call=100, verbose=TRUE) {
   max.per.call <- 100
   verbose <- FALSE
@@ -357,6 +359,47 @@ ResolveNames <- function(names, max.per.call=100, verbose=TRUE) {
   return(print(new.names))
 }
 
+GetPhylotasticToken <- function(names, max.per.call=100, verbose=TRUE) {
+  max.per.call <- 100
+  verbose <- FALSE
+  # takes a list of names and sends it to the phylotastic TNRS site(http://api.phylotastic.org/tnrs)
+  # names <- c("zea mays","acacia","solanum","saltea","rosa_rugoso")
+  # returns a token that will check names later
+  for(i in sequence(length(names))) {
+  	if (length(which(strsplit(names[i], split="")[[1]] == " ")) > 1){
+  		WhereToCut<-which(strsplit(names[i], split="")[[1]] == " ")[2]-1 #second space in a name is where to cut name sequence
+  		names[i]<-paste(paste(strsplit(names[i], split="")[[1]][1:WhereToCut], collapse=""))
+  	}
+  }
+  names <- sapply(names, sub, pattern="_", replacement=" ", USE.NAMES=FALSE)
+  names <- sapply(names, URLencode, USE.NAMES = FALSE)
+  names <- sapply(names, sub, pattern="=", replacement="", USE.NAMES=FALSE)
+  call.base <- 'curl -X POST -sk http://api.phylotastic.org/tnrs/submit?query='
+  new.names <- rep(NA, length(names))
+  names.in.call <- 0
+  actual.call <- call.base
+  starting.position <- 1
+  
+  for (name.index in sequence(length(names))) {
+    names.in.call <- names.in.call + 1
+    actual.call <- paste(actual.call, names[name.index], ",", sep="")
+      if (names.in.call == max.per.call || name.index == length(names)) {
+        res <- suppressWarnings(fromJSON(paste(system(actual.call,intern=TRUE),sep="", collapse="")))
+    }
+  }
+    print(res$message)
+    return(res$token)
+}
+
+RetrieveTNRSNames <- function(token){
+	call <- paste("curl -X GET -sk http://api.phylotastic.org/tnrs/retrieve/", token, sep="", collapse="")
+	res <- suppressWarnings(fromJSON(paste(system(command=call, intern=T), sep="", collapse="")))
+	TNRSnames <- c()
+	for(i in sequence(length(res[[2]]))) {
+		TNRSnames <- c(TNRSnames, res[[2]][[i]]$matches[[1]]$matchedName)
+	}
+	return(TNRSnames)
+}
 
 
 CompareNames <- function(old.names, new.names, verbose=TRUE) {
