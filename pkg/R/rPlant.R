@@ -371,34 +371,45 @@ GetPhylotasticToken <- function(names, max.per.call=100, verbose=TRUE) {
   		names[i]<-paste(paste(strsplit(names[i], split="")[[1]][1:WhereToCut], collapse=""))
   	}
   }
-  names <- sapply(names, sub, pattern="_", replacement=" ", USE.NAMES=FALSE)
+  names <- sapply(names, sub, pattern="_", replacement="+", USE.NAMES=FALSE)
+  names <- sapply(names, sub, pattern=" ", replacement="+", USE.NAMES=FALSE)
   names <- sapply(names, URLencode, USE.NAMES = FALSE)
   names <- sapply(names, sub, pattern="=", replacement="", USE.NAMES=FALSE)
-  call.base <- 'curl -X POST -sk http://api.phylotastic.org/tnrs/submit?query='
+  call.base <- 'curl -X POST -sk http://www.taxosaurus.org/submit?query='
   new.names <- rep(NA, length(names))
   names.in.call <- 0
-  actual.call <- call.base
   starting.position <- 1
-  
-  for (name.index in sequence(length(names))) {
+  name.call<-paste(call.base, names[1], sep="")
+  for (name.index in 2:length(names)) {
     names.in.call <- names.in.call + 1
-    actual.call <- paste(actual.call, names[name.index], ",", sep="")
+    name.call <- paste(name.call, names[name.index], collapse="", sep="%0A")
       if (names.in.call == max.per.call || name.index == length(names)) {
-        res <- suppressWarnings(fromJSON(paste(system(actual.call,intern=TRUE),sep="", collapse="")))
+        print(name.call)
+        res <- suppressWarnings(fromJSON(paste(system(name.call,intern=TRUE),sep="", collapse="")))
     }
   }
     print(res$message)
     return(res$token)
 }
 
-RetrieveTNRSNames <- function(token){
-	call <- paste("curl -X GET -sk http://api.phylotastic.org/tnrs/retrieve/", token, sep="", collapse="")
-	res <- suppressWarnings(fromJSON(paste(system(command=call, intern=T), sep="", collapse="")))
-	TNRSnames <- c()
-	for(i in sequence(length(res[[2]]))) {
-		TNRSnames <- c(TNRSnames, res[[2]][[i]]$matches[[1]]$matchedName)
-	}
-	return(TNRSnames)
+RetrieveTNRSNames <- function(names, token, source=c("iPlant_TNRS", "NCBI"), match.threshold=0.5, verbose=F) {
+  call <- paste("curl -X GET -sk http://www.taxosaurus.org/retrieve/", token, sep="", collapse="")
+  res <- suppressWarnings(fromJSON(paste(system(command=call, intern=T), sep="", collapse="")))
+  TNRSnames <- matrix(nrow=length(names), ncol=2)  #make results a subsettable matrix
+  rownames(TNRSnames) <- names 
+  colnames(TNRSnames) <- c("TNRS name", "match score") 
+  for (i in sequence(length(res$names))) {
+    for (j in sequence(length(res$names[[i]]$matches))) {
+      if (res$names[[i]]$matches[[j]]$sourceId == source && as.numeric(res$names[[i]]$matches[[j]]$score) > match.threshold) {  
+        TNRSnames[which(rownames(TNRSnames) == res$names[[i]]$submittedName),1] <- res$names[[i]]$matches[[j]]$matchedName
+        TNRSnames[which(rownames(TNRSnames) == res$names[[i]]$submittedName),2] <- res$names[[i]]$matches[[j]]$score
+      }
+    }
+  }
+  TNRSnames[which(is.na(TNRSnames[,1])),1]<-rownames(TNRSnames)[which(is.na(TNRSnames[,1]))] #if no TNRS name is returned, then return submitted name
+  if (verbose)
+    return (TNRSnames)
+  return(as.vector(TNRSnames[,1]))
 }
 
 
@@ -406,8 +417,7 @@ CompareNames <- function(old.names, new.names, verbose=TRUE) {
 # takes a list of old.names taxonomic names(same ones given as "names in ResolveNames) and compares to the returned names from TNRS
 # note that names are changed back to include an "_" instead of the " " they come with out of TNRS first, so that they do not count as taxonomic name changes
   taxa.changed <- 0
-  names2 <- sapply(new.names, sub, pattern=" ",replacement="_", USE.NAMES=F)
-  comp <- cbind(old.names, names2)
+  comp <- cbind(old.names, new.names)
   for (i in 1: dim(comp)[1]){
     if (comp[i, 1] != comp[i, 2]) {
       taxa.changed <- taxa.changed + 1
