@@ -10,7 +10,7 @@
 \usage{
 ResolveNames(names, max.per.call=100, verbose=TRUE) 
 GetPhylotasticToken(names, max.per.call=100, verbose=TRUE) 
-RetrieveTNRSNames(token)
+RetrieveTNRSNames(names, token, source=c("iPlant_TNRS", "NCBI"), match.threshold=0.5, verbose=F)
 CompareNames(old.names, new.names, verbose=TRUE)
 }
 \arguments{
@@ -18,6 +18,8 @@ CompareNames(old.names, new.names, verbose=TRUE)
 	\item{max.per.call}{The number of names to submit at a time, default is 100}
 	\item{verbose}{Optional screen output that displays all of the results from the api, default = TRUE}
 	\item{token}{Unique identifier from the GetPhylotasticToken function used to retrieve names}
+	\item{source}{Which source to utilize to check names}
+	\item{match.threshold}{Threshold to accept new name}
 	\item{old.names}{Original names}
 	\item{new.names}{Returned TNRS names}
 }
