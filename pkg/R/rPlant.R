@@ -196,7 +196,7 @@ GetAppInfo <- function(user.name, token, application, verbose=FALSE) {
 
 
 # -- JOB FUNCTIONS -- #
-SubmitJob <- function(user.name, token, application, flags, DE.file.name, DE.file.path="", job.name, nprocs=1) {
+SubmitJob <- function(user.name, token, application, DE.file.name, DE.file.path="", job.name, nprocs=1, args=c()) {
   #Automatically make analyses directory; will not overwrite if already present
   MakeDir(user.name, token, "analyses", DE.dir.path="")
   web <- "https://foundation.iplantc.org/apps-v1/job"
@@ -207,7 +207,7 @@ SubmitJob <- function(user.name, token, application, flags, DE.file.name, DE.fil
                        user.name, "/", DE.file.path, "/", DE.file.name, 
                        "&processorCount=", nprocs, "&archivePath=/", 
                        user.name, "/analyses/", job.name, 
-                       "&requestedTime=24:00:00&outputFormat=fasta&mode=auto' ", 
+                       "&requestedTime=24:00:00&outputFormat=fasta&mode=auto", args, "' ", #need to paste in args here
                        web, sep="")
   res <- fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
   if (res$status == "success")
