@@ -157,7 +157,6 @@ DeleteDir <- function(user.name, token, DE.dir.name, DE.dir.path) {
 ListApps <- function(user.name, token) {
   web <- "' https://foundation.iplantc.org/apps-v1/apps/share/list"
   curl.string <- paste("curl -sku '", user.name, ":", token, web, sep="")
-print(curl.string)
   tmp <- suppressWarnings(fromJSON(paste(system(curl.string, intern=TRUE), 
                           sep="", collapse="")))
   res <- matrix(, length(tmp$result))
