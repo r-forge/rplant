@@ -52,7 +52,7 @@ UploadFile <- function(user.name, token, local.file.name, local.file.path="", fi
   res <- suppressWarnings(fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse="")))
 
   #Moves the file that was just uploaded in to the rplant folder
-  MoveFile(user.name, token, local.file.name, DE.file.path="", DE.end.path="/data/")
+  #MoveFile(user.name, token, local.file.name, DE.file.path="", DE.end.path="/data/")
   if (res$status == "error") 
     return(paste(res$status, ":", res$message))
   else
