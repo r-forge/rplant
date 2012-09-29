@@ -1,11 +1,11 @@
-\name{RunMuscle}
-\alias{RunMuscle}
-\title{MUSCLE alignment}
+\name{RunClustal}
+\alias{RunClustal}
+\title{ClustalW alignment}
 \description{
-	This function will submit a MUSCLE job to iPlant's DE
+	This function will submit a ClustalW job to iPlant's DE
 }
 \usage{
-RunMuscle(user.name, token, DE.file.name="", DE.file.path="", job.name=NULL, version="muscle-ranger-2.0")
+RunClustal(user.name, token, DE.file.name="", DE.file.path="", job.name=NULL, version="ClustalW2-2.1")
 }
 \arguments{
 	\item{user.name}{iPlant Discovery Environment user name}
@@ -13,10 +13,10 @@ RunMuscle(user.name, token, DE.file.name="", DE.file.path="", job.name=NULL, ver
 	\item{DE.file.name}{name of file to be evaluated on the Discovery Environment (DE).}
 	\item{DE.file.path}{optional path to a user's subdirectory on the DE; default path is empty, which leads to the home directory}
 	\item{job.name}{the name to give the job being submitted}
-	\item{version}{MUSCLE version, options include \code{muscle-ranger-2.0}, \code{muscle-lonestar-3.8.31}, and \code{muscle-ranger-2.0}}
+	\item{version}{ClustalW version, options include \code{ClustalW2-2.1}, \code{clustalw2-lonestar-2.1}, \code{clustalw-ranger-1.0"}}
 }
 \details{
-	The function is a wrapper function for several other rPlant functions, but specific to MUSCLE runs.  
+	The function is a wrapper function to submit ClustalW alignment jobs through the iPlant api.  
 }
 \seealso{
 	\code{\link{SubmitJob}}
@@ -25,6 +25,5 @@ RunMuscle(user.name, token, DE.file.name="", DE.file.path="", job.name=NULL, ver
 	Text listing action as either being a "success" or "error". If an error, then a message stating the error should also be reported.  
 }
 \examples{
-	# RunMuscle(user.name, token, DE.file.name="ex.lp.fasta", job.name="muscleJob1", DE.file.path="", version="muscle-trestles-2.0")
-
+	# RunClustal(user.name, token, DE.file.name="ex.lp.fasta", job.name="clustalw.Job1", DE.file.path="", version="ClustalW2-2.1")
 }	
