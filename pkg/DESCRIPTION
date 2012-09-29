@@ -3,7 +3,7 @@ Version: 1.2
 Date: 2012-7-19
 Title: R interface to the iPlant Discovery Environment
 Author: Barb Banbury <bbanbury@utk.edu>, Jeremy M. Beaulieu <jeremy.beaulieu@yale.edu>, Brian O'Meara <bomeara@utk.edu>
-Maintainer: Barb Banbury <bbanbury@utk.edu>, Brian O'Meara <bomeara@utk.edu>
+Maintainer: Barb Banbury <bbanbury@utk.edu>
 Depends: R (>= 2.13.0), rjson
 Suggests: seqinr, knitcitations
 LazyData:yes
