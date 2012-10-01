@@ -1,5 +1,4 @@
-RunMuscle <- function(user.name, token, DE.file.name="", DE.file.path="", job.name=NULL, version=c("Muscle-3.8.31", "muscle-lonestar-3.8.31", "muscle-ranger-2.0", "muscle-trestles-2.0")) {
-  version <- match.arg(version)
+RunMuscle <- function(user.name, token, DE.file.name="", DE.file.path="", job.name=NULL, version="muscle-ranger-2.0") {
   if (is.null(job.name))
     job.name <- paste(user.name,"_", version, "viaAPI", sep="")
   myJob<-SubmitJob(user.name, token, application=version, 

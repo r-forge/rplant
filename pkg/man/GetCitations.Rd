@@ -5,12 +5,12 @@
 	Retrieves citation list for variety of analyses
 }
 \usage{
-GetCitations(application, save=FALSE, file="")
+GetCitations(application, save=FALSE, file="rPlant.bib")
 }
 \arguments{
 	\item{application}{name of DE application}
 	\item{save}{optional argument to write citations to file in Bibtex format}
-	\item{file}{optional name for written file}
+	\item{file}{optional name for written file; default is "rPlant.bib"}
 }
 \details{
 	This function draws a citation list out of the DE's application citation list.  It can be saved to .bib file that is easily read by other document preparation software.  

@@ -1,6 +1,7 @@
 GetCitations <- function(application, save=FALSE, file="rPlant.bib") {
   # Returns citations for programs and analyses
   # So we are going to make the library of citations.  I would suggest we make a bibtex entry alongside these entries, someone might want a different citation method.
+  library(knitcitations)
   citations<-c()
   if (application == "muscle-ranger-2.0") {
   	citations <- append(citations, ref("10.1093/nar/gkh340"))
