@@ -1,11 +1,11 @@
-\name{RunParsdna}
-\alias{RunParsdna}
+\name{RunParsprotein}
+\alias{RunParsprotein}
 \title{Run Phylip Parsimony}
 \description{
 	This function will submit a parsimony analysis job to Phylip on iPlant's DE
 }
 \usage{
-RunParsdna(user.name, token, DE.file.name="", DE.file.path="", job.name=NULL)
+RunParsprotein(user.name, token, DE.file.name="", DE.file.path="", job.name=NULL)
 }
 \arguments{
 	\item{user.name}{iPlant Discovery Environment user name}
@@ -15,7 +15,7 @@ RunParsdna(user.name, token, DE.file.name="", DE.file.path="", job.name=NULL)
 	\item{job.name}{The name to give the job being submitted}
 }
 \details{
-	The function is a wrapper function for submitting Phylip jobs with nucleotide data for a parsimony analysis.  
+	The function is a wrapper function for submitting Phylip jobs with amino acid data for a parsimony analysis.  
 }
 \seealso{
 	\code{\link{SubmitJob}}
@@ -24,5 +24,5 @@ RunParsdna(user.name, token, DE.file.name="", DE.file.path="", job.name=NULL)
 	Text listing action as either being a "success" or "error". If an error, then a message stating the error should also be reported.  
 }
 \examples{
-	# RunParsdna(user.name, token, DE.file.name="ex.lp.fasta", DE.file.path="", job.name="PhylipParsimony1")
+	# RunParsprotein(user.name, token, DE.file.name="your.protein.file", DE.file.path="", job.name="PhylipParsimony2")
 }	

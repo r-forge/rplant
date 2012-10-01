@@ -1,5 +1,4 @@
-RunQuicktree <- function(user.name, token, DE.file.name="", DE.file.path="", job.name=NULL, version=c("quicktree-dm-lonestar-1.1", "quicktree-tree-lonestar-1.1")) {
-  version <- match.arg(version)
+RunQuicktree <- function(user.name, token, DE.file.name="", DE.file.path="", job.name=NULL, version="quicktree-tree-lonestar-1.1") {
   if (is.null(job.name))
     job.name <- paste(user.name,"_", version, "viaAPI", sep="")
   myJob<-SubmitJob(user.name, token, application=version, 
