@@ -1,9 +1,10 @@
-\name{ResolveNames}
+\name{TNRS}
+\alias{TNRS}
 \alias{ResolveNames}
 \alias{GetPhylotasticToken}
 \alias{RetrieveTNRSNames}
 \alias{CompareNames}
-\title{Resolving Names}
+\title{Resolving Names via TNRS}
 \description{
 	The function \code{ResolveNames} interacts with the TNRS server at iPlant that uses fuzzy name matching to find standardized taxonomic plant names. \code{GetPhylotasticToken} is similar, but can be used for animal taxa as well, since it also utilizes the NCBI and ITIS databases. \code{GetPhylotasticToken} returns a unique token that can be checked online or using the \code{RetrieveTNRSNames} function. \code{CompareTNRS} will compare the original list of names to the returned TNRS names to see which names changed.
 }
