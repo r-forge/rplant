@@ -1,12 +1,6 @@
-RunParsdna <- function(user.name, token, DE.file.name="", DE.file.path="", job.name=NULL, tnrs=FALSE) {
+RunParsdna <- function(user.name, token, DE.file.name="", DE.file.path="", job.name=NULL) {
   if (is.null(job.name))
     job.name <- paste(user.name, "_Parsdna_viaAPI", sep="")
-  # if (tnrs) {
-  #  speciesNames <- attr(fasta.file, "name")  
-  #  TNRSspeciesNames <- ResolveNames(speciesNames, maxPerCall=100, verbose=F)
-  #  attr(fasta.file, "name") <- TNRSspeciesNames
-  #  CompareTNRS(speciesNames, TNRSspeciesNames, verbose=F)
-  # }
   myJob<-SubmitJob(user.name, token, 
                    application="phylip-dna-parsimony-lonestar-3.69", 
                    DE.file.name=DE.file.name, DE.file.path=DE.file.path, 
