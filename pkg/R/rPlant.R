@@ -46,9 +46,9 @@ UploadFile <- function(user.name, token, local.file.name, local.file.path="", fi
                        local.file.name, "' -F 'fileType=", 
                        file.type, web, user.name, sep="")
 
-  #Automatically makes two necessary directories
+  #Automatically makes one necessary directories
   MakeDir(user.name, token, "analyses", DE.dir.path="")
-  MakeDir(user.name, token, "data", DE.dir.path="")
+  #MakeDir(user.name, token, "data", DE.dir.path="")
   res <- suppressWarnings(fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse="")))
 
   #Moves the file that was just uploaded in to the rplant folder
