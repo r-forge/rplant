@@ -4,12 +4,10 @@
 # -- AUTHENTICATION FUNCTIONS -- #
 GetToken <- function(user.name, user.pwd, 
                      api=c("iplant", "cipres", "tnrs")) {
-  web <- "' https://foundation.iplantc.org/auth-v1/"
   if (is.character(api)) {
     if (api == "iplant") {
-      curl.string <- paste("curl -X POST -sku '", user.name, ":", user.pwd, 
-                           web, sep="")
-      res <- suppressWarnings(fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse="")))
+      curl.call <- getCurlHandle(userpwd=paste(user.name, user.pwd, sep=":"),verbose=TRUE, httpauth=1L, ssl.verifypeer=FALSE)
+      res <- suppressWarnings(fromJSON(postForm("https://foundation.iplantc.org/auth-v1/", curl=curl.call)))
       if (res$status == "error") 
         return(res$message)  # returns if error
       else 
@@ -19,6 +17,8 @@ GetToken <- function(user.name, user.pwd,
       warning("Not yet implemented")
   }
 }
+
+
 
 RenewToken <- function(user.name, user.pwd, token, 
                        api=c("iplant", "cipres", "tnrs")) {
@@ -46,9 +46,9 @@ UploadFile <- function(user.name, token, local.file.name, local.file.path="", fi
                        local.file.name, "' -F 'fileType=", 
                        file.type, web, user.name, sep="")
 
-  #Automatically makes one necessary directories
+  #Automatically makes two necessary directories
   MakeDir(user.name, token, "analyses", DE.dir.path="")
-  #MakeDir(user.name, token, "data", DE.dir.path="")
+  MakeDir(user.name, token, "data", DE.dir.path="")
   res <- suppressWarnings(fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse="")))
 
   #Moves the file that was just uploaded in to the rplant folder
