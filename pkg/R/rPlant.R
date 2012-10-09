@@ -4,10 +4,14 @@
 # -- AUTHENTICATION FUNCTIONS -- #
 GetToken <- function(user.name, user.pwd, 
                      api=c("iplant", "cipres", "tnrs")) {
+  web <- "https://foundation.iplantc.org/auth-v1/"
   if (is.character(api)) {
     if (api == "iplant") {
-      curl.call <- getCurlHandle(userpwd=paste(user.name, user.pwd, sep=":"),verbose=TRUE, httpauth=1L, ssl.verifypeer=FALSE)
-      res <- suppressWarnings(fromJSON(postForm("https://foundation.iplantc.org/auth-v1/", curl=curl.call)))
+      curl.call <- getCurlHandle(username=user.name, 
+                                 password=user.pwd, 
+                                 httpauth=1L, 
+                                 ssl.verifypeer=FALSE)
+      res <- suppressWarnings(fromJSON(postForm(web, curl=curl.call)))
       if (res$status == "error") 
         return(res$message)  # returns if error
       else 
@@ -18,17 +22,16 @@ GetToken <- function(user.name, user.pwd,
   }
 }
 
-
-
 RenewToken <- function(user.name, user.pwd, token, 
                        api=c("iplant", "cipres", "tnrs")) {
-  web <- "' https://foundation.iplantc.org/auth-v1/renew"
+  web <- "https://foundation.iplantc.org/auth-v1/renew"
   if (is.character(api)) {
     if (api == "iplant") {
-      curl.string <- paste("curl -X POST -sku '", user.name, ":", 
-                           user.pwd, "' -d 'token=", token, web, sep="")
-     res <- suppressWarnings(fromJSON(paste(system(curl.string, intern=TRUE),sep="", collapse="")))
-#     res <- fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
+      curl.call <- getCurlHandle(username=user.name, 
+                                 password=user.pwd, 
+                                 httpauth=1L, 
+                                 ssl.verifypeer=FALSE)
+      res <- suppressWarnings(fromJSON(postForm(web, curl=curl.call, token=token)))
       res$status  # Outputs a message renewal success
     }
     else 
