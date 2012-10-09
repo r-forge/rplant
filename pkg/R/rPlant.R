@@ -2,35 +2,31 @@
 # rPlant directly interacts with iplant's command-line API for the Discovery Environment (DE)
 
 # -- AUTHENTICATION FUNCTIONS -- #
-GetToken <- function(user.name, user.pwd, 
-                     api=c("iplant", "cipres", "tnrs")) {
-  web <- "https://foundation.iplantc.org/auth-v1/"
+GetToken <- function(user.name, user.pwd, api=c("iplant", "cipres", "tnrs")){
   if (is.character(api)) {
     if (api == "iplant") {
-      curl.call <- getCurlHandle(username=user.name, 
-                                 password=user.pwd, 
-                                 httpauth=1L, 
-                                 ssl.verifypeer=FALSE)
+      web <- "https://foundation.iplantc.org/auth-v1/"
+      curl.call <- getCurlHandle(userpwd=paste(user.name, user.pwd, sep=":"), 
+                                  httpauth=1L, ssl.verifypeer=FALSE)
       res <- suppressWarnings(fromJSON(postForm(web, curl=curl.call)))
-      if (res$status == "error") 
-        return(res$message)  # returns if error
-      else 
-        return(res$result$token)  # returns with token
+        if (res$status == "error")
+          return(res$message)
+        else
+          return(res$result$token)
     }
-    else 
+    else
       warning("Not yet implemented")
   }
 }
 
+
 RenewToken <- function(user.name, user.pwd, token, 
                        api=c("iplant", "cipres", "tnrs")) {
-  web <- "https://foundation.iplantc.org/auth-v1/renew"
   if (is.character(api)) {
     if (api == "iplant") {
-      curl.call <- getCurlHandle(username=user.name, 
-                                 password=user.pwd, 
-                                 httpauth=1L, 
-                                 ssl.verifypeer=FALSE)
+      web <- "https://foundation.iplantc.org/auth-v1/renew"
+      curl.call <- getCurlHandle(userpwd=paste(user.name, user.pwd, sep=":"),
+                                 httpauth=1L, ssl.verifypeer=FALSE)
       res <- suppressWarnings(fromJSON(postForm(web, curl=curl.call, token=token)))
       res$status  # Outputs a message renewal success
     }
