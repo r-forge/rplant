@@ -279,17 +279,49 @@ GetAppInfo <- function(user.name, token, application, verbose=FALSE) {
 SubmitJob <- function(user.name, token, application, DE.file.name, DE.file.path="", job.name, nprocs=1, args=c()) {
   #Automatically make analyses directory; will not overwrite if already present
 #  MakeDir(user.name, token, "analyses", DE.dir.path="")
+  curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
+                             httpauth=1L,
+                             ssl.verifypeer=FALSE)
+
+  MakeDir(user.name, token, "analyses", DE.dir.path="")
+
   web <- "https://foundation.iplantc.org/apps-v1/job"
-    
-  curl.string <- paste("curl -X POST -sku '", user.name, ":", token, 
-                       "' -d 'jobName=", job.name, "&softwareName=",  
-                       application, "&archive=1&inputSeqs=", "/", 
-                       user.name, "/", DE.file.path, "/", DE.file.name, 
-                       "&processorCount=", nprocs, "&archivePath=/", 
-                       user.name, "/analyses/", job.name, 
-                       "&requestedTime=24:00:00&outputFormat=fasta&mode=auto", args, "' ", #need to paste in args here
-                       web, sep="")
-  res <- fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse=""))
+if (is.null(args)){
+  content <- character(length(9))
+  content[1] <- paste("jobName=", job.name, sep="")
+  content[2] <- paste("softwareName=", application, sep="")
+  content[3] <- "archive=1"
+if (DE.file.path==""){
+  content[4] <- paste("inputSeqs=", "/", user.name, "/", DE.file.name, sep="")
+}else{
+  content[4] <- paste("inputSeqs=", "/", user.name, "/", DE.file.path, "/", DE.file.name, sep="")
+}
+  content[5] <- paste("processorCount=", nprocs, sep="")
+  content[6] <- paste("archivePath=/", user.name, "/analyses/", job.name, sep="")
+  content[7] <- "requestedTime=24:00:00"
+  content[8] <- "outputFormat=fasta"
+  content[9] <- "mode=auto"
+}else{
+  content <- character(length(10))
+  content[1] <- paste("jobName=", job.name, sep="")
+  content[2] <- paste("softwareName=", application, sep="")
+  content[3] <- "archive=1"
+if (DE.file.path==""){
+  content[4] <- paste("inputSeqs=", "/", user.name, "/", DE.file.name, sep="")
+}else{
+  content[4] <- paste("inputSeqs=", "/", user.name, "/", DE.file.path, "/", DE.file.name, sep="")
+}
+  content[5] <- paste("processorCount=", nprocs, sep="")
+  content[6] <- paste("archivePath=/", user.name, "/analyses/", job.name, sep="")
+  content[7] <- "requestedTime=24:00:00"
+  content[8] <- "outputFormat=fasta"
+  content[9] <- "mode=auto"
+  content[10] <- paste("arguments=-m", model)
+}
+
+  val=charToRaw(paste(content, collapse = "&"))
+  res <- suppressWarnings(fromJSON(getURLContent(web, curl=curl.call, infilesize=length(val), readfunction=val, upload=TRUE, customrequest="POST")))
+
   if (res$status == "success")
     cat("Job submitted. You can check the status of your job using this id:", 
         res$result$id, "\n")
