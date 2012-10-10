@@ -88,10 +88,23 @@ MoveFile <- function(user.name, token, DE.file.name, DE.file.path="", DE.end.pat
 
 DeleteFile <- function(user.name, token, DE.file.name, DE.file.path) {
   web <- " https://foundation.iplantc.org/io-v1/io/"
-  curl.string <- paste("curl -sku '", user.name, ":", token, "' -X DELETE", 
-                       web, user.name, "/", DE.file.path, 
-                       "/", DE.file.name, "/", sep="")
-  res <- suppressWarnings(fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse="")))
+  curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
+                             httpauth=1L, 
+                             ssl.verifypeer=FALSE)
+  if (DE.file.path == ""){
+    res <- suppressWarnings(fromJSON(httpDELETE(paste(web, 
+                                                      user.name,
+                                                      DE.file.name, 
+                                                      sep="/"), 
+                                                curl = curl.call)))
+  }else{
+    res <- suppressWarnings(fromJSON(httpDELETE(paste(web, 
+                                                      user.name, 
+                                                      DE.file.path, 
+                                                      DE.file.name, 
+                                                      sep="/"), 
+                                                curl = curl.call)))
+  }
   if (res$status == "error")
     return(paste(res$status, ":", res$message))
   else
@@ -99,10 +112,11 @@ DeleteFile <- function(user.name, token, DE.file.name, DE.file.path) {
 }
 
 SupportFile <- function(user.name, token) {  
-  # lists the supported file types -- does not work! It should. 
-  web <- "' https://foundation.iplantc.org/io-v1/data/transforms/"
-  curl.string <- paste("curl -X GET -sku '", user.name, ":", token, web, sep="")
-  res <- suppressWarnings(fromJSON(paste(system(curl.string,intern=TRUE), sep="", collapse="")))
+  web <- "https://foundation.iplantc.org/io-v1/data/transforms/"
+  curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
+                             httpauth=1L, 
+                             ssl.verifypeer=FALSE)
+  res <- suppressWarnings(fromJSON(getForm(paste(web, sep="/"), curl=curl.call)))
   if(res[[1]] == "success"){
     file.types<-c()
     for(i in 1:length(res[[3]])){
@@ -145,11 +159,25 @@ MakeDir <- function(user.name, token, DE.dir.name, DE.dir.path="") {
     return(res$status)
 }
 
-DeleteDir <- function(user.name, token, DE.dir.name, DE.dir.path) {
-  web <- "https://foundation.iplantc.org/io-v1/io/"
-  curl.string <- paste("curl -sku '", user.name, ":", token, "' -X DELETE ", 
-                       web,  user.name, "/", DE.dir.path, "/", DE.dir.name, sep="")
-  res <- suppressWarnings(fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse="")))
+DeleteDir <- function(user.name, token, DE.dir.name, DE.dir.path="") {
+  web <- "https://foundation.iplantc.org/io-v1/io"
+  curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
+                             httpauth=1L, 
+                             ssl.verifypeer=FALSE)
+  if (DE.dir.path == ""){
+    res <- suppressWarnings(fromJSON(httpDELETE(paste(web, 
+                                                      user.name,
+                                                      DE.dir.name, 
+                                                      sep="/"), 
+                                                curl = curl.call)))
+  }else{
+    res <- suppressWarnings(fromJSON(httpDELETE(paste(web, 
+                                                      user.name, 
+                                                      DE.dir.path, 
+                                                      DE.dir.name, 
+                                                      sep="/"), 
+                                                curl = curl.call)))
+  }
   if (res$status == "error")
     return(paste(res$status, ":", res$message))
   else
