@@ -332,10 +332,11 @@ if (DE.file.path==""){
 }
 
 CheckJobStatus <- function(user.name, token, job.id, verbose=FALSE) {
-  web <- "' https://foundation.iplantc.org/apps-v1/job/"
-  curl.string <- paste("curl -X GET -sku '", user.name, ":", token, web, job.id, 
-                       sep="")
-  res <- suppressWarnings(fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse="")))
+  web <- "https://foundation.iplantc.org/apps-v1/job"
+  curl.call <- getCurlHandle(userpwd=paste(user.name,token,sep=":"), 
+                             httpauth=1L, 
+                             ssl.verifypeer=FALSE)
+  res <- suppressWarnings(fromJSON(getForm(paste(web,job.id,sep="/"), curl=curl.call)))
   if (res$status == "error") {
     print(paste("Error in job.id ", job.id, ":", res$message))
     if (verbose) 
@@ -350,16 +351,20 @@ CheckJobStatus <- function(user.name, token, job.id, verbose=FALSE) {
 }
 
 DeleteJob <- function(user.name, token, job.id) {
-  web <- "' https://foundation.iplantc.org/apps-v1/job/"
+  web <- "https://foundation.iplantc.org/apps-v1/job"
+  curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
+                             httpauth=1L, 
+                             ssl.verifypeer=FALSE)
   for (job in 1:length(job.id)) {
-    curl.string <- paste("curl -X DELETE -sku '", user.name, ":", token, web, 
-                         job.id[job], sep="")
-    res <- suppressWarnings(fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse="")))
-    if (res$status == "success")
-      print(paste("job.id", job.id[job], "was successfully deleted"))
-    else
-      print(paste("job.id", job.id[job], res$status, ":", res$message))
-  }
+    res <- suppressWarnings(fromJSON(httpDELETE(paste(web, 
+                                                      job.id[job],
+                                                      sep="/"), 
+                                                curl = curl.call)))
+  if (res$status == "error")
+    return(paste(res$status, ":", res$message))
+  else
+    return(res$status) 
+  } 
 }
 
 RetrieveJob <- function(user.name, token, job.id, files, zip=TRUE) {  
@@ -373,6 +378,7 @@ RetrieveJob <- function(user.name, token, job.id, files, zip=TRUE) {
         curl.string <- paste("curl -X GET -sku '", user.name, ":", token, web, 
                              JS$result$archivePath, "/", files[file], " -o ", 
                              files[file], sep="")
+        print(curl.string)
         res <- suppressWarnings(paste(system(curl.string, intern=TRUE),sep="", collapse=""))
         print(paste("Downloaded", files[file], "to", getwd(), "directory"))
       }else{
@@ -389,17 +395,19 @@ RetrieveJob <- function(user.name, token, job.id, files, zip=TRUE) {
 }
 
 ListJobOutput <- function(user.name, token, job.id) {
-  web <- "' https://foundation.iplantc.org/apps-v1/job/"
+  web <- "https://foundation.iplantc.org/apps-v1/job"
+  curl.call <- getCurlHandle(userpwd=paste(user.name,token,sep=":"), 
+                             httpauth=1L, 
+                             ssl.verifypeer=FALSE)
+
   combRes <- vector("list", length=length(job.id))
   names(combRes) <- paste("job.id", job.id, sep="")
   for (job in 1:length(job.id)) {
     files <- c()
     JS <- CheckJobStatus(user.name, token, job.id[job], verbose=T)
     if (JS$res$status == "ARCHIVING_FINISHED") {
-      curl.string <- paste("curl -X GET -sku '", user.name, ":", token, web, 
-                           job.id[job], "/output/list", sep="")
-      res <- suppressWarnings(fromJSON(paste(system(curl.string,intern=TRUE),sep="", 
-                            collapse="")))
+  res <- suppressWarnings(fromJSON(getForm(paste(web, 
+                           job.id[job], "output/list", sep="/"), curl=curl.call)))
       print(paste("There are ", length(res$result), "output files for job", 
             job.id))
       for (i in 1:length(res$result))
@@ -413,10 +421,12 @@ ListJobOutput <- function(user.name, token, job.id) {
 }
 
 GetJobHistory <- function(user.name, token, verbose=FALSE) {
-  web <- "' https://foundation.iplantc.org/apps-v1/jobs/list"
+  web <- "https://foundation.iplantc.org/apps-v1/jobs/list"
   jobList <- c()
-  curl.string <- paste("curl -X GET -sku '", user.name, ":", token, web, sep="")
-  res <- suppressWarnings(fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse="")))
+  curl.call <- getCurlHandle(userpwd=paste(user.name,token,sep=":"), 
+                             httpauth=1L, 
+                             ssl.verifypeer=FALSE)
+  res <- suppressWarnings(fromJSON(getForm(web, curl=curl.call)))
   if (verbose) 
     return(res)
   if (length(res$result) != 0) {
