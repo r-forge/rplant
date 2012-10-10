@@ -5,7 +5,7 @@ RunRAxMLdna <- function(user.name, token, DE.file.name="",
     job.name <- paste(user.name, "_RAxMLdna_", model, "viaAPI", sep="")
 
   #initialize arguments
-  args <- paste("&arguments=-m", model)
+  args <- paste("arguments=-m", model)
   if (!is.null(bootstrap)) 
     args <- append(args, c("-b", bootstrap))
   args <- append(args, c("-c", numcat))
