@@ -61,25 +61,39 @@ UploadFile <- function(user.name, token, local.file.name, local.file.path="", fi
 }
 
 RenameFile <- function(user.name, token, old.DE.file.name, new.DE.file.name, DE.file.path="") {
-  web <- "' https://foundation.iplantc.org/io-v1/io/"
-  curl.string <- paste("curl -sku '", user.name, ":", token, 
-                       "' -X PUT -d 'newName=", 
-                       new.DE.file.name, "&action=rename", web, user.name, "/", 
-                       DE.file.path, "/", old.DE.file.name, sep="")
-  res <- suppressWarnings(fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse="")))
-  if (res$status == "error") 
+  web <- "https://foundation.iplantc.org/io-v1/io"
+
+  curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
+                             httpauth=1L, 
+                             ssl.verifypeer=FALSE)
+
+  content <- character(length(2))
+  content[1] <- "action=rename"
+  content[2] <- paste("newName=", new.DE.file.name, sep="")
+  val=charToRaw(paste(content, collapse = "&"))
+
+  res <- suppressWarnings(fromJSON(httpPUT(paste(web, user.name, DE.file.path, old.DE.file.name, sep="/"), content=val, curl=curl.call)))
+
+  if (res$status == "error")
     return(paste(res$status, ":", res$message))
   else
     return(res$status)
 }
 
 MoveFile <- function(user.name, token, DE.file.name, DE.file.path="", DE.end.path="") {
-  web <- "' https://foundation.iplantc.org/io-v1/io/"
-  curl.string <- paste("curl -sku '", user.name, ":", token, 
-                       "' -X PUT -d 'newPath=", user.name, "/", DE.end.path, 
-                       "/", DE.file.name, "&action=move", web, user.name, 
-                       "/", DE.file.path, "/", DE.file.name, sep="")
-  res <- suppressWarnings(fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse="")))
+  web <- "https://foundation.iplantc.org/io-v1/io"
+
+  curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
+                             httpauth=1L, 
+                             ssl.verifypeer=FALSE)
+
+  content <- character(length(2))
+  content[1] <- "action=move"
+  content[2] <- paste("newPath=", user.name, "/", DE.end.path, "/", DE.file.name, sep="")
+  val=charToRaw(paste(content, collapse = "&"))
+
+  res <- suppressWarnings(fromJSON(httpPUT(paste(web,user.name,DE.file.path,DE.file.name,sep="/"),content=val,curl=curl.call)))
+
   if (res$status == "error")
     return(paste(res$status, ":", res$message))
   else
@@ -148,11 +162,19 @@ ListDir <- function(user.name, token, DE.dir.path="") {
 }
 
 MakeDir <- function(user.name, token, DE.dir.name, DE.dir.path="") {
-  web <- "https://foundation.iplantc.org/io-v1/io/"
-  curl.string <- paste("curl -sku '", user.name, ":", token, 
-                       "' -X PUT -d 'dirName=", DE.dir.name, "&action=mkdir' ", 
-                       web, user.name, "/", DE.dir.path, sep="")
-  res <- suppressWarnings(fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse="")))
+  web <- "https://foundation.iplantc.org/io-v1/io"
+
+  curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
+                             httpauth=1L, 
+                             ssl.verifypeer=FALSE)
+
+  content <- character(length(2))
+  content[1] <- "action=mkdir"
+  content[2] <- paste("dirName=",DE.dir.name,sep="")
+  val=charToRaw(paste(content, collapse = "&"))
+
+  res <- suppressWarnings(fromJSON(httpPUT(paste(web,user.name,DE.dir.path,sep="/"),content=val,curl=curl.call)))
+
   if (res$status == "error")
     return(paste(res$status, ":", res$message))
   else
@@ -200,6 +222,31 @@ ListApps <- function(user.name, token) {
   return(sort(res))
 }
 
+#Cannot check the following, get the following error:
+#<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+#<html><head>
+#<title>503 Service Temporarily Unavailable</title>
+#</head><body>
+#<h1>Service Temporarily Unavailable</h1>
+#<p>The server is temporarily unable to service your
+#request due to maintenance downtime or capacity
+#problems. Please try again later.</p>
+#<hr>
+#<address>Apache/2.2.3 (Red Hat) Server at foundation.iplantc.org Port 443</address>
+
+#ListApps <- function(user.name, token) {
+#  web <- "https://foundation.iplantc.org/apps-v1/apps/share/list"
+#  curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
+#                             httpauth=1L, 
+#                             ssl.verifypeer=FALSE)
+#  tmp <- suppressWarnings(fromJSON(getForm(web, curl=curl.call)))
+#  res <- matrix(, length(tmp$result))
+#  colnames(res) <- "Application"
+#  for (i in 1:length(tmp$result))
+#    res[i, 1] <- tmp$result[[i]]$id
+#  return(sort(res))
+#}
+
 GetAppInfo <- function(user.name, token, application, verbose=FALSE) {
   # This needs to be cleaned up. I think the relevant info is 
         # a) inputs, 
@@ -231,7 +278,7 @@ GetAppInfo <- function(user.name, token, application, verbose=FALSE) {
 # -- JOB FUNCTIONS -- #
 SubmitJob <- function(user.name, token, application, DE.file.name, DE.file.path="", job.name, nprocs=1, args=c()) {
   #Automatically make analyses directory; will not overwrite if already present
-  MakeDir(user.name, token, "analyses", DE.dir.path="")
+#  MakeDir(user.name, token, "analyses", DE.dir.path="")
   web <- "https://foundation.iplantc.org/apps-v1/job"
     
   curl.string <- paste("curl -X POST -sku '", user.name, ":", token, 
