@@ -316,7 +316,7 @@ if (DE.file.path==""){
   content[7] <- "requestedTime=24:00:00"
   content[8] <- "outputFormat=fasta"
   content[9] <- "mode=auto"
-  content[10] <- paste("arguments=-m", model)
+  content[10] <- args
 }
 
   val=charToRaw(paste(content, collapse = "&"))
