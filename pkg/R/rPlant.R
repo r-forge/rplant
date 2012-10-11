@@ -369,17 +369,18 @@ DeleteJob <- function(user.name, token, job.id) {
 
 RetrieveJob <- function(user.name, token, job.id, files, zip=TRUE) {  
   # what if file doesn't exist...make that an option with a return
-  web <- "' https://foundation.iplantc.org/io-v1/io"
-  fileList <- ListJobOutput(user.name, token, job.id)[[1]]  # only will work on one job.id now
+  web <- "https://foundation.iplantc.org/io-v1/io"
+  curl.call <- getCurlHandle(userpwd=paste(user.name,token,sep=":"), 
+                             httpauth=1L, 
+                             ssl.verifypeer=FALSE)
+  invisible(capture.output(fileList <- ListJobOutput(user.name, token, myJob)[[1]]))  # only will work on one job.id now
   JS <- CheckJobStatus(user.name, token, job.id, verbose=T)
   if (JS$res$status == "ARCHIVING_FINISHED") {
     for (file in 1:length(files)) {
       if (files[file] %in% fileList) {  # if file exists in output then download
-        curl.string <- paste("curl -X GET -sku '", user.name, ":", token, web, 
-                             JS$result$archivePath, "/", files[file], " -o ", 
-                             files[file], sep="")
-        print(curl.string)
-        res <- suppressWarnings(paste(system(curl.string, intern=TRUE),sep="", collapse=""))
+        out <- suppressWarnings(getForm(paste(web, JS$result$archivePath, "/", files[file], sep=""), curl=curl.call))
+        if (is.raw(out)){out <- rawToChar(out)}
+        write(out,file=files[file])
         print(paste("Downloaded", files[file], "to", getwd(), "directory"))
       }else{
         return(paste(files[file], "is not found within", job.id))
