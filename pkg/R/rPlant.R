@@ -41,19 +41,28 @@ RenewToken <- function(user.name, user.pwd, token,
 
 # -- FILE AND DATA FUNCTIONS -- #
 UploadFile <- function(user.name, token, local.file.name, local.file.path="", file.type) {
-  web <- "' https://foundation.iplantc.org/io-v1/io/"
-  curl.string <- paste("curl -sku '", user.name, ":", token, 
-                       "' -F 'fileToUpload=@", local.file.path, 
-                       local.file.name, "' -F 'fileType=", 
-                       file.type, web, user.name, sep="")
+  user.name <- "kamichels"
+  local.file.name <- "ex.lp.fasta"
+  file.type <- "FASTA-0"
+  local.file.path <- ""
+  web <- paste("https://foundation.iplantc.org/io-v1/io/",user.name,sep="");
 
-  #Automatically makes two necessary directories
-  MakeDir(user.name, token, "analyses", DE.dir.path="")
-  MakeDir(user.name, token, "data", DE.dir.path="")
-  res <- suppressWarnings(fromJSON(paste(system(curl.string,intern=TRUE),sep="", collapse="")))
+if (local.file.path==""){
+  res <- suppressWarnings(fromJSON(postForm(web, style = "httppost",
+         fileToUpload = fileUpload(local.file.name),
+         fileType = file.type,
+         .opts = list(userpwd = paste(user.name, token, sep=":"),
+                      ssl.verifypeer = FALSE, httpauth = AUTH_BASIC,
+                      useragent = "R", followlocation = TRUE))))
+}else{
+  res <- suppressWarnings(fromJSON(postForm(web, style = "httppost",
+         fileToUpload = fileUpload(paste(local.file.path, local.file.name, sep="/")),
+         fileType = file.type,
+         .opts = list(userpwd = paste(user.name, token, sep=":"),
+                      ssl.verifypeer = FALSE, httpauth = AUTH_BASIC,
+                      useragent = "R", followlocation = TRUE))))
+}
 
-  #Moves the file that was just uploaded in to the rplant folder
-  #MoveFile(user.name, token, local.file.name, DE.file.path="", DE.end.path="/data/")
   if (res$status == "error") 
     return(paste(res$status, ":", res$message))
   else
