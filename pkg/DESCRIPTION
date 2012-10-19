@@ -4,7 +4,7 @@ Date: 2012-7-19
 Title: R interface to the iPlant Discovery Environment
 Author: Barb Banbury <bbanbury@utk.edu>, Kurt Michels <kamichels@math.arizona.edu>, Jeremy M. Beaulieu <jeremy.beaulieu@yale.edu>, Brian O'Meara <bomeara@utk.edu>
 Maintainer: Barb Banbury <bbanbury@utk.edu>
-Depends: R (>= 2.13.0), rjson
+Depends: R (>= 2.13.0), rjson, RCurl
 Suggests: seqinr, knitcitations
 LazyData:yes
 Repository/R-Forge/Project: rplant
