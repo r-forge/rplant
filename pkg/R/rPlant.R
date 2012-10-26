@@ -177,18 +177,17 @@ DeleteDir <- function(user.name, token, DE.dir.name, DE.dir.path="") {
 
 
 # -- APPLICATION FUNCTIONS -- #
-ListApps <- function(user.name, token) {
-  #web <- "' https://foundation.iplantc.org/apps-v1/apps/share/list"
-  web <- "'  https://foundation.iplantc.org/apps-v1/apps/share/bbanbury/"  #this needs to change
-  curl.string <- paste("curl -sku '", user.name, ":", token, web, sep="")
-  tmp <- suppressWarnings(fromJSON(paste(system(curl.string, intern=TRUE), 
-                          sep="", collapse="")))
-  res <- matrix(, length(tmp$result))
-  colnames(res) <- "Application"
-  for (i in 1:length(tmp$result))
-    res[i, 1] <- tmp$result[[i]]$id
-  return(sort(res))
-}
+#ListApps <- function(user.name, token) {
+#  web <- "' https://foundation.iplantc.org/apps-v1/apps/share/list"
+#  curl.string <- paste("curl -sku '", user.name, ":", token, web, sep="")
+#  tmp <- suppressWarnings(fromJSON(paste(system(curl.string, intern=TRUE), 
+#                          sep="", collapse="")))
+#  res <- matrix(, length(tmp$result))
+#  colnames(res) <- "Application"
+#  for (i in 1:length(tmp$result))
+#    res[i, 1] <- tmp$result[[i]]$id
+#  return(sort(res))
+#}
 
 #Cannot check the following, get the following error:
 #<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
@@ -202,43 +201,48 @@ ListApps <- function(user.name, token) {
 #<hr>
 #<address>Apache/2.2.3 (Red Hat) Server at foundation.iplantc.org Port 443</address>
 
-#ListApps <- function(user.name, token) {
-#  web <- "https://foundation.iplantc.org/apps-v1/apps/share/list"
-#  curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
-#                             httpauth=1L, 
-#                             ssl.verifypeer=FALSE)
-#  tmp <- suppressWarnings(fromJSON(getForm(web, curl=curl.call)))
-#  res <- matrix(, length(tmp$result))
-#  colnames(res) <- "Application"
-#  for (i in 1:length(tmp$result))
-#    res[i, 1] <- tmp$result[[i]]$id
-#  return(sort(res))
-#}
+ListApps <- function(user.name, token) {
+  web <- "https://foundation.iplantc.org/apps-v1/apps/share/list"
+  curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
+                             httpauth=1L, 
+                             ssl.verifypeer=FALSE)
+  tmp <- suppressWarnings(fromJSON(getForm(web, curl=curl.call)))
+  res <- matrix(, length(tmp$result))
+  colnames(res) <- "Application"
+  for (i in 1:length(tmp$result))
+    res[i, 1] <- tmp$result[[i]]$id
+  return(sort(res))
+}
 
 GetAppInfo <- function(user.name, token, application, verbose=FALSE) {
-  web <- "' https://foundation.iplantc.org/apps-v1/apps/share/name/"
-  curl.string <- paste("curl -X GET -sku '", user.name, ":", token, web, 
-                       application, sep="")
-  res <- suppressWarnings(fromJSON(paste(system(curl.string,intern=TRUE), sep="", collapse="")))
-  if (length(res$result[[1]]$inputs) == 0)
-  	return(list(application=res$result[[1]]$id, NA))
-  else {
-    if (verbose)
-      return(res)
-    else
-      app.info <- c()
-        for (input in sequence(length(res$result[[1]]$inputs)))
-          app.info <- rbind(app.info, c("input", res$result[[1]]$inputs[[input]]$id,
-                            res$result[[1]]$inputs[[input]]$semantics$fileTypes[1]))
-        for (output in sequence(length(res$result[[1]]$output)))
-          app.info <- rbind(app.info, c("output", res$result[[1]]$output[[output]]$id,
-                            res$result[[1]]$output[[output]]$semantics$fileTypes[1])) 
-                            # this seems to vary depending on the application
-    colnames(app.info) <- c("kind", "id", "fileType")
+  # This needs to be cleaned up. I think the relevant info is 
+        # a) inputs, 
+        # b) possible input parameters, and 
+        # c) outputs
+  web <- "https://foundation.iplantc.org/apps-v1/apps/share/name"
+  curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
+                             httpauth=1L, 
+                             ssl.verifypeer=FALSE)
+  res <- suppressWarnings(fromJSON(getForm(paste(web, application, sep="/"), curl=curl.call)))
+  if (length(res$result[[1]]$inputs)==0){return(list(application=res$result[[1]]$id, NA))}else{
+  if (verbose)
+    return(res)
+  else
+    app.info<-c()
+    for (input in sequence(length(res$result[[1]]$inputs)))
+      app.info <- rbind(app.info, c("input", res$result[[1]]$inputs[[input]]$id,
+                        res$result[[1]]$inputs[[input]]$semantics$fileTypes[1]))
+    for (output in sequence(length(res$result[[1]]$output)))
+      app.info <- rbind(app.info, c("output", res$result[[1]]$output[[output]]$id,
+                        res$result[[1]]$output[[output]]$semantics$fileTypes[1])) 
+                        # this seems to vary depending on the application
+    colnames(app.info)<-c("kind", "id", "fileType")
     return(list(application=res$result[[1]]$id, app.info))
   }
 }
 # -- END -- #
+
+
 
 
 # -- JOB FUNCTIONS -- #
@@ -331,7 +335,7 @@ RetrieveJob <- function(user.name, token, job.id, files, zip=TRUE) {
   web <- "https://foundation.iplantc.org/io-v1/io"
   curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
                              httpauth=1L, ssl.verifypeer=FALSE)
-  invisible(capture.output(fileList <- ListJobOutput(user.name, token, myJob)[[1]]))  # only will work on one job.id now
+  invisible(capture.output(fileList <- ListJobOutput(user.name, token, job.id)[[1]]))  # only will work on one job.id now
   JS <- CheckJobStatus(user.name, token, job.id, verbose=T)
   if (JS$res$status == "ARCHIVING_FINISHED") {
     for (file in 1:length(files)) {
@@ -347,7 +351,7 @@ RetrieveJob <- function(user.name, token, job.id, files, zip=TRUE) {
         return(paste(files[file], "is not found within", job.id))
     }
     if (zip) {
-      zip(paste("job.",job.id,".zip",sep=""), files=paste(getwd(), files, sep="/"))
+      gzip(paste("job.",job.id,".zip",sep=""), files=paste(getwd(), files, sep="/"))
       for (i in c(1:length(files))) {
         file.remove(files[i])
       }
@@ -401,10 +405,3 @@ GetJobHistory <- function(user.name, token, verbose=FALSE) {
   return(jobList)
 }
 # -- END -- #
-
-
-
-
-
-
-
