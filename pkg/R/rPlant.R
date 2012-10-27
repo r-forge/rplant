@@ -360,7 +360,7 @@ RetrieveJob <- function(user.name, token, job.id, files, zip=TRUE) {
       }
     }
     if (zip) {
-      zip(paste("job.",job.id,".zip",sep=""), files=paste(getwd(), files, sep="/"))
+      zip(paste("job_",job.id,".zip",sep=""), files=paste(getwd(), files, sep="/"))
       for (i in c(1:length(files))) {
         file.remove(files[i])
       }
