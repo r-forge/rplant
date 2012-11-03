@@ -177,30 +177,6 @@ DeleteDir <- function(user.name, token, DE.dir.name, DE.dir.path="") {
 
 
 # -- APPLICATION FUNCTIONS -- #
-#ListApps <- function(user.name, token) {
-#  web <- "' https://foundation.iplantc.org/apps-v1/apps/share/list"
-#  curl.string <- paste("curl -sku '", user.name, ":", token, web, sep="")
-#  tmp <- suppressWarnings(fromJSON(paste(system(curl.string, intern=TRUE), 
-#                          sep="", collapse="")))
-#  res <- matrix(, length(tmp$result))
-#  colnames(res) <- "Application"
-#  for (i in 1:length(tmp$result))
-#    res[i, 1] <- tmp$result[[i]]$id
-#  return(sort(res))
-#}
-
-#Cannot check the following, get the following error:
-#<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-#<html><head>
-#<title>503 Service Temporarily Unavailable</title>
-#</head><body>
-#<h1>Service Temporarily Unavailable</h1>
-#<p>The server is temporarily unable to service your
-#request due to maintenance downtime or capacity
-#problems. Please try again later.</p>
-#<hr>
-#<address>Apache/2.2.3 (Red Hat) Server at foundation.iplantc.org Port 443</address>
-
 ListApps <- function(user.name, token) {
   web <- "https://foundation.iplantc.org/apps-v1/apps/share/list"
   curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
