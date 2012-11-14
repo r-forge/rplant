@@ -94,8 +94,8 @@ MoveFile <- function(user.name, token, DE.file.name, DE.file.path="", DE.end.pat
     return(res$status)
 }
 
-DeleteFile <- function(user.name, token, DE.file.name, DE.file.path) {
-  web <- " https://foundation.iplantc.org/io-v1/io/"
+DeleteFile <- function(user.name, token, DE.file.name, DE.file.path="") {
+  web <- "https://foundation.iplantc.org/io-v1/io"
   curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
                              httpauth=1L, ssl.verifypeer=FALSE)
   if (DE.file.path == "")
