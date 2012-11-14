@@ -178,7 +178,7 @@ DeleteDir <- function(user.name, token, DE.dir.name, DE.dir.path="") {
 
 # -- APPLICATION FUNCTIONS -- #
 ListApps <- function(user.name, token) {
-  web <- "https://foundation.iplantc.org/apps-v1/apps/share/list"
+  web <- "https://foundation.iplantc.org/apps-v1/apps/list"
   curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
                              httpauth=1L, 
                              ssl.verifypeer=FALSE)
@@ -195,7 +195,7 @@ GetAppInfo <- function(user.name, token, application, verbose=FALSE) {
         # a) inputs, 
         # b) possible input parameters, and 
         # c) outputs
-  web <- "https://foundation.iplantc.org/apps-v1/apps/share/name"
+  web <- "https://foundation.iplantc.org/apps-v1/apps/name"
   curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
                              httpauth=1L, 
                              ssl.verifypeer=FALSE)
