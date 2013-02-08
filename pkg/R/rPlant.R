@@ -235,25 +235,26 @@ SubmitJob <- function(user.name, token, application, DE.file.name,
     content[1] <- paste("jobName=", job.name, sep="")
     content[2] <- paste("softwareName=", application, sep="")
     content[3] <- "archive=1"
-    if (DE.file.path=="")
+    if (DE.file.path=="") {
       content[4] <- paste("inputSeqs=", "/", user.name, "/", DE.file.name, sep="")
-    else
+    } else {
       content[4] <- paste("inputSeqs=", "/", user.name, "/", DE.file.path, "/", DE.file.name, sep="")
+    }
     content[5] <- paste("processorCount=", nprocs, sep="")
     content[6] <- paste("archivePath=/", user.name, "/analyses/", job.name, sep="")
     content[7] <- "requestedTime=24:00:00"
     content[8] <- "outputFormat=fasta"
     content[9] <- "mode=auto"
-  }
-  else{
+  } else {
     content <- c()
     content[1] <- paste("jobName=", job.name, sep="")
     content[2] <- paste("softwareName=", application, sep="")
     content[3] <- "archive=1"
-    if (DE.file.path=="")
+    if (DE.file.path=="") {
       content[4] <- paste("inputSeqs=", "/", user.name, "/", DE.file.name, sep="")
-    else
+    } else {
       content[4] <- paste("inputSeqs=", "/", user.name, "/", DE.file.path, "/", DE.file.name, sep="")
+    }
     content[5] <- paste("processorCount=", nprocs, sep="")
     content[6] <- paste("archivePath=/", user.name, "/analyses/", job.name, sep="")
     content[7] <- "requestedTime=24:00:00"
