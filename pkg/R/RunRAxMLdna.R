@@ -1,7 +1,6 @@
-RunRAxMLdna <- function(user.name, token, DE.file.name="", 
-                        DE.file.path="", outputFileName=NULL, model="GTRCAT", 
-                        bootstrap=NULL, algorithm="d",
-                        multipleModelFileName=NULL, 
+RunRAxMLdna <- function(user.name, token, DE.file.name="", DE.file.path="", 
+                        outputFileName=NULL, model="GTRCAT", bootstrap=NULL, 
+                        algorithm="d", multipleModelFileName=NULL, 
                         numcat=25, nprocs=2) {
   if (is.null(outputFileName)) {
     outputFileName <- paste(user.name, "_RAxMLdna_", model, "viaAPI", sep="")

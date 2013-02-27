@@ -1,4 +1,5 @@
-RunParsdna <- function(user.name, token, DE.file.name="", DE.file.path="", job.name=NULL) {
+RunParsdna <- function(user.name, token, DE.file.name="", DE.file.path="", 
+                       job.name=NULL) {
   if (is.null(job.name))
     job.name <- paste(user.name, "_Parsdna_viaAPI", sep="")
   myJob<-SubmitJob(user.name, token, 

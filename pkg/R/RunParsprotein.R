@@ -1,4 +1,5 @@
-RunParsprotein <- function(user.name, token, DE.file.name="", DE.file.path="", job.name=NULL) {
+RunParsprotein <- function(user.name, token, DE.file.name="", DE.file.path="", 
+                           job.name=NULL) {
   if (is.null(job.name))
     job.name <- paste(user.name, "_Parsprotein_viaAPI", sep="")
   myJob<-SubmitJob(user.name, token, 
