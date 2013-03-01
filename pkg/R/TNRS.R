@@ -78,7 +78,7 @@ GetPhylotasticToken <- function(names, max.per.call=100, verbose=TRUE) {
 RetrieveTNRSNames <- function(names, token, source=c("iPlant_TNRS", "NCBI"), 
                               match.threshold=0.5, verbose=F) {
   web <- "http://www.taxosaurus.org/retrieve"
-  res <- suppressWarnings(fromJSON(getURL(paste(web,token, sep="/"))))
+  res <- suppressWarnings(fromJSON(getURL(paste(web, token, sep="/"))))
 
   #make results a subsettable matrix
   TNRSnames <- matrix(nrow=length(names), ncol=2)  
@@ -111,10 +111,10 @@ CompareNames <- function(old.names, new.names, verbose=TRUE) {
   taxa.changed <- 0
   comp <- cbind(old.names, new.names)
   for (i in 1: dim(comp)[1]){
-    if (comp[i, 1] != comp[i,2]) {
+    if (comp[i,1] != comp[i,2]) {
       taxa.changed <- taxa.changed + 1
       if (verbose)
-        print(paste(comp[i, 1], " was changed to ", comp[i,2], cat("\n")))
+        print(paste(comp[i,1], " was changed to ", comp[i,2], cat("\n")))
     }
   }
   print(paste(taxa.changed, "taxa changed names according to TNRS"))
