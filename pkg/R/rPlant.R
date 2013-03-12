@@ -304,8 +304,8 @@ GetAppInfo <- function(user.name, token, application, verbose=FALSE,
   test <- tryCatch(res$result[[1]][1], error=function(x){x <- NA; return(x)})
 
   if (is.na(test)) {
-    n1 <- nchar(application)-2
-    application1 <- substr(application,1,n1)
+
+    application1 <- substr(application,1,nchar(application)-2)
 
     cat(paste(paste("No information available for '", application, "'",sep=""),
               ". . . checking . . . ",
