@@ -6,14 +6,15 @@
 	Functions for listing applications deployed in the iPlant software infrastructure and information about them.  GetCitations is a work in progress, currently only supports "muscle-ranger-2.0".
 }
 \usage{
-ListApps(user.name, token)
-GetAppInfo(user.name, token, application, verbose=FALSE)
+ListApps(user.name, token, print.terminal=FALSE)
+GetAppInfo(user.name, token, application, verbose=FALSE, print.terminal=FALSE)
 }
 \arguments{
 	\item{user.name}{iPlant Discovery Environment user name}
 	\item{token}{a validation tool used in place of unencrypted passwords}
 	\item{application}{name of DE application}
 	\item{verbose}{optional screen output that displays all of the results from the api, default = FALSE}
+	\item{print.terminal}{Prints the Curl Statement that can be used in the terminal}
 }
 \value{
 	A list of applications deployed in the DE.
