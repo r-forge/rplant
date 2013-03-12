@@ -9,11 +9,11 @@
 	Functions for uploading and manipulating files in the iPlant infrastructure
 }
 \usage{
-UploadFile(user.name, token, local.file.name, local.file.path, file.type)
-RenameFile(user.name, token, old.DE.file.name, new.DE.file.name, DE.file.path)
-MoveFile(user.name, token, DE.file.name, DE.file.path, DE.end.path)
-DeleteFile(user.name, token, DE.file.name, DE.file.path)
-SupportFile(user.name, token)
+UploadFile(user.name, token, local.file.name, local.file.path, file.type, print.terminal=FALSE)
+RenameFile(user.name, token, old.DE.file.name, new.DE.file.name, DE.file.path, print.terminal=FALSE)
+MoveFile(user.name, token, DE.file.name, DE.file.path, DE.end.path, print.terminal=FALSE)
+DeleteFile(user.name, token, DE.file.name, DE.file.path, print.terminal=FALSE)
+SupportFile(user.name, token, print.terminal=FALSE)
 }
 \arguments{
 	\item{user.name}{iPlant Discovery Environment user name}
@@ -26,6 +26,7 @@ SupportFile(user.name, token)
 	\item{local.file.path}{optional path to a sub directory where local file on user's computer is located (include ENTIRE path); default path is empty which leads to a users home directory}
 	\item{DE.file.path}{optional path to a sub directory where file on DE is located; default path is empty which leads to a users home directory}
 	\item{DE.end.path}{optional path to destination sub directory where file on DE is moved to; default path is empty which leads to a users home directory}
+	\item{print.terminal}{Prints the Curl Statement that can be used in the terminal}
 }
 \details{
 	The function SupportFile provides a list of the supported file types that can be uploaded onto iPlant.
