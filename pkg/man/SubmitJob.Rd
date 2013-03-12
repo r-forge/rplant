@@ -11,12 +11,12 @@
 	Functions for executing and managing analytical applications deployed in the iPlant infrastructure
 }
 \usage{
-SubmitJob(user.name, token, application, DE.file.name, DE.file.path="", job.name, nprocs=1, args=c())
-CheckJobStatus(user.name, token, job.id, verbose=FALSE)
-DeleteJob(user.name, token, job.id)
-RetrieveJob(user.name, token, job.id, files, zip)
-ListJobOutput(user.name, token, job.id)
-GetJobHistory(user.name, token, verbose=FALSE)
+SubmitJob(user.name, token, application, DE.file.name, DE.file.path="", job.name, nprocs=1, args=c(), print.terminal=FALSE)
+CheckJobStatus(user.name, token, job.id, verbose=FALSE, print.terminal=FALSE)
+DeleteJob(user.name, token, job.id, print.terminal=FALSE)
+RetrieveJob(user.name, token, job.id, files, zip, print.terminal=FALSE)
+ListJobOutput(user.name, token, job.id, print.terminal=FALSE)
+GetJobHistory(user.name, token, verbose=FALSE, print.terminal=FALSE)
 }
 \arguments{
 	\item{user.name}{iPlant Discovery Environment user name}
@@ -31,6 +31,7 @@ GetJobHistory(user.name, token, verbose=FALSE)
 	\item{verbose}{Optional screen output that displays all of the results from the api, default = FALSE}
 	\item{files}{Names of output files to download, can be one or many}
 	\item{zip}{Zip job files together, default is TRUE}
+	\item{print.terminal}{Prints the Curl Statement that can be used in the terminal}
 }
 \details{
 	Application must match an application name directly out of the DE, to ensure, you can check using \code{ListApps}. The job.id is returned after submitting, and it is used to check the status or download results. It can also be retrieved using \code{GetJobHistory}.
