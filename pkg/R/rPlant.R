@@ -4,14 +4,14 @@
 
 # -- AUTHENTICATION FUNCTIONS -- #
 GetToken <- function(user.name, user.pwd,  api=c("iplant", "cipres", "tnrs"),
-                     print.terminal=FALSE) {
+                     print.curl=FALSE) {
   web <- "https://foundation.iplantc.org/auth-v1/"
   if (is.character(api)) {
     if (api == "iplant") {
       curl.string <- paste("curl -X POST -sku '", user.name, ":", user.pwd,
                            "' ", web, sep="")
 
-      if (print.terminal) print(curl.string)
+      if (print.curl) print(curl.string)
 
       curl.call <- getCurlHandle(userpwd=paste(user.name, user.pwd, sep=":"),
                                  httpauth=1L, ssl.verifypeer=FALSE)
@@ -27,7 +27,7 @@ GetToken <- function(user.name, user.pwd,  api=c("iplant", "cipres", "tnrs"),
 }
 
 RenewToken <- function(user.name, user.pwd, token, api=c("iplant", "cipres", "tnrs"),
-                     print.terminal=FALSE) {
+                     print.curl=FALSE) {
   web <- "https://foundation.iplantc.org/auth-v1/renew"
   if (is.character(api)) {
     if (api == "iplant") {
@@ -35,7 +35,7 @@ RenewToken <- function(user.name, user.pwd, token, api=c("iplant", "cipres", "tn
       curl.string <- paste("curl -X POST -sku '", user.name, ":", 
                            user.pwd, "' -d 'token=", token, "' ", web, sep="")
 
-      if (print.terminal) print(curl.string)
+      if (print.curl) print(curl.string)
 
       curl.call <- getCurlHandle(userpwd=paste(user.name, user.pwd, sep=":"),
                                  httpauth=1L, ssl.verifypeer=FALSE)
@@ -53,7 +53,7 @@ RenewToken <- function(user.name, user.pwd, token, api=c("iplant", "cipres", "tn
 
 # -- FILE AND DATA FUNCTIONS -- #
 UploadFile <- function(user.name, token, local.file.name, local.file.path="",
-                       file.type, print.terminal=FALSE) {
+                       file.type, print.curl=FALSE) {
 
   web <- paste("https://foundation.iplantc.org/io-v1/io/", user.name, sep="");
 
@@ -62,7 +62,7 @@ UploadFile <- function(user.name, token, local.file.name, local.file.path="",
                        local.file.name, "' -F 'fileType=", 
                        file.type, "' ", web, sep="")
 
-  if (print.terminal) print(curl.string)
+  if (print.curl) print(curl.string)
 
   if (local.file.path == "") {
     res <- suppressWarnings(fromJSON(postForm(web, style="httppost",
@@ -89,7 +89,7 @@ UploadFile <- function(user.name, token, local.file.name, local.file.path="",
 }
 
 RenameFile <- function(user.name, token, old.DE.file.name, new.DE.file.name, 
-                       DE.file.path="", print.terminal=FALSE) {
+                       DE.file.path="", print.curl=FALSE) {
   web <- "https://foundation.iplantc.org/io-v1/io"
 
   curl.string <- paste("curl -sku '", user.name, ":", token, 
@@ -97,7 +97,7 @@ RenameFile <- function(user.name, token, old.DE.file.name, new.DE.file.name,
                        "&action=rename", "' ", web, "/", user.name, "/", 
                        DE.file.path, "/", old.DE.file.name, sep="")
 
-  if (print.terminal) print(curl.string)
+  if (print.curl) print(curl.string)
 
   curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
                              httpauth=1L, ssl.verifypeer=FALSE)
@@ -115,7 +115,7 @@ RenameFile <- function(user.name, token, old.DE.file.name, new.DE.file.name,
 }
 
 MoveFile <- function(user.name, token, DE.file.name, DE.file.path="", 
-                     DE.end.path="", print.terminal=FALSE) {
+                     DE.end.path="", print.curl=FALSE) {
   web <- "https://foundation.iplantc.org/io-v1/io"
 
   curl.string <- paste("curl -sku '", user.name, ":", token, 
@@ -123,7 +123,7 @@ MoveFile <- function(user.name, token, DE.file.name, DE.file.path="",
                        "/", DE.file.name, "&action=move", "' ", web, "/", 
                        user.name, "/", DE.file.path, "/", DE.file.name, sep="")
 
-  if (print.terminal) print(curl.string)
+  if (print.curl) print(curl.string)
 
   curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
                              httpauth=1L, ssl.verifypeer=FALSE)
@@ -142,14 +142,14 @@ MoveFile <- function(user.name, token, DE.file.name, DE.file.path="",
 }
 
 DeleteFile <- function(user.name, token, DE.file.name, DE.file.path="",
-                       print.terminal=FALSE) {
+                       print.curl=FALSE) {
   web <- "https://foundation.iplantc.org/io-v1/io"
 
   curl.string <- paste("curl -sku '", user.name, ":", token, "' -X DELETE",
                        " ", web, "/", user.name,  "/", DE.file.path, "/", 
                        DE.file.name, "/", sep="")
 
-  if (print.terminal) print(curl.string)
+  if (print.curl) print(curl.string)
 
   curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
                              httpauth=1L, ssl.verifypeer=FALSE)
@@ -166,13 +166,13 @@ DeleteFile <- function(user.name, token, DE.file.name, DE.file.path="",
     return(res$status)
 }
 
-SupportFile <- function(user.name, token, print.terminal=FALSE) {  
+SupportFile <- function(user.name, token, print.curl=FALSE) {  
   web <- "https://foundation.iplantc.org/io-v1/data/transforms/"
 
   curl.string <- paste("curl -X GET -sku '", user.name, ":", token, "' ", web,
                        sep="")
 
-  if (print.terminal) print(curl.string)
+  if (print.curl) print(curl.string)
 
   curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
                              httpauth=1L, ssl.verifypeer=FALSE)
@@ -189,13 +189,13 @@ SupportFile <- function(user.name, token, print.terminal=FALSE) {
 # -- END -- #
 
 # -- DIRECTORY FUNCTIONS -- #
-ListDir <- function(user.name, token, DE.dir.path="", print.terminal=FALSE) {
+ListDir <- function(user.name, token, DE.dir.path="", print.curl=FALSE) {
   web <- "https://foundation.iplantc.org/io-v1/io/list"
 
   curl.string <- paste("curl -sku '", user.name, ":", token, "' ", web, "/",
                        user.name, "/", DE.dir.path, sep="")
 
-  if (print.terminal) print(curl.string)
+  if (print.curl) print(curl.string)
 
   curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
                              httpauth=1L, ssl.verifypeer=FALSE)
@@ -211,14 +211,14 @@ ListDir <- function(user.name, token, DE.dir.path="", print.terminal=FALSE) {
 }
 
 MakeDir <- function(user.name, token, DE.dir.name, DE.dir.path="",
-                    print.terminal=FALSE) {
+                    print.curl=FALSE) {
   web <- "https://foundation.iplantc.org/io-v1/io"
 
   curl.string <- paste("curl -sku '", user.name, ":", token, 
                        "' -X PUT -d 'dirName=", DE.dir.name, "&action=mkdir' ",
                        web, "/", user.name, "/", DE.dir.path, sep="")
 
-  if (print.terminal) print(curl.string)
+  if (print.curl) print(curl.string)
 
   curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
                              httpauth=1L, ssl.verifypeer=FALSE)
@@ -236,14 +236,14 @@ MakeDir <- function(user.name, token, DE.dir.name, DE.dir.path="",
 }
 
 DeleteDir <- function(user.name, token, DE.dir.name, DE.dir.path="",
-                      print.terminal=FALSE) {
+                      print.curl=FALSE) {
   web <- "https://foundation.iplantc.org/io-v1/io"
 
   curl.string <- paste("curl -sku '", user.name, ":", token, "' -X DELETE ", 
                        web, "/", user.name, "/", DE.dir.path, "/", DE.dir.name,
                        sep="")
 
-  if (print.terminal) print(curl.string)
+  if (print.curl) print(curl.string)
 
   curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
                              httpauth=1L, ssl.verifypeer=FALSE)
@@ -264,12 +264,12 @@ DeleteDir <- function(user.name, token, DE.dir.name, DE.dir.path="",
 
 
 # -- APPLICATION FUNCTIONS -- #
-ListApps <- function(user.name, token, print.terminal=FALSE) {
+ListApps <- function(user.name, token, print.curl=FALSE) {
   web <- "https://foundation.iplantc.org/apps-v1/apps/list"
 
   curl.string <- paste("curl -sku '", user.name, ":", token, "' ", web, sep="")
 
-  if (print.terminal) print(curl.string)
+  if (print.curl) print(curl.string)
 
   curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
                              httpauth=1L, 
@@ -283,7 +283,7 @@ ListApps <- function(user.name, token, print.terminal=FALSE) {
 }
 
 GetAppInfo <- function(user.name, token, application, verbose=FALSE,
-                       print.terminal=FALSE) {
+                       print.curl=FALSE) {
   # This needs to be cleaned up. I think the relevant info is 
         # a) inputs, 
         # b) possible input parameters, and 
@@ -293,7 +293,7 @@ GetAppInfo <- function(user.name, token, application, verbose=FALSE,
   curl.string <- paste("curl -X GET -sku '", user.name, ":", token, "' ", web,
                        "/", application, sep="")
 
-  if (print.terminal) print(curl.string)
+  if (print.curl) print(curl.string)
 
   curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
                              httpauth=1L, ssl.verifypeer=FALSE)
@@ -361,7 +361,7 @@ GetAppInfo <- function(user.name, token, application, verbose=FALSE,
 # -- JOB FUNCTIONS -- #
 SubmitJob <- function(user.name, token, application, DE.file.name, 
                       DE.file.path="", job.name, nprocs=1, args=c(), 
-                      print.terminal=FALSE) {
+                      print.curl=FALSE) {
   # Automatically make analyses directory; will not overwrite if already present
   # MakeDir(user.name, token, "analyses", DE.dir.path="")
   curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
@@ -379,7 +379,7 @@ SubmitJob <- function(user.name, token, application, DE.file.name,
                        args, "' ", #need to paste in args here
                        web, sep="")
 
-  if (print.terminal) print(curl.string)
+  if (print.curl) print(curl.string)
 
   #clean up so you don't have to repeat code
   if (is.null(args)){  
@@ -438,13 +438,13 @@ SubmitJob <- function(user.name, token, application, DE.file.name,
 }
 
 CheckJobStatus <- function(user.name, token, job.id, verbose=FALSE,
-                           print.terminal=FALSE) {
+                           print.curl=FALSE) {
   web <- "https://foundation.iplantc.org/apps-v1/job"
 
   curl.string <- paste("curl -X GET -sku '", user.name, ":", token, "' ", web,
                        "/", job.id, sep="")
 
-  if (print.terminal) print(curl.string)
+  if (print.curl) print(curl.string)
 
   curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
                              httpauth=1L, ssl.verifypeer=FALSE)
@@ -463,7 +463,7 @@ CheckJobStatus <- function(user.name, token, job.id, verbose=FALSE,
   }
 }
 
-DeleteJob <- function(user.name, token, job.id, print.terminal=FALSE) {
+DeleteJob <- function(user.name, token, job.id, print.curl=FALSE) {
   
   web <- "https://foundation.iplantc.org/apps-v1/job"
 
@@ -474,7 +474,7 @@ DeleteJob <- function(user.name, token, job.id, print.terminal=FALSE) {
     curl.string <- paste("curl -X DELETE -sku '", user.name, ":", token, "' ", 
                           web, "/", job, sep="")
 
-    if (print.terminal) print(curl.string)
+    if (print.curl) print(curl.string)
 
     res <- suppressWarnings(fromJSON(httpDELETE(paste(web, 
                             job, sep="/"), curl = curl.call)))
@@ -487,7 +487,7 @@ DeleteJob <- function(user.name, token, job.id, print.terminal=FALSE) {
 }
 
 RetrieveJob <- function(user.name, token, job.id, files, zip=TRUE,
-                        print.terminal=FALSE) {  
+                        print.curl=FALSE) {  
   # what if file doesn't exist...make that an option with a return
   web <- "https://foundation.iplantc.org/io-v1/io"
   curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
@@ -505,7 +505,7 @@ RetrieveJob <- function(user.name, token, job.id, files, zip=TRUE,
                              web, "/", JS$result$archivePath, "/", files[file],
                              " -o ", files[file], sep="")
 
-        if (print.terminal) print(curl.string)
+        if (print.curl) print(curl.string)
 
         out <- suppressWarnings(getForm(paste(web, JS$result$archivePath, "/", 
                                 files[file], sep=""), curl=curl.call))
@@ -538,7 +538,7 @@ RetrieveJob <- function(user.name, token, job.id, files, zip=TRUE,
     warning("Job is ", JS$res$status)
 }
 
-ListJobOutput <- function(user.name, token, job.id, print.terminal=FALSE) {
+ListJobOutput <- function(user.name, token, job.id, print.curl=FALSE) {
   web <- "https://foundation.iplantc.org/apps-v1/job"
   curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
                              httpauth=1L, ssl.verifypeer=FALSE)
@@ -552,7 +552,7 @@ ListJobOutput <- function(user.name, token, job.id, print.terminal=FALSE) {
       curl.string <- paste("curl -X GET -sku '", user.name, ":", token, "' ",
                            web, "/", job.id[job], "/output/list", sep="")
 
-      if (print.terminal) print(curl.string)
+      if (print.curl) print(curl.string)
 
       res <- suppressWarnings(fromJSON(getForm(paste(web, job.id[job], 
                               "output/list", sep="/"), curl=curl.call)))
@@ -570,13 +570,13 @@ ListJobOutput <- function(user.name, token, job.id, print.terminal=FALSE) {
 }
 
 GetJobHistory <- function(user.name, token, verbose=FALSE, 
-                          print.terminal=FALSE) {
+                          print.curl=FALSE) {
   web <- "https://foundation.iplantc.org/apps-v1/jobs/list"
 
   curl.string <- paste("curl -X GET -sku '", user.name, ":", token, "' ", web,
                        "/", sep="")
 
-  if (print.terminal) print(curl.string)
+  if (print.curl) print(curl.string)
 
   jobList <- c()
   curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
