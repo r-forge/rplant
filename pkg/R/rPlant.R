@@ -264,23 +264,19 @@ DeleteDir <- function(user.name, token, DE.dir.name, DE.dir.path="",
 
 
 # -- APPLICATION FUNCTIONS -- #
-ListApps <- function(user.name, token, print.curl=FALSE) {
-  web <- "https://foundation.iplantc.org/apps-v1/apps/list"
-
-  curl.string <- paste("curl -sku '", user.name, ":", token, "' ", web, sep="")
-
-  if (print.curl) print(curl.string)
-
-  curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
-                             httpauth=1L, 
-                             ssl.verifypeer=FALSE)
-  tmp <- suppressWarnings(fromJSON(getForm(web, curl=curl.call)))
-  res <- matrix(, length(tmp$result))
-  colnames(res) <- "Application"
-  for (i in 1:length(tmp$result))
-    res[i, 1] <- tmp$result[[i]]$id
-  return(sort(res))
+ListApps<- function (user.name, token) 
+{
+    web <- "' https://foundation.iplantc.org/apps-v1/apps/list"
+    curl.string <- paste("curl -sku '", user.name, ":", token, 
+        web, sep = "")
+    tmp <- suppressWarnings(fromJSON(paste(system(curl.string, 
+        intern = TRUE), sep = "", collapse = "")))
+    res <- matrix(, length(tmp$result))
+    colnames(res) <- "Application"
+    for (i in 1:length(tmp$result)) res[i, 1] <- tmp$result[[i]]$id
+    return(sort(res))
 }
+
 
 GetAppInfo <- function(user.name, token, application, verbose=FALSE,
                        print.curl=FALSE) {
