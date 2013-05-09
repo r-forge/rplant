@@ -14,7 +14,6 @@ RenewToken(user.name, user.pwd, token, api=c("iplant", "cipres", "tnrs"), print.
 	\item{user.pwd}{iPlant Discovery Environment password}
 	\item{token}{a validation tool used in place of unencrypted passwords}
 	\item{api}{the API to interfaced with, currently only the iPlant API is supported}
-}
 	\item{print.curl}{Prints the Curl Statement that can be used in the terminal}
 }
 \details{
