@@ -6,7 +6,7 @@
 	Functions for listing applications deployed in the iPlant software infrastructure and information about them.  GetCitations is a work in progress, currently only supports "muscle-ranger-2.0".
 }
 \usage{
-ListApps(user.name, token, print.curl=FALSE)
+ListApps(user.name, token)
 GetAppInfo(user.name, token, application, verbose=FALSE, print.curl=FALSE)
 }
 \arguments{
