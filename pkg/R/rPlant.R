@@ -338,11 +338,11 @@ SubmitJob <- function(user.name, token, application, DE.file.name,
   web <- "https://foundation.iplantc.org/apps-v1/job"
   curl.string <- paste("curl -X POST -sku '", user.name, ":", token, 
                        "' -d 'jobName=", job.name, "&softwareName=",  
-                       application, "&archive=1&inputSeqs=", "/", 
+                       application, "&archive=1&stdin=", "/", 
                        user.name, "/", DE.file.path, "/", DE.file.name, 
                        "&processorCount=", nprocs, "&archivePath=/", 
                        user.name, "/analyses/", job.name, 
-                       "&requestedTime=24:00:00&outputFormat=fasta&mode=auto",
+                       "&requestedTime=24:00:00",
                        args, "' ", #need to paste in args here
                        web, sep="")
   if (print.curl)
@@ -354,19 +354,19 @@ SubmitJob <- function(user.name, token, application, DE.file.name,
     content[2] <- paste("softwareName=", application, sep="")
     content[3] <- "archive=1"
     if (DE.file.path=="") {
-      content[4] <- paste("inputSeqs=", "/", user.name, "/", DE.file.name, 
+      content[4] <- paste("stdin=", "/", user.name, "/", DE.file.name, 
                           sep="")
     } 
     else {
-      content[4] <- paste("inputSeqs=", "/", user.name, "/", DE.file.path, "/",
+      content[4] <- paste("stdin=", "/", user.name, "/", DE.file.path, "/",
                           DE.file.name, sep="")
     }
     content[5] <- paste("processorCount=", nprocs, sep="")
     content[6] <- paste("archivePath=/", user.name, "/analyses/", job.name, 
                         sep="")
     content[7] <- "requestedTime=24:00:00"
-    content[8] <- "outputFormat=fasta"
-    content[9] <- "mode=auto"
+ #   content[8] <- "outputFormat=fasta"
+ #   content[9] <- "mode=auto"
   }
   else {
     content <- c()
@@ -374,20 +374,20 @@ SubmitJob <- function(user.name, token, application, DE.file.name,
     content[2] <- paste("softwareName=", application, sep="")
     content[3] <- "archive=1"
     if (DE.file.path=="") {
-      content[4] <- paste("inputSeqs=", "/", user.name, "/", DE.file.name, 
+      content[4] <- paste("stdin=", "/", user.name, "/", DE.file.name, 
                           sep="")
     } 
     else {
-      content[4] <- paste("inputSeqs=", "/", user.name, "/", DE.file.path, "/",
+      content[4] <- paste("stdin=", "/", user.name, "/", DE.file.path, "/",
                           DE.file.name, sep="")
     }
     content[5] <- paste("processorCount=", nprocs, sep="")
     content[6] <- paste("archivePath=/", user.name, "/analyses/", job.name, 
                   sep="")
     content[7] <- "requestedTime=24:00:00"
-    content[8] <- "outputFormat=fasta"
-    content[9] <- "mode=auto"
-    content[10] <- args
+ #   content[8] <- "outputFormat=fasta"
+ #   content[9] <- "mode=auto"
+    content[8] <- args
   }
 
   val <- charToRaw(paste(content, collapse = "&"))
@@ -485,8 +485,7 @@ RetrieveJob <- function(user.name, token, job.id, files, zip=TRUE,
       }
     }
     if (zip) {
-      zip(paste("job_",job.id,".zip",sep=""), files=paste(getwd(), files, 
-          sep="/"))
+      zip(paste("job_",job.id,".zip",sep=""), files=files)
       for (i in c(1:length(files))) {
         file.remove(files[i])
       }
