@@ -303,7 +303,7 @@ GetAppInfo <- function(user.name, token, application, verbose=FALSE,
 # -- JOB FUNCTIONS -- #
 SubmitJob <- function(user.name, token, application, DE.file.path="", 
                       DE.file.list, input.list, job.name, nprocs=1, 
-                      args=c(), print.curl=FALSE) {
+                      args=NULL, print.curl=FALSE) {
 
   n <- length(DE.file.list)
 
@@ -326,7 +326,7 @@ SubmitJob <- function(user.name, token, application, DE.file.path="",
                          user.name, "/", DE.file.path, "/", DE.file.list[[i]], sep="")
   }
 
-  if (args==c()){
+  if (is.null(args)){
     curl.string <- paste(curl.string, "' ", web, sep="")
   } else {
     curl.string <- paste(curl.string,"&",args, "' ", web, sep="")
