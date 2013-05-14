@@ -259,7 +259,6 @@ ListApps<- function (user.name, token)
     return(sort(res))
 }
 
-
 GetAppInfo <- function(user.name, token, application, verbose=FALSE,
                        print.curl=FALSE) {
   # This needs to be cleaned up. I think the relevant info is 
@@ -267,84 +266,72 @@ GetAppInfo <- function(user.name, token, application, verbose=FALSE,
         # b) possible input parameters, and 
         # c) outputs
   web <- "https://foundation.iplantc.org/apps-v1/apps/name"
-  curl.string <- paste("curl -X GET -sku '", user.name, ":", token, "' ", web,
-                       "/", application, sep="")
-  if (print.curl)
-    print(curl.string)
+
+  
   curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
                              httpauth=1L, ssl.verifypeer=FALSE)
-  res <- suppressWarnings(fromJSON(getForm(paste(web, application, sep="/"), 
-                          curl=curl.call)))
-  test <- tryCatch(res$result[[1]][1], error=function(x){x <- NA; return(x)})
-  if (is.na(test)) {
-    application1 <- substr(application,1,nchar(application)-2)
-    cat(paste(paste("No information available for '", application, "'",sep=""),
-              ". . . checking . . . ",
-              paste("'", application1, "'\n", sep=""), sep='\n'))
-    res <- suppressWarnings(fromJSON(getForm(paste(web, application1, sep="/"), 
+
+  application1 <- substr(application,1,nchar(application)-2)
+
+  res <- suppressWarnings(fromJSON(getForm(paste(web, application1, sep="/"), 
                             curl=curl.call)))
-    test1 <- tryCatch(res$result[[1]][1], error=function(x){x <- NA; return(x)})
-    if (is.na(test1)) {
-      return(paste("No information available for '",application1,"'",sep=""))
-    } else {
-      if (verbose) {
-        return(res)
-      } else {
-        app.info<-c()
-        for (input in sequence(length(res$result[[1]]$inputs))) {
-          app.info <- rbind(app.info, c("input", res$result[[1]]$inputs[[input]]$id,
-                            res$result[[1]]$inputs[[input]]$semantics$fileTypes[1]))
-        }
-        for (output in sequence(length(res$result[[1]]$output))) {
-          app.info <- rbind(app.info, c("output", res$result[[1]]$output[[output]]$id,
-                            res$result[[1]]$output[[output]]$semantics$fileTypes[1])) 
-        }
-        colnames(app.info)<-c("kind", "id", "fileType")
-        return(list(application=res$result[[1]]$id, app.info))
-      }
+  
+  curl.string <- paste("curl -X GET -sku '", user.name, ":", token, "' ", web,
+                       "/", application1, sep="")
+  if (print.curl)
+    print(curl.string)
+  
+  if (verbose) 
+    return(res)
+  else {
+    app.info<-c()
+    for (input in sequence(length(res$result[[1]]$inputs))) {
+      app.info <- rbind(app.info, c("input", res$result[[1]]$inputs[[input]]$id,
+                        res$result[[1]]$inputs[[input]]$semantics$fileTypes[1]))
     }
-  } else {
-    if (verbose) 
-      return(res)
-    else {
-      app.info<-c()
-      for (input in sequence(length(res$result[[1]]$inputs))) {
-        app.info <- rbind(app.info, c("input", res$result[[1]]$inputs[[input]]$id,
-                          res$result[[1]]$inputs[[input]]$semantics$fileTypes[1]))
-      }
-      for (output in sequence(length(res$result[[1]]$output))) {
-        app.info <- rbind(app.info, c("output", res$result[[1]]$output[[output]]$id,
-                          res$result[[1]]$output[[output]]$semantics$fileTypes[1])) 
-      }
-      colnames(app.info)<-c("kind", "id", "fileType")
-      return(list(application=res$result[[1]]$id, app.info))
+    for (output in sequence(length(res$result[[1]]$output))) {
+      app.info <- rbind(app.info, c("output", res$result[[1]]$output[[output]]$id,
+                        res$result[[1]]$output[[output]]$semantics$fileTypes[1])) 
     }
+    colnames(app.info)<-c("kind", "id", "fileType")
+    return(list(application=res$result[[1]]$id, app.info))
   }
 }
 # -- END -- #
 
 
-
-
 # -- JOB FUNCTIONS -- #
-SubmitJob <- function(user.name, token, application, DE.file.name, 
-                      DE.file.path="", job.name, nprocs=1, args=c(), 
-                      print.curl=FALSE) {
+SubmitJob <- function(user.name, token, application, DE.file.path="", 
+                      DE.file.list, input.list, job.name, nprocs=1, 
+                      args=c(), print.curl=FALSE) {
+
+  n <- length(DE.file.list)
+
   # Automatically make analyses directory; will not overwrite if already present
   # MakeDir(user.name, token, "analyses", DE.dir.path="")
+
   curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
                              httpauth=1L, ssl.verifypeer=FALSE)
   MakeDir(user.name, token, "analyses", DE.dir.path="")
   web <- "https://foundation.iplantc.org/apps-v1/job"
+
   curl.string <- paste("curl -X POST -sku '", user.name, ":", token, 
                        "' -d 'jobName=", job.name, "&softwareName=",  
-                       application, "&archive=1&stdin=", "/", 
-                       user.name, "/", DE.file.path, "/", DE.file.name, 
-                       "&processorCount=", nprocs, "&archivePath=/", 
-                       user.name, "/analyses/", job.name, 
-                       "&requestedTime=24:00:00",
-                       args, "' ", #need to paste in args here
-                       web, sep="")
+                       application, "&archive=1&processorCount=", nprocs,
+                       "&archivePath=/", user.name, "/analyses/", job.name, 
+                       "&requestedTime=24:00:00", sep="")
+
+  for (i in c(1:n)){
+    curl.string <- paste(curl.string,"&",input.list[[i]],"=/", 
+                         user.name, "/", DE.file.path, "/", DE.file.list[[i]], sep="")
+  }
+
+  if (args==c()){
+    curl.string <- paste(curl.string, "' ", web, sep="")
+  } else {
+    curl.string <- paste(curl.string,"&",args, "' ", web, sep="")
+  }
+
   if (print.curl)
     print(curl.string)
   #clean up so you don't have to repeat code
@@ -353,18 +340,20 @@ SubmitJob <- function(user.name, token, application, DE.file.name,
     content[1] <- paste("jobName=", job.name, sep="")
     content[2] <- paste("softwareName=", application, sep="")
     content[3] <- "archive=1"
-    if (DE.file.path=="") {
-      content[4] <- paste("stdin=", "/", user.name, "/", DE.file.name, 
-                          sep="")
-    } 
-    else {
-      content[4] <- paste("stdin=", "/", user.name, "/", DE.file.path, "/",
-                          DE.file.name, sep="")
-    }
-    content[5] <- paste("processorCount=", nprocs, sep="")
-    content[6] <- paste("archivePath=/", user.name, "/analyses/", job.name, 
+    content[4] <- paste("processorCount=", nprocs, sep="")
+    content[5] <- paste("archivePath=/", user.name, "/analyses/", job.name, 
                         sep="")
-    content[7] <- "requestedTime=24:00:00"
+    content[6] <- "requestedTime=24:00:00"
+    for (i in c(1:n)){
+      if (DE.file.path=="") {
+        content[6+i] <- paste(input.list[[i]],"=/", user.name, "/", DE.file.list[[i]], 
+                              sep="")
+      } 
+      else {
+        content[6+i] <- paste(input.list[[i]],"=/", user.name, "/", DE.file.path, "/",
+                              DE.file.list[[i]], sep="")
+      }
+    }
  #   content[8] <- "outputFormat=fasta"
  #   content[9] <- "mode=auto"
   }
@@ -373,21 +362,23 @@ SubmitJob <- function(user.name, token, application, DE.file.name,
     content[1] <- paste("jobName=", job.name, sep="")
     content[2] <- paste("softwareName=", application, sep="")
     content[3] <- "archive=1"
-    if (DE.file.path=="") {
-      content[4] <- paste("stdin=", "/", user.name, "/", DE.file.name, 
-                          sep="")
-    } 
-    else {
-      content[4] <- paste("stdin=", "/", user.name, "/", DE.file.path, "/",
-                          DE.file.name, sep="")
-    }
-    content[5] <- paste("processorCount=", nprocs, sep="")
-    content[6] <- paste("archivePath=/", user.name, "/analyses/", job.name, 
+    content[4] <- paste("processorCount=", nprocs, sep="")
+    content[5] <- paste("archivePath=/", user.name, "/analyses/", job.name, 
                   sep="")
-    content[7] <- "requestedTime=24:00:00"
+    content[6] <- "requestedTime=24:00:00"
+    for (i in c(1:n)){
+      if (DE.file.path=="") {
+        content[6+i] <- paste(input.list[[i]],"=/", user.name, "/", DE.file.list[[i]], 
+                              sep="")
+      } 
+      else {
+        content[6+i] <- paste(input.list[[i]],"=/", user.name, "/", DE.file.path, "/",
+                              DE.file.list[[i]], sep="")
+      }
+    }
  #   content[8] <- "outputFormat=fasta"
  #   content[9] <- "mode=auto"
-    content[8] <- args
+    content[7+n] <- args
   }
 
   val <- charToRaw(paste(content, collapse = "&"))
