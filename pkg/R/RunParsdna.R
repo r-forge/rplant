@@ -1,7 +1,7 @@
 RunParsdna <- function(user.name, token, DE.file.name="", DE.file.path="", 
                        job.name=NULL, nprocs=1) {
 
-  App <- GetAppInfo(user.name, token, application)[[2]]
+  App <- GetAppInfo(user.name, token, "phylip-dna-parsimony-lonestar-3.69u1")[[2]]
   input.list <- vector("list",1)
   input.list[[1]] <- App[,2][1]
 
