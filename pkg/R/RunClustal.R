@@ -1,7 +1,7 @@
 RunClustal <- function(user.name, token, DE.file.name="", DE.file.path="", 
                        job.name=NULL, nprocs=1) {
 
-  App <- GetAppInfo(user.name, token, application)[[2]]
+  App <- GetAppInfo(user.name, token, "ClustalW2-2.1u1")[[2]]
   input.list <- vector("list",1)
   input.list[[1]] <- App[,2][1]
 
