@@ -26,7 +26,7 @@ GetToken <- function(user.name, user.pwd,  api=c("iplant", "cipres", "tnrs"),
 }
 
 RenewToken <- function(user.name, user.pwd, token, api=c("iplant", "cipres", "tnrs"),
-                     print.curl=FALSE) {
+                       print.curl=FALSE) {
   web <- "https://foundation.iplantc.org/auth-v1/renew"
   if (is.character(api)) {
     if (api == "iplant") {
@@ -261,18 +261,23 @@ ListApps<- function (user.name, token)
 
 GetAppInfo <- function(user.name, token, application, verbose=FALSE,
                        print.curl=FALSE) {
+
   # This needs to be cleaned up. I think the relevant info is 
         # a) inputs, 
         # b) possible input parameters, and 
         # c) outputs
+
   web <- "https://foundation.iplantc.org/apps-v1/apps/name"
 
-  
   curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
                              httpauth=1L, ssl.verifypeer=FALSE)
 
-  application1 <- substr(application,1,nchar(application)-2)
-
+  if ((substring(application,nchar(application)-1,nchar(application)-1) == 'u') || 
+      (substring(application,nchar(application)-2,nchar(application)-2) == 'u')){
+    application1 <- substr(application,1,nchar(application)-2)
+  } else {
+    application1 <- application
+  }
   res <- suppressWarnings(fromJSON(getForm(paste(web, application1, sep="/"), 
                             curl=curl.call)))
   
