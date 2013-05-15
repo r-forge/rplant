@@ -8,8 +8,8 @@
 RunRAxMLdna(user.name, token, DE.file.name="", 
                         DE.file.path="", outputFileName=NULL, model="GTRCAT", 
                         bootstrap=NULL, algorithm="d",
-                        multipleModelFileName=NULL, 
-                        numcat=25, nprocs=2)
+                        multipleModelFileName=NULL, numcat=25, 
+                        nprocs=2, version="raxml-lonestar-7.2.8u1")
 }
 \arguments{
 	\item{user.name}{iPlant Discovery Environment user name}
@@ -22,7 +22,8 @@ RunRAxMLdna(user.name, token, DE.file.name="",
 	\item{algorithm}{Select the type of algorithm/function you want. "d" is default.}
 	\item{multipleModelFileName}{substitution model file}
 	\item{numcat}{Number of distinct rate categories}
-	\item{nprocs}{the number of processors to be allocated to the job, default = 1}
+	\item{nprocs}{the number of processors to be allocated to the job, default = 2}
+	\item{version}{RAxML version, options include \code{raxml-lonestar-7.2.8u1}}
 }
 \details{
 	The function is a wrapper function for several other rPlant functions, but specific to MUSCLE runs.  
@@ -34,6 +35,7 @@ RunRAxMLdna(user.name, token, DE.file.name="",
 	Text listing action as either being a "success" or "error". If an error, then a message stating the error should also be reported.  
 }
 \examples{
-	# RunRAxMLdna(user.name, token, DE.file.name="ex.lp.fasta", DE.file.path="",  model="GTRCAT", bootstrap=NULL, numcat=25, nprocs=1)
+	# RunRAxMLdna(user.name, token, DE.file.name="ex.lp.fasta", 
+                      model="GTRCAT", bootstrap=NULL, numcat=25)
 
 }	
