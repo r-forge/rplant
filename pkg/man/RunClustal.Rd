@@ -27,6 +27,5 @@
 	Text listing action as either being a "success" or "error". If an error, then a message stating the error should also be reported.  
 }
 \examples{
-	# RunClustal(user.name, token, DE.file.name="ex.lp.fasta",
-                     job.name="clustalw.Job1", version="clustalw2-lonestar-2.1u2")
+	# RunClustal(user.name, token, DE.file.name="ex.lp.fasta", job.name="clustalw.Job1", version="clustalw2-lonestar-2.1u2")
 }	

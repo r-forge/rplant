@@ -22,14 +22,13 @@ GetJobHistory(user.name, token, verbose=FALSE, print.curl=FALSE)
 \arguments{
 	\item{user.name}{iPlant Discovery Environment user name}
 	\item{token}{A validation tool used in place of unencrypted passwords}
-	\item{DE.file.name}{Name of file to be evaluated on the Discovery Environment (DE).}
 	\item{application}{Name of DE application}
+	\item{DE.file.path}{Optional path to a user's subdirectory on the DE; default path is empty, which leads to the home directory}
+	\item{DE.file.list}{A list of input files, many functions only have one input file, but some have multiple input files, in that case input all those files in list form.  This list is the same length as input.list, and input.list[[1]] corresponds with DE.file.list[[1]].  See details for more information}
 	\item{job.name}{The name to give the job being submitted}
 	\item{nprocs}{The number of processors to be allocated to the job, default = 1}
 	\item{args}{Optional for arguments (i.e. flags)}
 	\item{job.id}{The unique ID number given to a submitted job} 
-	\item{DE.file.path}{Optional path to a user's subdirectory on the DE; default path is empty, which leads to the home directory}
-	\item{DE.file.list}{A list of input files, many functions only have one input file, but some have multiple input files, in that case input all those files in list form.  This list is the same length as input.list, and input.list[[1]] corresponds with DE.file.list[[1]].  See details for more information}
 	\item{input.list}{A list of the name of inputs.  See details for more information.}
 	\item{verbose}{Optional screen output that displays all of the results from the api, default = FALSE}
 	\item{files}{Names of output files to download, can be one or many}

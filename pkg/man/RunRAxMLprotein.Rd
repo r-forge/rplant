@@ -32,7 +32,5 @@ RunRAxMLprotein(user.name, token, DE.file.name="", DE.file.path="",
 	Text listing action as either being a "success" or "error". If an error, then a message stating the error should also be reported.  
 }
 \examples{
-	# RunRAxMLprotein(user.name, token, DE.file.name="your.protein.alignment", 
-                          model="PROTCAT.GAMMA", numcat=25)
-
+	# RunRAxMLprotein(user.name, token, DE.file.name="your.protein.alignment", model="PROTCAT.GAMMA", numcat=25)
 }	

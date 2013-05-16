@@ -5,18 +5,18 @@
 	This function will submit a RAxML job to iPlant's DE
 }
 \usage{
-RunRAxMLdna(user.name, token, DE.file.name="", 
-                        DE.file.path="", outputFileName=NULL, model="GTRCAT", 
-                        bootstrap=NULL, algorithm="d",
-                        multipleModelFileName=NULL, numcat=25, 
-                        nprocs=2, version="raxml-lonestar-7.2.8u1")
+RunRAxMLdna(user.name, token, DE.file.name = "", DE.file.path =
+                 "", job.name = NULL, model = "GTRCAT", bootstrap =
+                 NULL, algorithm = "d", multipleModelFileName = NULL,
+                 numcat = 25, nprocs = 2, version =
+                 "raxml-lonestar-7.2.8u1")
 }
 \arguments{
 	\item{user.name}{iPlant Discovery Environment user name}
 	\item{token}{A validation tool used in place of unencrypted passwords}
 	\item{DE.file.name}{Name of file to be evaluated on the Discovery Environment (DE).}
 	\item{DE.file.path}{Optional path to a user's subdirectory on the DE; default path is empty, which leads to the home directory}
-	\item{outputFileName}{The name to give the job being submitted}
+	\item{job.name}{the name to give the job being submitted}
 	\item{model}{Substitution model.  Choices are \code{GTRCAT}, \code{GTRGAMMA}, \code{GTRCAT.GAMMA}, \code{GTRGAMMAI}, \code{GTRCAT.GAMMAI}}
 	\item{bootstrap}{Random Seed Number for non-parametric bootstrapping}
 	\item{algorithm}{Select the type of algorithm/function you want. "d" is default.}
@@ -35,7 +35,5 @@ RunRAxMLdna(user.name, token, DE.file.name="",
 	Text listing action as either being a "success" or "error". If an error, then a message stating the error should also be reported.  
 }
 \examples{
-	# RunRAxMLdna(user.name, token, DE.file.name="ex.lp.fasta", 
-                      model="GTRCAT", bootstrap=NULL, numcat=25)
-
+	# RunRAxMLdna(user.name, token, DE.file.name="ex.lp.fasta", model="GTRCAT", bootstrap=NULL, numcat=25)
 }	

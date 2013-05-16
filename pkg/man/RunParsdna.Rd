@@ -27,6 +27,5 @@
 	Text listing action as either being a "success" or "error". If an error, then a message stating the error should also be reported.  
 }
 \examples{
-	# RunParsdna(user.name, token, DE.file.name="ex.lp.fasta",
-                     job.name="PhylipParsimony1")
+	# RunParsdna(user.name, token, DE.file.name="ex.lp.fasta", job.name="PhylipParsimony1")
 }	
