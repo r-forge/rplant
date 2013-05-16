@@ -29,5 +29,4 @@
 }
 \examples{
 	# RunMafft(user.name, token, DE.file.name="ex.lp.fasta")
-
 }	
