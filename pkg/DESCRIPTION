@@ -1,6 +1,6 @@
 Package: rPlant
-Version: 2.5
-Date: 2013-05-09
+Version: 2.6
+Date: 2013-05-19
 Title: R interface to the iPlant Discovery Environment
 Author: Barb Banbury <bbanbury@utk.edu>, Kurt Michels <kamichels@math.arizona.edu>, Jeremy M. Beaulieu <jeremy.beaulieu@yale.edu>, Brian O'Meara <bomeara@utk.edu>
 Maintainer: Barb Banbury <bbanbury@utk.edu>

@@ -7,7 +7,8 @@
 }
 \usage{
 GetToken(user.name, user.pwd, api=c("iplant", "cipres", "tnrs"), print.curl=FALSE)
-RenewToken(user.name, user.pwd, token, api=c("iplant", "cipres", "tnrs"), print.curl=FALSE)
+RenewToken(user.name, user.pwd, token, api=c("iplant", "cipres", "tnrs"),
+    print.curl=FALSE)
 }
 \arguments{
 	\item{user.name}{iPlant Discovery Environment user name}
