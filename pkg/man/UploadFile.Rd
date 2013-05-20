@@ -9,8 +9,10 @@
 	Functions for uploading and manipulating files in the iPlant infrastructure
 }
 \usage{
-UploadFile(user.name, token, local.file.name, local.file.path, file.type, print.curl=FALSE)
-RenameFile(user.name, token, old.DE.file.name, new.DE.file.name, DE.file.path, print.curl=FALSE)
+UploadFile(user.name, token, local.file.name, local.file.path, 
+           file.type, print.curl=FALSE)
+RenameFile(user.name, token, old.DE.file.name, new.DE.file.name, 
+           DE.file.path, print.curl=FALSE)
 MoveFile(user.name, token, DE.file.name, DE.file.path, DE.end.path, print.curl=FALSE)
 DeleteFile(user.name, token, DE.file.name, DE.file.path, print.curl=FALSE)
 SupportFile(user.name, token, print.curl=FALSE)
