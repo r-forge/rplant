@@ -7,7 +7,7 @@
 \usage{
 RunRAxMLprotein(user.name, token, DE.file.name="", DE.file.path="", 
                             job.name=NULL, model="PROTCAT", bootstrap=NULL, 
-                            numcat=25, nprocs=2,
+                            numcat=25, nprocs=2, print.curl=FALSE
                             version="raxml-lonestar-7.2.8u1")
 }
 \arguments{
@@ -21,6 +21,7 @@ RunRAxMLprotein(user.name, token, DE.file.name="", DE.file.path="",
 	\item{numcat}{Number of distinct rate categories}
 	\item{nprocs}{the number of processors to be allocated to the job, default = 2}
 	\item{version}{RAxML version, options include \code{raxml-lonestar-7.2.8u1}}
+	\item{print.curl}{Prints the Curl Statement that can be used in the terminal}
 }
 \details{
 	The function is a wrapper function for several other rPlant functions, but specific to MUSCLE runs.  
