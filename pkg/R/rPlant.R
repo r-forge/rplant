@@ -315,11 +315,23 @@ GetAppInfo <- function(user.name, token, application, verbose=FALSE,
 
 # -- JOB FUNCTIONS -- #
 SubmitJob <- function(user.name, token, application, DE.file.path="", 
-                      DE.file.list, input.list, job.name, nprocs=1, 
-                      args=NULL, print.curl=FALSE) {
+                      DE.file.list=NULL, input.list, options.list=NULL, job.name, 
+                      nprocs=1, args=NULL, print.curl=FALSE) {
 
-  n <- length(DE.file.list)
-
+  if(!is.null(options.list)){
+    m <- length(options.list)
+    m1 <- length(options.list)
+  } else {
+    m <- NULL
+    m1 <- 0
+  }
+  if(!is.null(DE.file.list)){
+    n <- length(DE.file.list)
+    n1 <- length(DE.file.list)
+  } else {
+    n <- NULL
+    n1 <- 0
+  }
   # Automatically make analyses directory; will not overwrite if already present
   # MakeDir(user.name, token, "analyses", DE.dir.path="")
 
@@ -333,10 +345,17 @@ SubmitJob <- function(user.name, token, application, DE.file.path="",
                        application, "&archive=1&processorCount=", nprocs,
                        "&archivePath=/", user.name, "/analyses/", job.name, 
                        "&requestedTime=24:00:00", sep="")
+  if (!is.null(n)){
+    for (i in c(1:n)){
+      curl.string <- paste(curl.string,"&",input.list[[i]],"=/", 
+                           user.name, "/", DE.file.path, "/", DE.file.list[[i]], sep="")
+    }
+  }
 
-  for (i in c(1:n)){
-    curl.string <- paste(curl.string,"&",input.list[[i]],"=/", 
-                         user.name, "/", DE.file.path, "/", DE.file.list[[i]], sep="")
+  if (!is.null(m)){
+    for (i in c(1:m)){
+      curl.string <- paste(curl.string,"&",options.list[[i]][1],"=", options.list[[i]][2], sep="")
+    }
   }
 
   if (is.null(args)){
@@ -357,14 +376,22 @@ SubmitJob <- function(user.name, token, application, DE.file.path="",
     content[5] <- paste("archivePath=/", user.name, "/analyses/", job.name, 
                         sep="")
     content[6] <- "requestedTime=24:00:00"
-    for (i in c(1:n)){
-      if (DE.file.path=="") {
-        content[6+i] <- paste(input.list[[i]],"=/", user.name, "/", DE.file.list[[i]], 
-                              sep="")
-      } 
-      else {
-        content[6+i] <- paste(input.list[[i]],"=/", user.name, "/", DE.file.path, "/",
-                              DE.file.list[[i]], sep="")
+
+    if (!is.null(n)){
+      for (i in c(1:n)){
+        if (DE.file.path=="") {
+          content[6+i] <- paste(input.list[[i]],"=/", user.name, "/", DE.file.list[[i]], 
+                                sep="")
+        } else {
+          content[6+i] <- paste(input.list[[i]],"=/", user.name, "/", DE.file.path, "/",
+                                DE.file.list[[i]], sep="")
+        }
+      }
+    }
+
+    if (!is.null(m)){
+      for (i in c(1:m)){
+        content[6+n1+i] <- paste(options.list[[i]][1],"=", options.list[[i]][2], sep="")
       }
     }
  #   content[8] <- "outputFormat=fasta"
@@ -379,19 +406,28 @@ SubmitJob <- function(user.name, token, application, DE.file.path="",
     content[5] <- paste("archivePath=/", user.name, "/analyses/", job.name, 
                   sep="")
     content[6] <- "requestedTime=24:00:00"
-    for (i in c(1:n)){
-      if (DE.file.path=="") {
-        content[6+i] <- paste(input.list[[i]],"=/", user.name, "/", DE.file.list[[i]], 
-                              sep="")
-      } 
-      else {
-        content[6+i] <- paste(input.list[[i]],"=/", user.name, "/", DE.file.path, "/",
-                              DE.file.list[[i]], sep="")
+
+    if (!is.null(n)){
+      for (i in c(1:n)){
+        if (DE.file.path=="") {
+          content[6+i] <- paste(input.list[[i]],"=/", user.name, "/", DE.file.list[[i]], 
+                                sep="")
+        } else {
+          content[6+i] <- paste(input.list[[i]],"=/", user.name, "/", DE.file.path, "/",
+                                DE.file.list[[i]], sep="")
+        }
+      }
+    }
+
+    if (!is.null(m)){
+      for (i in c(1:m)){
+        content[6+n1+i] <- paste(options.list[[i]][1],"=", options.list[[i]][2], sep="")
       }
     }
  #   content[8] <- "outputFormat=fasta"
  #   content[9] <- "mode=auto"
-    content[7+n] <- args
+
+    content[7+n1+m1] <- args
   }
 
   val <- charToRaw(paste(content, collapse = "&"))
