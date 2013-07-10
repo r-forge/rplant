@@ -9,7 +9,7 @@ RunRAxMLdna(user.name, token, DE.file.name = "", DE.file.path =
                  "", job.name = NULL, model = "GTRCAT", bootstrap =
                  NULL, algorithm = "d", multipleModelFileName = NULL,
                  numcat = 25, nprocs = 2, version =
-                 "raxml-lonestar-7.2.8u1")
+                 "raxml-lonestar-7.2.8u1", print.curl=FALSE)
 }
 \arguments{
 	\item{user.name}{iPlant Discovery Environment user name}
@@ -24,6 +24,7 @@ RunRAxMLdna(user.name, token, DE.file.name = "", DE.file.path =
 	\item{numcat}{Number of distinct rate categories}
 	\item{nprocs}{the number of processors to be allocated to the job, default = 2}
 	\item{version}{RAxML version, options include \code{raxml-lonestar-7.2.8u1}}
+	\item{print.curl}{Prints the Curl Statement that can be used in the terminal}
 }
 \details{
 	The function is a wrapper function for several other rPlant functions, but specific to MUSCLE runs.  
