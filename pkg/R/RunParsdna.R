@@ -1,5 +1,6 @@
 RunParsdna <- function(user.name, token, DE.file.name, DE.file.path="", job.name=NULL, 
-                       nprocs=1, version="phylip-dna-parsimony-lonestar-3.69u1") {
+                       nprocs=1, version="phylip-dna-parsimony-lonestar-3.69u1",
+                       print.curl=FALSE) {
 
   App <- GetAppInfo(user.name, token, version)[[2]]
   input.list <- vector("list",1)
@@ -10,7 +11,8 @@ RunParsdna <- function(user.name, token, DE.file.name, DE.file.path="", job.name
 
   myJob<-SubmitJob(user.name, token, application=version, 
                    DE.file.list=list(DE.file.name), DE.file.path=DE.file.path, 
-                   input.list=input.list, job.name=job.name, nprocs=nprocs)
+                   input.list=input.list, job.name=job.name, nprocs=nprocs,
+                   print.curl=print.curl)
 
   return(myJob)
 }
