@@ -6,7 +6,7 @@
 }
 \usage{
 	RunClustal(user.name, token, DE.file.name, DE.file.path="", job.name=NULL,
-                   nprocs=1,version="ClustalW2-2.1u1")
+                   nprocs=1,version="ClustalW2-2.1u1", print.curl=FALSE)
 }
 \arguments{
 	\item{user.name}{iPlant Discovery Environment user name}
@@ -16,6 +16,7 @@
 	\item{job.name}{The name to give the job being submitted}
 	\item{nprocs}{The number of processors to be allocated to the job, default = 1}
 	\item{version}{ClustalW version, options include \code{ClustalW2-2.1u1}, \code{clustalw2Dispatcher-1.0.13100u1}, \code{clustalw2-lonestar-2.1u2}}
+	\item{print.curl}{Prints the Curl Statement that can be used in the terminal}
 }
 \details{
 	The function is a wrapper function to submit ClustalW alignment jobs through the iPlant api.  
