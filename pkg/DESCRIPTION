@@ -1,9 +1,9 @@
 Package: rPlant
-Version: 2.7
+Version: 2.8
 Date: 2013-05-20
 Title: R interface to the iPlant Discovery Environment
 Author: Barb Banbury <bbanbury@utk.edu>, Kurt Michels <kamichels@math.arizona.edu>, Jeremy M. Beaulieu <jeremy.beaulieu@yale.edu>, Brian O'Meara <bomeara@utk.edu>
-Maintainer: Barb Banbury <bbanbury@utk.edu>
+Maintainer: Barb Banbury <bbanbury@utk.edu>, Kurt Michels <kamichels@math.arizona.edu>
 Depends: R (>= 2.13.0), rjson, RCurl, seqinr, knitcitations
 LazyData:yes
 Repository/R-Forge/Project: rplant
