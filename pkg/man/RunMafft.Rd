@@ -6,7 +6,7 @@
 }
 \usage{
         RunMafft(user.name, token, DE.file.name, DE.file.path="", job.name=NULL,
-                 nprocs=1,version="mafft-lonestar-6.864u1")
+                 nprocs=1,version="mafft-lonestar-6.864u1", print.curl=FALSE)
 }
 \arguments{
 	\item{user.name}{iPlant Discovery Environment user name}
@@ -16,7 +16,7 @@
 	\item{job.name}{the name to give the job being submitted}
 	\item{nprocs}{The number of processors to be allocated to the job, default = 1}
 	\item{version}{Mafft version, options include \code{mafft-lonestar-6.864u1}, \code{mafftDispatcher-1.0.13100u1}}
-	
+	\item{print.curl}{Prints the Curl Statement that can be used in the terminal}
 }
 \details{
 	The function is a wrapper function for several other rPlant functions, but specific to MAFFT runs.  
