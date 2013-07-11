@@ -1,7 +1,8 @@
 RunPLINK <- function(user.name, token, DE.file.list="", DE.file.path="",
                      input.list=list("inputMAP","inputPED"), input.type="R", 
                      job.name=NULL, association.method="--assoc", no.sex=TRUE,
-                     print.curl=FALSE, multi.adjust=TRUE, nprocs=1, version="plink-1.07") {
+                     print.curl=FALSE, multi.adjust=TRUE, nprocs=1,
+                     version="plink-1.07") {
   
 
   args <- paste("arguments=", association.method)
@@ -11,9 +12,8 @@ RunPLINK <- function(user.name, token, DE.file.list="", DE.file.path="",
   if (no.sex){args <- append(args, c("--allow-no-sex"))}
 
   if (input.type=="T"){
-    options=list(c("T",TRUE))
     BASE1 <- substr(DE.file.list[[1]],1,nchar(DE.file.list[[1]])-5)
-    EXT1 <- substr(DE.file.list[[1]],nchar(DE.file.list[[1]])-3,nchar(input.file.list[[1]]))
+    EXT1 <- substr(DE.file.list[[1]],nchar(DE.file.list[[1]])-3,nchar(DE.file.list[[1]]))
     BASE2 <- substr(DE.file.list[[2]],1,nchar(DE.file.list[[2]])-5)
     if (EXT1 == "tfam"){
       job.name <- paste(BASE1,"_",BASE2,"_", association.method, sep="")
@@ -22,13 +22,12 @@ RunPLINK <- function(user.name, token, DE.file.list="", DE.file.path="",
     }
     args <- append(args, c("--out",job.name))
   } else if (input.type=="B") {
-    options=list(c("B",TRUE))
     BASE1 <- substr(DE.file.list[[1]],1,nchar(DE.file.list[[1]])-4)
-    EXT1 <- substr(DE.file.list[[1]],nchar(DE.file.list[[1]])-2,nchar(input.file.list[[1]]))
+    EXT1 <- substr(DE.file.list[[1]],nchar(DE.file.list[[1]])-2,nchar(DE.file.list[[1]]))
     BASE2 <- substr(DE.file.list[[2]],1,nchar(DE.file.list[[2]])-4)
-    EXT2 <- substr(DE.file.list[[2]],nchar(DE.file.list[[2]])-2,nchar(input.file.list[[1]]))
+    EXT2 <- substr(DE.file.list[[2]],nchar(DE.file.list[[2]])-2,nchar(DE.file.list[[1]]))
     BASE3 <- substr(DE.file.list[[3]],1,nchar(DE.file.list[[3]])-4)
-    EXT3 <- substr(DE.file.list[[3]],nchar(DE.file.list[[3]])-2,nchar(input.file.list[[1]]))
+    EXT3 <- substr(DE.file.list[[3]],nchar(DE.file.list[[3]])-2,nchar(DE.file.list[[1]]))
     if (EXT1 == "bed" && EXT3 == "bam"){
       job.name <- paste(BASE1, "_", BASE3, "_", BASE2, "_", association.method, sep="")
     } else if (EXT1 == "bed" && EXT2 == "bam") {
@@ -44,9 +43,8 @@ RunPLINK <- function(user.name, token, DE.file.list="", DE.file.path="",
     }
     args <- append(args, c("--out",job.name))
   } else {
-    options <- NULL
     BASE1 <- substr(DE.file.list[[1]],1,nchar(DE.file.list[[1]])-4)
-    EXT1 <- substr(DE.file.list[[1]],nchar(DE.file.list[[1]])-2,nchar(input.file.list[[1]]))
+    EXT1 <- substr(DE.file.list[[1]],nchar(DE.file.list[[1]])-2,nchar(DE.file.list[[1]]))
     BASE2 <- substr(DE.file.list[[2]],1,nchar(DE.file.list[[2]])-4)
     if (EXT1 == "map"){
       job.name <- paste(BASE1,"_",BASE2,"_", association.method, sep="")
@@ -60,8 +58,8 @@ RunPLINK <- function(user.name, token, DE.file.list="", DE.file.path="",
   args <- paste(args, collapse=" ") 
 
   # Submit
-  myJob<-SubmitJob(user.name, token, application=version, DE.file.list=DE.file.list,
-                   options.list=options, DE.file.path=DE.file.path,
+  myJob<-SubmitJob(user.name, token, application=version, 
+                   DE.file.list=DE.file.list, DE.file.path=DE.file.path,
                    input.list=input.list, job.name=job.name, nprocs=nprocs, 
                    args=args, print.curl=print.curl)
 
