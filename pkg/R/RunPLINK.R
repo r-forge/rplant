@@ -44,13 +44,7 @@ RunPLINK <- function(user.name, token, DE.file.list="", DE.file.path="",
     args <- append(args, c("--out",job.name))
   } else {
     BASE1 <- substr(DE.file.list[[1]],1,nchar(DE.file.list[[1]])-4)
-    EXT1 <- substr(DE.file.list[[1]],nchar(DE.file.list[[1]])-2,nchar(DE.file.list[[1]]))
-    BASE2 <- substr(DE.file.list[[2]],1,nchar(DE.file.list[[2]])-4)
-    if (EXT1 == "map"){
-      job.name <- paste(BASE1,"_",BASE2,"_", association.method, sep="")
-    } else {
-      job.name <- paste(BASE2,"_",BASE1,"_", association.method, sep="")
-    }
+    job.name <- paste(BASE1,"_", association.method, sep="")
     args <- append(args, c("--out",job.name))
   }
 
