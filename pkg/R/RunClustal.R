@@ -1,6 +1,6 @@
 RunClustal <- function(user.name, token, DE.file.name, DE.file.path="", 
                        job.name=NULL, nprocs=1, version="ClustalW2-2.1u1",
-                       print.curl=FALSE) {
+                       print.curl=FALSE, shared.user.name=NULL) {
 
   App <- GetAppInfo(user.name, token, version)[[2]]
   input.list <- vector("list",1)
@@ -12,7 +12,7 @@ RunClustal <- function(user.name, token, DE.file.name, DE.file.path="",
   myJob<-SubmitJob(user.name, token, application=version, 
                    DE.file.list=list(DE.file.name), DE.file.path=DE.file.path, 
                    input.list=input.list, job.name=job.name, nprocs=nprocs,
-                   print.curl=print.curl)
+                   print.curl=print.curl, shared.user.name=shared.user.name)
 
   return(myJob)
 }
