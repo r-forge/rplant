@@ -1,6 +1,6 @@
-RunMuscle <- function(user.name, token, DE.file.name, DE.file.path="", job.name=NULL, 
-                      nprocs=1, version="muscle-lonestar-3.8.31u2",
-                      print.curl=FALSE) {
+RunMuscle <- function(user.name, token, DE.file.name, DE.file.path="",
+                      job.name=NULL, nprocs=1, version="muscle-lonestar-3.8.31u2",
+                      print.curl=FALSE, shared.user.name=NULL) {
 
   App <- GetAppInfo(user.name, token, version)[[2]]
   input.list <- vector("list",1)
@@ -12,7 +12,7 @@ RunMuscle <- function(user.name, token, DE.file.name, DE.file.path="", job.name=
   myJob<-SubmitJob(user.name, token, application=version, 
                    DE.file.list=list(DE.file.name), DE.file.path=DE.file.path, 
                    input.list=input.list, job.name=job.name, nprocs=nprocs,
-                   print.curl=print.curl)
+                   print.curl=print.curl, shared.user.name=shared.user.name)
 
   return(myJob)
 }
