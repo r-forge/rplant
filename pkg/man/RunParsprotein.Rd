@@ -5,8 +5,10 @@
 	This function will submit a parsimony analysis job to Phylip on iPlant's DE
 }
 \usage{
-        RunParsprotein(user.name, token, DE.file.name, DE.file.path="", job.name=NULL,
-                       nprocs=1,version="phylip-protein-parsimony-lonestar-3.69u1", print.curl=FALSE)
+        RunParsprotein(user.name, token, DE.file.name, DE.file.path="",
+                       job.name=NULL, nprocs=1, print.curl=FALSE,
+                       version="phylip-protein-parsimony-lonestar-3.69u1", 
+                       shared.user.name=NULL)
 }
 \arguments{
 	\item{user.name}{iPlant Discovery Environment user name}
@@ -17,6 +19,7 @@
 	\item{nprocs}{The number of processors to be allocated to the job, default = 1}
 	\item{version}{DNA parsimony version, options include \code{phylip-protein-parsimony-lonestar-3.69u1}, \code{phylip-protein-parsimony-lonestar-3.69u2}}
 	\item{print.curl}{Prints the Curl Statement that can be used in the terminal}
+	\item{shared.user.name}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the DE.dir.path becomes the path to the SHARED user's shared folder. }
 }
 \details{
 	The function is a wrapper function for submitting Phylip jobs with amino acid data for a parsimony analysis.  
