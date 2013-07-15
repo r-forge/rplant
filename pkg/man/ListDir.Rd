@@ -7,7 +7,8 @@
 	Functions for listing the contents of a directory, making new directories, or deleting entire directories in the iPlant infrastructure
 }
 \usage{
-ListDir(user.name, token, DE.dir.path="", print.curl=FALSE)
+ListDir(user.name, token, DE.dir.path="", print.curl=FALSE, 
+        shared.user.name=NULL)
 MakeDir(user.name, token, DE.dir.name, DE.dir.path="", print.curl=FALSE)
 DeleteDir(user.name, token, DE.dir.name, DE.dir.path="", print.curl=FALSE)
 }
@@ -17,6 +18,7 @@ DeleteDir(user.name, token, DE.dir.name, DE.dir.path="", print.curl=FALSE)
 	\item{DE.dir.path}{optional path to a user's sub directory on the Discovery Environment (DE); default path is empty, which leads to the home directory}
 	\item{DE.dir.name}{name of subdirectory to be modified on the DE in the users home iPlant directory.}
 	\item{print.curl}{Prints the Curl Statement that can be used in the terminal}
+	\item{shared.user.name}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to view them, enter their username for this input.  Then the DE.dir.path becomes the path to the SHARED user's shared folder. }
 }
 \value{
 	Text listing action as either being a "success" or "error". If an error, then a message stating the error should also be reported.  
