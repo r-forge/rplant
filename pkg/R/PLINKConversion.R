@@ -1,11 +1,13 @@
 PLINKConversion <- function(user.name, token, DE.file.list="", DE.file.path="",
-                            input.list=list("inputTFAM","inputTPED"), input.type="T", 
-                            job.name=NULL, output.type="--recode", nprocs=1,
-                            print.curl=FALSE, version="plink-1.07") {
+                            input.list=list("inputTFAM","inputTPED"),
+                            input.type="T", job.name=NULL, output.type="--recode",
+                            nprocs=1, print.curl=FALSE, version="plink-1.07",
+                            shared.user.name=NULL) {
 
   args <- paste("arguments=", output.type)
 
   if (input.type=="T"){
+    options <- list(c("T",TRUE))
     BASE1 <- substr(DE.file.list[[1]],1,nchar(DE.file.list[[1]])-5)
     EXT1 <- substr(DE.file.list[[1]],nchar(DE.file.list[[1]])-3,nchar(DE.file.list[[1]]))
     BASE2 <- substr(DE.file.list[[2]],1,nchar(DE.file.list[[2]])-5)
@@ -16,6 +18,7 @@ PLINKConversion <- function(user.name, token, DE.file.list="", DE.file.path="",
     }
     args <- append(args, c("--out",job.name))
   } else if (input.type=="B") {
+    options <- list(c("B",TRUE))
     BASE1 <- substr(DE.file.list[[1]],1,nchar(DE.file.list[[1]])-4)
     EXT1 <- substr(DE.file.list[[1]],nchar(DE.file.list[[1]])-2,nchar(DE.file.list[[1]]))
     BASE2 <- substr(DE.file.list[[2]],1,nchar(DE.file.list[[2]])-4)
@@ -37,6 +40,7 @@ PLINKConversion <- function(user.name, token, DE.file.list="", DE.file.path="",
     }
     args <- append(args, c("--out",job.name))
   } else {
+    options <- NULL
     BASE1 <- substr(DE.file.list[[1]],1,nchar(DE.file.list[[1]])-4)
     EXT1 <- substr(DE.file.list[[1]],nchar(DE.file.list[[1]])-2,nchar(DE.file.list[[1]]))
     BASE2 <- substr(DE.file.list[[2]],1,nchar(DE.file.list[[2]])-4)
@@ -52,10 +56,11 @@ PLINKConversion <- function(user.name, token, DE.file.list="", DE.file.path="",
   args <- paste(args, collapse=" ") 
 
   # Submit
-  myJob<-SubmitJob(user.name, token, application=version, 
+  myJob<-SubmitJob(user.name, token, application=version, options.list=options, 
                    DE.file.list=DE.file.list, DE.file.path=DE.file.path,
                    input.list=input.list, job.name=job.name, nprocs=nprocs, 
-                   args=args, print.curl=print.curl)
+                   shared.user.name=shared.user.name, print.curl=print.curl,
+                   args=args)
 
   return(list(myJob,job.name))
 
