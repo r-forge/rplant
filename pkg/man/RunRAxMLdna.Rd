@@ -8,8 +8,8 @@
 RunRAxMLdna(user.name, token, DE.file.name = "", DE.file.path =
                  "", job.name = NULL, model = "GTRCAT", bootstrap =
                  NULL, algorithm = "d", multipleModelFileName = NULL,
-                 numcat = 25, nprocs = 2, version =
-                 "raxml-lonestar-7.2.8u1", print.curl=FALSE)
+                 numcat = 25, nprocs = 2, shared.user.name=NULL,
+                 version = "raxml-lonestar-7.2.8u1", print.curl=FALSE)
 }
 \arguments{
 	\item{user.name}{iPlant Discovery Environment user name}
@@ -25,6 +25,7 @@ RunRAxMLdna(user.name, token, DE.file.name = "", DE.file.path =
 	\item{nprocs}{the number of processors to be allocated to the job, default = 2}
 	\item{version}{RAxML version, options include \code{raxml-lonestar-7.2.8u1}}
 	\item{print.curl}{Prints the Curl Statement that can be used in the terminal}
+	\item{shared.user.name}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the DE.dir.path becomes the path to the SHARED user's shared folder. }
 }
 \details{
 	The function is a wrapper function for several other rPlant functions, but specific to MUSCLE runs.  
