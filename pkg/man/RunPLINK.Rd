@@ -9,7 +9,7 @@ RunPLINK <- function(user.name, token, DE.file.list="", DE.file.path="",
                      input.list=list("inputMAP","inputPED"), input.type="R", 
                      job.name=NULL, association.method="--assoc", no.sex=TRUE,
                      print.curl=FALSE, multi.adjust=TRUE, nprocs=1,
-                     version="plink-1.07")
+                     version="plink-1.07", shared.user.name=NULL)
 }
 \arguments{
 	\item{user.name}{iPlant Discovery Environment user name}
@@ -25,6 +25,7 @@ RunPLINK <- function(user.name, token, DE.file.list="", DE.file.path="",
 	\item{print.curl}{Print the curl statement}
 	\item{nprocs}{the number of processors to be allocated to the job, default is 1}
 	\item{version}{PLINK version, options include \code{plink-1.07}}
+	\item{shared.user.name}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the DE.dir.path becomes the path to the SHARED user's shared folder. }
 }
 \details{
 	The input.list for PLINK contains inputTFAM, inputTPED, inputMAP, inputPED, inputBED, inputBIM, inputFAM.  Not all of the inputs will be used at the same time, in fact the inputs are to be used only in three very strict groups.  Group 1: inputTFAM, inputTPED, these are the PLINK transposed filesets.  Group 2: inputMAP, inputPED, these are the PLINK regular filesets.  Group 3: inputBED, inputBIM, inputFAM, these are the PLINK binary filesets.
