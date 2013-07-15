@@ -12,7 +12,8 @@
 }
 \usage{
 SubmitJob(user.name, token, application,  DE.file.path="", DE.file.list,
-          input.list, options.list, job.name, nprocs=1, args=NULL, print.curl=FALSE)
+          input.list, options.list, job.name, nprocs=1, args=NULL,
+          print.curl=FALSE, shared.user.name=NULL)
 CheckJobStatus(user.name, token, job.id, verbose=FALSE, print.curl=FALSE)
 DeleteJob(user.name, token, job.id, print.curl=FALSE)
 RetrieveJob(user.name, token, job.id, files, zip, print.curl=FALSE)
@@ -35,6 +36,7 @@ GetJobHistory(user.name, token, verbose=FALSE, print.curl=FALSE)
 	\item{files}{Names of output files to download, can be one or many}
 	\item{zip}{Zip job files together, default is TRUE}
 	\item{print.curl}{Prints the Curl Statement that can be used in the terminal}
+	\item{shared.user.name}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the DE.dir.path becomes the path to the SHARED user's shared folder. }
 }
 \details{
 	Application must match an application name directly out of the DE, to ensure, you can check using \code{ListApps}. The job.id is returned after submitting, and it is used to check the status or download results. It can also be retrieved using \code{GetJobHistory}. For \code{input.list} use the \code{GetAppInfo} function, the 'kind' column verifies if "input" or "output".  What goes in the \code{input.list} is only the name in the 'id' column when the 'kind' column is "input".  For example, when the application is "muscle-lonestar-3.8.31u2", from the \code{GetAppInfo(user.name, token, "muscle-lonestar-3.8.31u2")[[2]]}, we get the \code{input.list=list("stdin")}.  For the application "velveth-1.2.07u1", again using \code{GetAppInfo(user.name, token, "velveth-1.2.07u1")[[2]]}, the \code{input.list=list("reads1", "reads2", "reads3", "reads4", "reads5", "reads6")}.  A couple notes, the \code{input.list} can be shorter than the the number of inputs, for example, using the "velveth-1.2.07u1" application, the input list could be \code{input.list=list("reads1", "reads2", "reads3")}.  Also, the \code{DE.file.list} is the same length as \code{input.list}, and in this example, lets say \code{DE.file.list=list("filer", "filea", "filez")}, then "filer" corresponds with the "read1" input.
