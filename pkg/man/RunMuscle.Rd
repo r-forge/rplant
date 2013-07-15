@@ -6,7 +6,8 @@
 }
 \usage{
         RunMuscle(user.name, token, DE.file.name, DE.file.path="", job.name=NULL,
-                  nprocs=1,version="muscle-lonestar-3.8.31u2", print.curl=FALSE)
+                  nprocs=1,version="muscle-lonestar-3.8.31u2", print.curl=FALSE,
+                  shared.user.name=NULL)
 }
 \arguments{
 	\item{user.name}{iPlant Discovery Environment user name}
@@ -17,6 +18,7 @@
 	\item{nprocs}{The number of processors to be allocated to the job, default = 1}
 	\item{version}{Muscle version, options include \code{muscle-lonestar-3.8.31u2}, \code{Muscle-3.8.31u1}}
 	\item{print.curl}{Prints the Curl Statement that can be used in the terminal}
+	\item{shared.user.name}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the DE.dir.path becomes the path to the SHARED user's shared folder. }
 }
 \details{
 	The function is a wrapper function for several other rPlant functions, but specific to MUSCLE runs.  
