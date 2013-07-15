@@ -177,16 +177,30 @@ SupportFile <- function(user.name, token, print.curl=FALSE) {
 # -- END -- #
 
 # -- DIRECTORY FUNCTIONS -- #
-ListDir <- function(user.name, token, DE.dir.path="", print.curl=FALSE) {
+ListDir <- function(user.name, token, DE.dir.path="", print.curl=FALSE, shared.user.name=NULL) {
   web <- "https://foundation.iplantc.org/io-v1/io/list"
-  curl.string <- paste("curl -sku '", user.name, ":", token, "' ", web, "/",
-                       user.name, "/", DE.dir.path, sep="")
+
+  if (!is.null(shared.user.name)){
+    curl.string <- paste("curl -X GET -sku '", user.name, ":", token, "' ", 
+                       web, "/", user.name, "/", DE.dir.path, sep="")
+  } else {
+    curl.string <- paste("curl -X GET -sku '", user.name, ":", token, "' ", 
+                       web, "/", shared.user.name, "/", DE.dir.path, sep="")
+  }
+
   if (print.curl)
     print(curl.string)
+
   curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
                              httpauth=1L, ssl.verifypeer=FALSE)
-  tmp <- suppressWarnings(fromJSON(getForm(paste(web, user.name,
-                          DE.dir.path, sep="/"), curl=curl.call)))
+  if (!is.null(shared.user.name)){
+    tmp <- suppressWarnings(fromJSON(getForm(paste(web, user.name,
+                            DE.dir.path, sep="/"), curl=curl.call)))
+  } else {
+    tmp <- suppressWarnings(fromJSON(getForm(paste(web, shared.user.name,
+                            DE.dir.path, sep="/"), curl=curl.call)))
+  }
+
   res <- matrix(, length(tmp$result), 2)
   colnames(res) <- c("name", "type")
   for (i in 1:length(tmp$result)) {
@@ -315,8 +329,9 @@ GetAppInfo <- function(user.name, token, application, verbose=FALSE,
 
 # -- JOB FUNCTIONS -- #
 SubmitJob <- function(user.name, token, application, DE.file.path="", 
-                      DE.file.list=NULL, input.list, options.list=NULL, job.name, 
-                      nprocs=1, args=NULL, print.curl=FALSE) {
+                      DE.file.list=NULL, input.list, options.list=NULL, 
+                      job.name, nprocs=1, args=NULL, print.curl=FALSE, 
+                      shared.user.name=NULL) {
 
   if(!is.null(options.list)){
     m <- length(options.list)
@@ -332,6 +347,7 @@ SubmitJob <- function(user.name, token, application, DE.file.path="",
     n <- NULL
     n1 <- 0
   }
+
   # Automatically make analyses directory; will not overwrite if already present
   # MakeDir(user.name, token, "analyses", DE.dir.path="")
 
@@ -347,8 +363,14 @@ SubmitJob <- function(user.name, token, application, DE.file.path="",
                        "&requestedTime=24:00:00", sep="")
   if (!is.null(n)){
     for (i in c(1:n)){
-      curl.string <- paste(curl.string,"&",input.list[[i]],"=/", 
-                           user.name, "/", DE.file.path, "/", DE.file.list[[i]], sep="")
+      if (is.null(shared.user.name)){
+        curl.string <- paste(curl.string,"&",input.list[[i]],"=/", user.name, 
+                             "/", DE.file.path, "/", DE.file.list[[i]], sep="")
+      } else {
+        curl.string <- paste(curl.string,"&",input.list[[i]],"=/", 
+                             shared.user.name, "/", DE.file.path, "/", 
+                             DE.file.list[[i]], sep="")
+      }
     }
   }
 
@@ -366,67 +388,47 @@ SubmitJob <- function(user.name, token, application, DE.file.path="",
 
   if (print.curl)
     print(curl.string)
+
   #clean up so you don't have to repeat code
-  if (is.null(args)){  
-    content <- c()
-    content[1] <- paste("jobName=", job.name, sep="")
-    content[2] <- paste("softwareName=", application, sep="")
-    content[3] <- "archive=1"
-    content[4] <- paste("processorCount=", nprocs, sep="")
-    content[5] <- paste("archivePath=/", user.name, "/analyses/", job.name, 
+  content <- c()
+  content[1] <- paste("jobName=", job.name, sep="")
+  content[2] <- paste("softwareName=", application, sep="")
+  content[3] <- "archive=1"
+  content[4] <- paste("processorCount=", nprocs, sep="")
+  content[5] <- paste("archivePath=/", user.name, "/analyses/", job.name, 
                         sep="")
-    content[6] <- "requestedTime=24:00:00"
+  content[6] <- "requestedTime=24:00:00"
 
-    if (!is.null(n)){
-      for (i in c(1:n)){
-        if (DE.file.path=="") {
-          content[6+i] <- paste(input.list[[i]],"=/", user.name, "/", DE.file.list[[i]], 
-                                sep="")
+  if (!is.null(n)){
+    for (i in c(1:n)){
+      if (DE.file.path=="") {
+        if (is.null(shared.user.name)){
+          content[6+i] <- paste(input.list[[i]],"=/", user.name, 
+                                "/", DE.file.list[[i]], sep="")
         } else {
-          content[6+i] <- paste(input.list[[i]],"=/", user.name, "/", DE.file.path, "/",
-                                DE.file.list[[i]], sep="")
+          content[6+i] <- paste(input.list[[i]],"=/", shared.user.name, 
+                                "/", DE.file.list[[i]], sep="")
+        }
+      } else {
+        if (is.null(shared.user.name)){
+          content[6+i] <- paste(input.list[[i]],"=/", user.name, "/",
+                                DE.file.path, "/", DE.file.list[[i]], sep="")
+        } else {
+          content[6+i] <- paste(input.list[[i]],"=/", shared.user.name, "/",
+                                DE.file.path, "/", DE.file.list[[i]], sep="")
         }
       }
     }
-
-    if (!is.null(m)){
-      for (i in c(1:m)){
-        content[6+n1+i] <- paste(options.list[[i]][1],"=", options.list[[i]][2], sep="")
-      }
-    }
- #   content[8] <- "outputFormat=fasta"
- #   content[9] <- "mode=auto"
   }
-  else {
-    content <- c()
-    content[1] <- paste("jobName=", job.name, sep="")
-    content[2] <- paste("softwareName=", application, sep="")
-    content[3] <- "archive=1"
-    content[4] <- paste("processorCount=", nprocs, sep="")
-    content[5] <- paste("archivePath=/", user.name, "/analyses/", job.name, 
-                  sep="")
-    content[6] <- "requestedTime=24:00:00"
 
-    if (!is.null(n)){
-      for (i in c(1:n)){
-        if (DE.file.path=="") {
-          content[6+i] <- paste(input.list[[i]],"=/", user.name, "/", DE.file.list[[i]], 
-                                sep="")
-        } else {
-          content[6+i] <- paste(input.list[[i]],"=/", user.name, "/", DE.file.path, "/",
-                                DE.file.list[[i]], sep="")
-        }
-      }
+  if (!is.null(m)){
+    for (i in c(1:m)){
+      content[6+n1+i] <- paste(options.list[[i]][1],"=", 
+                               options.list[[i]][2], sep="")
     }
+  }
 
-    if (!is.null(m)){
-      for (i in c(1:m)){
-        content[6+n1+i] <- paste(options.list[[i]][1],"=", options.list[[i]][2], sep="")
-      }
-    }
- #   content[8] <- "outputFormat=fasta"
- #   content[9] <- "mode=auto"
-
+  if (!is.null(args)){  
     content[7+n1+m1] <- args
   }
 
