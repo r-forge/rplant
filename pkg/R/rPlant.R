@@ -180,7 +180,7 @@ SupportFile <- function(user.name, token, print.curl=FALSE) {
 ListDir <- function(user.name, token, DE.dir.path="", print.curl=FALSE, shared.user.name=NULL) {
   web <- "https://foundation.iplantc.org/io-v1/io/list"
 
-  if (!is.null(shared.user.name)){
+  if (is.null(shared.user.name)){
     curl.string <- paste("curl -X GET -sku '", user.name, ":", token, "' ", 
                        web, "/", user.name, "/", DE.dir.path, sep="")
   } else {
@@ -193,7 +193,7 @@ ListDir <- function(user.name, token, DE.dir.path="", print.curl=FALSE, shared.u
 
   curl.call <- getCurlHandle(userpwd=paste(user.name, token, sep=":"), 
                              httpauth=1L, ssl.verifypeer=FALSE)
-  if (!is.null(shared.user.name)){
+  if (is.null(shared.user.name)){
     tmp <- suppressWarnings(fromJSON(getForm(paste(web, user.name,
                             DE.dir.path, sep="/"), curl=curl.call)))
   } else {
