@@ -5,19 +5,16 @@
 	This function will submit a PLINK job to iPlant's DE
 }
 \usage{
-PLINKConversion <- function(user.name, token, DE.file.list="", DE.file.path="",
-                            input.list=list("inputTFAM","inputTPED"),
-                            input.type="T", job.name=NULL, output.type="--recode",
-                            nprocs=1, print.curl=FALSE, version="plink-1.07",
-                            shared.user.name=NULL)
+PLINKConversion(user.name, token, DE.file.list="", DE.file.path="",
+                job.name=NULL, output.type="--recode", nprocs=1,
+                print.curl=FALSE, version="plink-1.07",
+                shared.user.name=NULL)
 }
 \arguments{
 	\item{user.name}{iPlant Discovery Environment user name}
 	\item{token}{A validation tool used in place of unencrypted passwords}
-	\item{DE.file.list}{Names of files, in a list format, to be evaluated on the Discovery Environment (DE).}
+	\item{DE.file.list}{Names of files, in a list format, to be evaluated on the Discovery Environment (DE).  There are only three possible input groups for DE.file.list, regular fileset (.map/.ped),  transposed fileset (.tfam/.tped), and binary fileset (.bed/.bim/.fam).}
 	\item{DE.file.path}{Optional path to a user's subdirectory on the DE; default path is empty, which leads to the home directory}
-	\item{input.list}{A list of the name of inputs.  See details for more information.}
-	\item{input.type}{Correponds with input list, there are only three possible inputs, "R" for Regular fileset (.map/.ped), "T" for Transposed fileset (.tfam/.tped), and "B" for Binary fileset (.bed/.bim/.fam).}
 	\item{job.name}{The name to give the job being submitted}
 	\item{output.type}{PLINKs conversion methods.  There are.  Choices are outlined on the PLINK webpage, see details for more information.}
 	\item{print.curl}{Print the curl statement}
@@ -26,7 +23,7 @@ PLINKConversion <- function(user.name, token, DE.file.list="", DE.file.path="",
 	\item{shared.user.name}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the DE.dir.path becomes the path to the SHARED user's shared folder. }
 }
 \details{
-	The input.list for PLINK contains inputTFAM, inputTPED, inputMAP, inputPED, inputBED, inputBIM, inputFAM.  Not all of the inputs will be used at the same time, in fact the inputs are to be used only in three very strict groups.  Group 1: inputTFAM, inputTPED, these are the PLINK transposed filesets.  Group 2: inputMAP, inputPED, these are the PLINK regular filesets.  Group 3: inputBED, inputBIM, inputFAM, these are the PLINK binary filesets.
+	Not all of the inputs, for this application will be used at the same time, in fact the inputs are to be used only in three very strict groups.  Group 1: inputTFAM, inputTPED, these are the PLINK transposed filesets.  Group 2: inputMAP, inputPED, these are the PLINK regular filesets.  Group 3: inputBED, inputBIM, inputFAM, these are the PLINK binary filesets.
 
 "output.type"			"explanation"
 --make-bed			Make .bed, .fam and .bim
@@ -40,6 +37,8 @@ PLINKConversion <- function(user.name, token, DE.file.list="", DE.file.path="",
 --recode-structure		Ouput structure format file  	 
 --recodeA			Raw data file with additive coding
 --recodeAD			Raw data file with additive/dominance coding
+
+See the PLINK website for more information. \url{http://pngu.mgh.harvard.edu/~purcell/plink}
 }
 \seealso{
 	\code{\link{SubmitJob}}
@@ -48,7 +47,6 @@ PLINKConversion <- function(user.name, token, DE.file.list="", DE.file.path="",
 	Text listing action as either being a "success" or "error". If an error, then a message stating the error should also be reported.  
 }
 \examples{
-# PLINKConversion(user.name, token, DE.file.list=list(geno_test.tfam,geno_test.tped),
-#                 DE.file.path="data/Syngenta",
-#                 input.list=list("inputTFAM","inputTPED"), input.type="T")
+# PLINKConversion(user.name, token, DE.file.list=list(geno_test.tfam,
+#                 geno_test.tped), DE.file.path="data/Syngenta")
 }	
