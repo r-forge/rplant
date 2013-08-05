@@ -524,24 +524,24 @@ ListApps<- function (print.curl=FALSE)
 
 GetAppInfo <- function(application, verbose=FALSE, print.curl=FALSE) {
 
-  # This needs to be cleaned up. I think the relevant info is 
-        # a) inputs, 
-        # b) possible input parameters, and 
-        # c) outputs
-
-  if (substring(application,nchar(application)-1,nchar(application)-1) == "u"){
+ if (substring(application,nchar(application)-1,nchar(application)-1) == "u"){
     priv.APP <- substring(application,1,nchar(application)-2)
+    version <- as.numeric(substring(application,nchar(application),nchar(application)))
+    text <- "Public App"
   } else if (substring(application,nchar(application)-2,nchar(application)-2) == "u"){
     priv.APP <- substring(application,1,nchar(application)-3)
+    version <- as.numeric(paste(substring(application,nchar(application)-1,nchar(application)-1),substring(application,nchar(application),nchar(application)),sep=""))
+    text <- "Public App"
   } else {
-    return("Not a valid application: a private app, must be public for use")
+    priv.APP <- application
+    text <- "Private App"
   }
 
   Renew()
   web <- paste(rplant.env$webapps, "apps/name", sep="")
-  tryCatch(res <<- fromJSON(getForm(paste(web, priv.APP, sep="/"), 
+  tryCatch(tmp <<- fromJSON(getForm(paste(web, priv.APP, sep="/"), 
                   .checkparams=FALSE, curl=rplant.env$curl.call)), 
-           error=function(x){return(res <<- data.frame(status=paste(x)))})
+           error=function(x){return(tmp <<- data.frame(status=paste(x)))})
 
   if (tmp$status != "success") {
     sub <- substring(tmp$status,1,5)
@@ -553,10 +553,26 @@ GetAppInfo <- function(application, verbose=FALSE, print.curl=FALSE) {
       return(paste(tmp$status))
     }
   } else {
-    if (res$result[[1]]$public == FALSE) {
-      return("Not a valid application: a private app, must be public for use")
-    }  else if (length(res) == 0) {
+    if (tmp$result[[1]]$public == FALSE) {
+      text <- "Private App"
+    }  else if (length(tmp) == 0) {
       return("No information on application")
+    }
+
+    if (text == "Public App"){
+      APP <- tmp$result[[1]]$id
+      if (substring(APP,nchar(APP)-1,nchar(APP)-1) == "u"){
+        priv.APP <- substring(APP,1,nchar(APP)-2)
+        version.APP <- as.numeric(substring(APP,nchar(APP),nchar(APP)))
+      } else if (substring(APP,nchar(APP)-2,nchar(APP)-2) == "u"){
+        priv.APP <- substring(APP,1,nchar(APP)-3)
+        version.APP <- as.numeric(paste(substring(APP,nchar(APP)-1,nchar(APP)-1),substring(APP,nchar(APP),nchar(APP)),sep=""))
+      }
+      if (version.APP > version){
+        v.text <- paste("Deprecated, the newest version is:", APP)
+      } else {
+        v.text <- "Newest Version"
+      }
     }
 
     if (print.curl) {
@@ -566,28 +582,32 @@ GetAppInfo <- function(application, verbose=FALSE, print.curl=FALSE) {
     }
   
     if (verbose) {
-      return(res)
+      return(tmp)
     } else {
       app.info<-c()
-      for (input in sequence(length(res$result[[1]]$inputs))) {
-        app.info <- rbind(app.info, c("input", res$result[[1]]$inputs[[input]]$id,
-                          res$result[[1]]$inputs[[input]]$semantics$fileTypes[1]))
+      for (input in sequence(length(tmp$result[[1]]$inputs))) {
+        app.info <- rbind(app.info, c("input", tmp$result[[1]]$inputs[[input]]$id,
+                          tmp$result[[1]]$inputs[[input]]$semantics$fileTypes[1]))
       }
-      for (output in sequence(length(res$result[[1]]$output))) {
-        app.info <- rbind(app.info, c("output", res$result[[1]]$output[[output]]$id,
-                          res$result[[1]]$output[[output]]$semantics$fileTypes[1])) 
+      for (output in sequence(length(tmp$result[[1]]$output))) {
+        app.info <- rbind(app.info, c("output", tmp$result[[1]]$output[[output]]$id,
+                          tmp$result[[1]]$output[[output]]$semantics$fileTypes[1])) 
       }
       colnames(app.info)<-c("kind", "id", "fileType")
-      return(list(application=res$result[[1]]$id, app.info))
+      if (text == "Private App"){
+        return(list(application=c(application, text), app.info))
+      } else {
+        return(list(application=c(application, text, v.text), app.info))
+      }
     }
   }
 }
 # -- END -- #
-
+ 
 
 # -- JOB FUNCTIONS -- #
 SubmitJob <- function(application, file.path="", file.list=NULL, input.list, 
-                      options.list=NULL, job.name, args=NULL, nprocs=1, 
+                      options.list=NULL, job.name, args=NULL, nprocs=1, private.APP=FALSE,
                       print.curl=FALSE, shared.user=NULL, suppress.Warnings=FALSE) {
 
   if (suppress.Warnings == FALSE){
@@ -641,18 +661,25 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
     } else if (substring(application,nchar(application)-2,nchar(application)-2) == "u"){
       priv.APP <- substring(application,1,nchar(application)-3)
     } else {
-      return("Not a valid application: it's private, must be public.  Check ListApps function")
+      if (private.APP==FALSE){
+        return("Private application, not valid for SubmitJob.  If it is your own private application use private.APP=TRUE")
+      } else {
+        priv.APP <- application
+      }
     }
 
     Renew()
     tmp <- fromJSON(getForm(paste(paste(rplant.env$webapps, "apps/name", sep=""), priv.APP, sep="/"), .checkparams=FALSE, curl=rplant.env$curl.call))
 
-    if (tmp$result[[1]]$public == FALSE) {
-      return("Not a valid application: it's private, must be public.  Check ListApps function")
-    } else if (length(tmp) == 0) {
+    if (private.APP==FALSE) {
+      if (tmp$result[[1]]$public == FALSE) {
+        return("Not a valid application: it's private, must be public.  Check ListApps function")
+      }
+    }
+    if (length(tmp) == 0) {
       return("No information on application: not valid")
     } else if (tmp$result[[1]]$id != application){
-      return(paste("Wrong version of application, should be:",tmp$result[[1]]$id))
+      return(paste("Application deprecated, should be:",tmp$result[[1]]$id))
     }
 
     app.info<-c()
@@ -691,7 +718,14 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
     tmp <- fromJSON(getForm(paste(paste(rplant.env$webapps, "apps/name", sep=""), priv.APP, sep="/"), .checkparams=FALSE, curl=rplant.env$curl.call))
   }
 
-  if (tmp$result[[2]]$parallelism == "PARALLEL"){
+  for (i in 1:length(tmp$result)){
+    set <- tryCatch(tmp$result[[i]]$parallelism, error=function(x){return(NA)})
+    if (!is.na(set)){
+      break
+    }
+  }
+
+  if (set == "PARALLEL"){
     if (nprocs < 2){
       nprocs = 12
     } else if (nprocs > 512){
