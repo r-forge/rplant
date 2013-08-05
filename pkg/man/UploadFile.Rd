@@ -18,23 +18,14 @@ DeleteFile(file.name, file.path="", print.curl=FALSE, suppress.Warnings=FALSE)
 SupportFile(print.curl=FALSE) 
 }
 \arguments{
-	\item{local.file.name}{Name of local file on user's computer.  This file
-	      cannot be an object in the R workspace.}
-	\item{local.file.path}{optional path to a sub directory where local file on
-	      user's computer is located (include ENTIRE path); default path is
-	      empty which leads to a users home directory}
-	\item{file.type}{format of file that is to be uploaded. Currently 34 file
-	      formats supported}
-	\item{file.name}{Name of file to be modified on the Discovery Environment
-	      (DE).}
+	\item{local.file.name}{Name of local file on user's computer.  This file cannot be an object in the R workspace.}
+	\item{local.file.path}{optional path to a sub directory where local file on user's computer is located (include ENTIRE path); default path is empty which leads to a users home directory}
+	\item{file.type}{format of file that is to be uploaded. Currently 34 file formats supported}
+	\item{file.name}{Name of file to be modified on the Discovery Environment (DE).}
 	\item{new.file.name}{the new name of the file on DE to be renamed} 
-	\item{file.path}{optional path to a sub directory where file on DE is
-	      located; default path is empty which leads to a users home directory}
-	\item{end.path}{Path to destination sub directory where file on
-	      DE is moved to; default path is empty which leads to a users home
-	      directory}
-	\item{print.curl}{Prints the Curl Statement that can be used in the
-	      terminal}
+	\item{file.path}{optional path to a sub directory where file on DE is located; default path is empty which leads to a users home directory}
+	\item{end.path}{Path to destination sub directory where file on DE is moved to; default path is empty which leads to a users home directory}
+	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
 	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.}
 }
 \details{
