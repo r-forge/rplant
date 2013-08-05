@@ -4,6 +4,7 @@ RunPLINK <- function(DE.file.list="", DE.file.path="", job.name=NULL,
                      shared.user.name=NULL, suppress.Warnings=FALSE) {
 
   nprocs <- 1
+  private.APP <- TRUE
   input.len <- length(DE.file.list)
   input.list <- list()
   if ((input.len) == 3){
@@ -78,7 +79,7 @@ RunPLINK <- function(DE.file.list="", DE.file.path="", job.name=NULL,
   args <- paste(args, collapse=" ") 
 
   # Submit
-  myJob<-SubmitJob(application=version, options.list=options, 
+  myJob<-SubmitJob(application=version, options.list=options, private.APP=private.APP,
                    DE.file.list=DE.file.list, DE.file.path=DE.file.path,
                    input.list=input.list, job.name=job.name, nprocs=nprocs, 
                    print.curl=print.curl, shared.user.name=shared.user.name,
