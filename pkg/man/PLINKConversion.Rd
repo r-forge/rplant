@@ -13,27 +13,31 @@ PLINKConversion(file.list="", file.path="", output.type="--recode",
 	\item{file.list}{Names of files, in a list format, to be evaluated on the Discovery Environment (DE).  There are only three possible input groups for file.list, regular fileset (.map/.ped),  transposed fileset (.tfam/.tped), and binary fileset (.bed/.bim/.fam).}
 	\item{file.path}{Optional path to a user's subdirectory on the DE; default path is empty, which leads to the home directory}
 	\item{job.name}{The name to give the job being submitted}
-	\item{output.type}{PLINKs conversion methods.  There are.  Choices are outlined on the PLINK webpage, see details for more information.}
+	\item{output.type}{PLINKs conversion methods.  Choices are outlined on the PLINK webpage, see details for more information.}
 	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
 	\item{version}{PLINK version, options include \code{plink-1.07}}
 	\item{shared.user.name}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the dir.path becomes the path to the SHARED user's shared folder.}
 	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.}
 }
 \details{
-	Not all of the inputs, for this application will be used at the same time, in fact the inputs are to be used only in three very strict groups.  Group 1: inputTFAM, inputTPED, these are the PLINK transposed filesets.  Group 2: inputMAP, inputPED, these are the PLINK regular filesets.  Group 3: inputBED, inputBIM, inputFAM, these are the PLINK binary filesets.
+	Not all of the inputs for this application will be used at the same time, in fact the inputs are to be used only in three very strict groups.  Group 1: inputTFAM, inputTPED, these are the PLINK transposed filesets.  Group 2: inputMAP, inputPED, these are the PLINK regular filesets.  Group 3: inputBED, inputBIM, inputFAM, these are the PLINK binary filesets.
 
-"output.type"			"explanation"
---make-bed			Make .bed, .fam and .bim
---recode			Output new .ped and .map files
---recode12			As above, with 1/2 allele coding
---recode-rlist			List individuals with minor allele genotypes
---recode-lgen			Output data in long LGEN format	  	 
---recodeHV			As above, with Haploview .info file
---recode-fastphase		Ouput fastphase format file
---recode-bimbam			Ouput bimbam format file
---recode-structure		Ouput structure format file  	 
---recodeA			Raw data file with additive coding
---recodeAD			Raw data file with additive/dominance coding
+	`output.type' gives the user a lot of flexibility by allowing you to type in the proper argument.  All possible arguments for `output.type' are outlined below, if a different argument is entered the application will fail.
+
+       \tabular{rll}{
+              \tab "output.type"      \tab "explanation"                                \cr
+         [,1] \tab --make-bed         \tab Make .bed, .fam and .bim                     \cr
+         [,2] \tab --recode           \tab Output new .ped and .map files               \cr
+         [,3] \tab --recode12         \tab As above, with 1/2 allele coding             \cr
+         [,4] \tab --recode-rlist     \tab List individuals with minor allele genotypes \cr
+         [,5] \tab --recode-lgen      \tab Output data in long LGEN format              \cr
+         [,6] \tab --recodeHV         \tab As above, with Haploview .info file          \cr
+         [,7] \tab --recode-fastphase \tab Ouput fastphase format file                  \cr
+         [,8] \tab --recode-bimbam    \tab Ouput bimbam format file                     \cr
+         [,9] \tab --recode-structure \tab Ouput structure format file                  \cr
+         [,10] \tab --recodeA         \tab Raw data file with additive coding           \cr
+         [,11] \tab --recodeAD        \tab Raw data file with additive/dominance coding 
+       } 
 
 See the PLINK website for more information. \url{http://pngu.mgh.harvard.edu/~purcell/plink}
 }
