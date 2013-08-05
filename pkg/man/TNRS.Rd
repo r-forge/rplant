@@ -30,13 +30,13 @@ CompareNames(old.names, new.names, verbose=TRUE)
 	Unique identifier (=token) for \code{GetPhylotasticToken}
 }
 \examples{
-	# data(ex.lp.fasta)
-	# speciesNames<-getName(ex.lp.fasta)
+\dontrun{data(ex.lp.fasta)}
+\dontrun{speciesNames<-getName(ex.lp.fasta)}
 
-	# TNRSspeciesNames<-ResolveNames(speciesNames, 100, verbose=F)
+\dontrun{TNRSspeciesNames<-ResolveNames(speciesNames, 100, verbose=F)}
 
-	# token <- GetPhylotasticToken(names)
-	# RetrieveNames(token)
+\dontrun{token <- GetPhylotasticToken(names)}
+\dontrun{RetrieveNames(token)}
 	
-	# CompareNames(speciesNames, TNRSspeciesNames, verbose=TRUE)
+\dontrun{CompareNames(speciesNames, TNRSspeciesNames, verbose=TRUE)}
 }
