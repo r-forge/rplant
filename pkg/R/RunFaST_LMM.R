@@ -1,8 +1,9 @@
-RunFaST_LMM <- function(user.name, token, input.file.list="", ALL.file.path="",
-                        sim.file.list=NULL, pheno.file.name=NULL, mpheno=1, nprocs=1,
-                        print.curl=FALSE, job.name=NULL, covar.file.name=NULL, 
-                        version="FaST-LMM-1.09", shared.user.name=NULL, args=NULL) {
-
+RunFaST_LMM <- function(input.file.list="", ALL.file.path="", print.curl=FALSE,
+                        sim.file.list=NULL, pheno.file.name=NULL, mpheno=1,
+                        args=NULL, covar.file.name=NULL, job.name=NULL, 
+                        version="FaST-LMM-1.09", shared.user.name=NULL,
+                        suppress.Warnings=FALSE) {
+  nprocs <- 1
   input.len <- length(input.file.list)
   input.list <- list()
   if ((input.len) == 3){
@@ -73,11 +74,11 @@ RunFaST_LMM <- function(user.name, token, input.file.list="", ALL.file.path="",
   args <- paste(args, collapse=" ") 
 
   # Submit
-  myJob<-SubmitJob(user.name, token, application=version, options.list=options, 
-                   DE.file.list=input.file.list, DE.file.path=ALL.file.path,
+  myJob<-SubmitJob(application=version, options.list=options, args=args, 
+                   file.list=input.file.list, file.path=ALL.file.path,
                    input.list=input.list, job.name=job.name, nprocs=nprocs, 
                    print.curl=print.curl, shared.user.name=shared.user.name,
-                   args=args)
+                   suppress.Warnings=suppress.Warnings)
 
   return(list(myJob,job.name))
 
