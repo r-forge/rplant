@@ -19,6 +19,6 @@ GetCitations(application, save=FALSE, file="rPlant.bib")
 	A list of citations.
 }
 \examples{
-	#myCitations<-GetCitations("muscle-ranger-2.0", save=FALSE, file="")
-	#GetCitations("muscle-ranger-2.0", save=TRUE, file="myCitations.bib")
+	\dontrun{myCitations<-GetCitations("muscle-ranger-2.0", save=FALSE, file="")}
+	\dontrun{GetCitations("muscle-ranger-2.0", save=TRUE, file="myCitations.bib")}
 }
