@@ -1,8 +1,9 @@
-RunPLINK <- function(user.name, token, DE.file.list="", DE.file.path="",
-                     job.name=NULL, association.method="--assoc", no.sex=TRUE,
-                     print.curl=FALSE, multi.adjust=TRUE, nprocs=1, args=NULL,
-                     version="plink-1.07", shared.user.name=NULL) {
+RunPLINK <- function(DE.file.list="", DE.file.path="", job.name=NULL,
+                     association.method="--assoc", no.sex=TRUE, args=NULL,
+                     print.curl=FALSE, multi.adjust=TRUE, version="plink-1.07", 
+                     shared.user.name=NULL, suppress.Warnings=FALSE) {
 
+  nprocs <- 1
   input.len <- length(DE.file.list)
   input.list <- list()
   if ((input.len) == 3){
@@ -77,11 +78,11 @@ RunPLINK <- function(user.name, token, DE.file.list="", DE.file.path="",
   args <- paste(args, collapse=" ") 
 
   # Submit
-  myJob<-SubmitJob(user.name, token, application=version, options.list=options, 
+  myJob<-SubmitJob(application=version, options.list=options, 
                    DE.file.list=DE.file.list, DE.file.path=DE.file.path,
                    input.list=input.list, job.name=job.name, nprocs=nprocs, 
                    print.curl=print.curl, shared.user.name=shared.user.name,
-                   args=args)
+                   args=args, suppress.Warnings=suppress.Warnings)
 
   return(list(myJob,job.name))
 
