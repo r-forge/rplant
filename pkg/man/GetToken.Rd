@@ -1,29 +1,23 @@
-\name{GetToken}
-\alias{GetToken}
-\alias{RenewToken}
-\title{Authentication functions}
+\name{ListApps}
+\alias{ListApps}
+\alias{GetAppInfo}
+\title{Deployed applications}
 \description{
-	Authenticates users and provides tokens to be used in place of unencrypted passwords
+	Functions for listing applications deployed in the iPlant software infrastructure and information about them.
 }
 \usage{
-GetToken(user.name, user.pwd, api=c("iplant", "cipres", "tnrs"), print.curl=FALSE)
-RenewToken(user.name, user.pwd, token, api=c("iplant", "cipres", "tnrs"),
-    print.curl=FALSE)
+	ListApps(print.curl=FALSE)
+	GetAppInfo(application, verbose=FALSE, print.curl=FALSE)
 }
 \arguments{
-	\item{user.name}{iPlant Discovery Environment user name}
-	\item{user.pwd}{iPlant Discovery Environment password}
-	\item{token}{a validation tool used in place of unencrypted passwords}
-	\item{api}{the API to interfaced with, currently only the iPlant API is supported}
-	\item{print.curl}{Prints the Curl Statement that can be used in the terminal}
-}
-\details{
-	The authentication functions will issue and renew an iPlant token.  Tokens expire after 2 hours unless renewed.  
+	\item{application}{name of DE application}
+	\item{verbose}{optional screen output that displays all of the results from the api, default = FALSE}
+	\item{print.curl}{Prints the curl statement that can be used in the terminal}
 }
 \value{
-	A token used in place of an unencrypted password.
+	A list of applications deployed in the DE.  GetAppInfo, for verbose=F gives critical information on the Application is used in the SubmitJob function.  Let's use the application "velveth-1.2.07u1" as an example.  The matrix outputted for verbose=F gives three columns of information.  The first column, labeled 'kind', tells the "input" and sometimes the "output" from the application.  The second column, labeled 'id', give the name of the "input", or the name of the output.  For example, \code{GetAppInfo("velveth-1.2.07u1")[[2]]}, the 'kind' column states there are six inputs for this app, and the 'id' column the names of those inputs are "reads5","reads3", etc.  The last column in the matrix is 'fileType'.  This is important, because if the wrong fileType is inputted into the function, then the function will not work.
 }
 \examples{
-	#token<-GetToken("User", "SecretPassword", api="iplant")
-	#RenewToken("User", "SecretPassword", token, api="iplant")
+	\dontrun{ListApps()}
+	\dontrun{GetAppInfo("Muscle-3.8.31u1")}
 }
