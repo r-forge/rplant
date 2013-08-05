@@ -16,6 +16,6 @@
 	License: \tab GPL (>= 2)\cr}
 }
 \author{
-Barb Banbury, Jeremy Beaulieu, Brian O'Meara
-Maintainers: Barb Banbury <bbanbury@utk.edu>, Brian O'Meara <bomeara@utk.edu>
+Barb Banbury, Kurt Michels, Jeremy Beaulieu, Brian O'Meara
+Maintainers: Barb Banbury <bbanbury@utk.edu>, Kurt Michels <kamichels@math.arizona.ed>, Brian O'Meara <bomeara@utk.edu>
 }
