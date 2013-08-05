@@ -1,36 +1,30 @@
 \name{RunParsprotein}
 \alias{RunParsprotein}
-\title{Run Phylip Parsimony}
+\title{PHYLIP 3.69}
 \description{
-	This function will submit a parsimony analysis job to Phylip on iPlant's DE
+PHYLIP is a free package of programs for inferring phylogenies. It is distributed as source code, documentation files, and a number of different types of executables. The web page: \url{http://evolution.genetics.washington.edu/phylip/doc/main.html}, by Joe Felsenstein of the Department of Genome Sciences and the Department of Biology at the University of Washington, contain information on PHYLIP.  PHYLIP (the PHYLogeny Inference Package) is a package of programs for inferring phylogenies (evolutionary trees).  Methods that are available in the package include parsimony, distance matrix, and likelihood methods, including bootstrapping and consensus trees.
 }
 \usage{
-        RunParsprotein(user.name, token, DE.file.name, DE.file.path="",
-                       job.name=NULL, nprocs=1, print.curl=FALSE,
-                       version="phylip-protein-parsimony-lonestar-3.69u1", 
-                       shared.user.name=NULL)
+RunParsprotein(file.name, file.path="", job.name=NULL,
+               version="phylip-protein-parsimony-lonestar-3.69u1",
+               print.curl=FALSE, shared.user.name=NULL, 
+               suppress.Warnings=FALSE)
 }
 \arguments{
-	\item{user.name}{iPlant Discovery Environment user name}
-	\item{token}{A validation tool used in place of unencrypted passwords}
-	\item{DE.file.name}{Name of file to be evaluated on the Discovery Environment (DE).}
-	\item{DE.file.path}{Optional path to a user's subdirectory on the DE; default path is empty, which leads to the home directory}
+	\item{file.name}{Name of file to be evaluated on the Discovery Environment (DE).}
+	\item{file.path}{Optional path to a user's subdirectory on the DE; default path is empty, which leads to the home directory}
 	\item{job.name}{The name to give the job being submitted}
-	\item{nprocs}{The number of processors to be allocated to the job, default = 1}
-	\item{version}{DNA parsimony version, options include \code{phylip-protein-parsimony-lonestar-3.69u1}, \code{phylip-protein-parsimony-lonestar-3.69u2}}
-	\item{print.curl}{Prints the Curl Statement that can be used in the terminal}
-	\item{shared.user.name}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the DE.dir.path becomes the path to the SHARED user's shared folder. }
+	\item{version}{Protein parsimony version, options include \code{phylip-protein-parsimony-lonestar-3.69u2}}
+	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
+	\item{shared.user.name}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the dir.path becomes the path to the SHARED user's shared folder.}
+	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.}
 }
 \details{
-	The function is a wrapper function for submitting Phylip jobs with amino acid data for a parsimony analysis.  
+	The input file format that is supported is the interleaved phylip format \url{http://www.bioperl.org/wiki/PHYLIP_multiple_alignment_format}.
 }
 \seealso{
 	\code{\link{SubmitJob}}
 }
-\value{
-	Text listing action as either being a "success" or "error". If an error, then a message stating the error should also be reported.  
-}
 \examples{
-	# RunParsprotein(user.name, token, DE.file.name="your.protein.file",
-	#                job.name="PhylipParsimony2")
+\dontrun{RunParsdna("your-protein-file.phy", job.name="PhylipParsimonyProtein")}
 }	
