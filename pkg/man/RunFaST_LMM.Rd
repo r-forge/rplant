@@ -20,7 +20,7 @@ RunFaST_LMM(input.file.list="", ALL.file.path="", print.curl=FALSE,
 	\item{mpheno}{(optional) This value MUST be entered if a phenotype file is provided.  This value is the index for phenotype in -pheno file to process, starting at 1 for the first phenotype column.  Default is 1}
 	\item{covar.file.name}{(optional) Must have at least three tab-delimited columns: family ID, individual ID, and covariate value, and may have any number of covariate values. The same missing value signifier from the phenotype file must be used. Note: the file should not have a header row.}
 	\item{args}{Optional for arguments (i.e. flags).  The FaST-LMM model has much additional functionality that is not fit into this wrapper function (\url{http://fastlmm.codeplex.com/}), see manual.  This option allows users to add anything that is not included (.i.e. args="-Ftest"), to automatically invoke the F-test, see details.}
-	\item{print.curl}{Print the curl statement}
+	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
 	\item{nprocs}{The number of processors to be allocated to the job, default is 1}
 	\item{version}{FaST-LMM version, options include \code{FaST-LMM-1.09}}
 	\item{shared.user.name}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the dir.path becomes the path to the SHARED user's shared folder. }
