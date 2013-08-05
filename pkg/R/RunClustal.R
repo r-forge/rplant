@@ -1,18 +1,23 @@
-RunClustal <- function(user.name, token, DE.file.name, DE.file.path="", 
-                       job.name=NULL, nprocs=1, version="ClustalW2-2.1u1",
-                       print.curl=FALSE, shared.user.name=NULL) {
-
-  App <- GetAppInfo(user.name, token, version)[[2]]
+RunClustalW <- function(file.name, file.path="", job.name=NULL, args=NULL,
+                       version="ClustalW2-2.1u1", print.curl=FALSE,
+                       shared.user.name=NULL, suppress.Warnings=FALSE) {
+  nprocs=1
+  App <- GetAppInfo(version)[[2]]
   input.list <- vector("list",1)
   input.list[[1]] <- App[,2][1]
 
   if (is.null(job.name))
-    job.name <- paste(user.name,"_",version,"_viaR", sep="")
+    job.name <- paste(rplant.env$user,"_",version,"_viaR", sep="")
 
-  myJob<-SubmitJob(user.name, token, application=version, 
-                   DE.file.list=list(DE.file.name), DE.file.path=DE.file.path, 
-                   input.list=input.list, job.name=job.name, nprocs=nprocs,
-                   print.curl=print.curl, shared.user.name=shared.user.name)
+  if (!is.null(args)){
+    args <- paste("arguments=,",args)
+  }
+
+  myJob<-SubmitJob(application=version, job.name=job.name, nprocs=nprocs, 
+                   file.list=list(file.name), file.path=file.path, 
+                   input.list=input.list, suppress.Warnings=suppress.Warnings,
+                   print.curl=print.curl, shared.user.name=shared.user.name,
+                   args=args)
 
   return(myJob)
 }
