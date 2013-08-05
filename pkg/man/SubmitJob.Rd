@@ -12,7 +12,7 @@
 }
 \usage{
 SubmitJob(application, file.path="", file.list=NULL, input.list, 
-          options.list=NULL, job.name, args=NULL, nprocs=1, 
+          options.list=NULL, job.name, args=NULL, nprocs=1, private.APP=FALSE,
           print.curl=FALSE, shared.user=NULL, suppress.Warnings=FALSE) 
 CheckJobStatus(job.id, verbose=FALSE, print.curl=FALSE)
 DeleteJob(job.id, print.curl=FALSE) 
@@ -26,14 +26,15 @@ GetJobHistory(verbose=FALSE, print.curl=FALSE)
 	\item{file.list}{A list of input files, many functions only have one input file, but some have multiple input files, in that case input all those files in list form.  This list is the same length as input.list, and each object in the input.list corresponds to same object in file.list.  See details for more information}
 	\item{job.name}{The name to give the job being submitted}
 	\item{nprocs}{The number of processors to be allocated to the job, default = 1}
+	\item{private.APP}{Use if you are submitting a job on your own private application}
 	\item{args}{Optional for arguments (i.e. flags).  For example, for the "raxml-lonestar-7.2.8u1" application args="arguments=-f d -b 100", see details.}
 	\item{job.id}{The unique ID number given to a submitted job} 
 	\item{input.list}{A list of the name of inputs.  See details for more information.}
 	\item{options.list}{A list of options available is input for the Foundation API application.  See details for more information.}
 	\item{verbose}{Optional screen output that displays all of the results from the api, default = FALSE}
 	\item{file.vec}{Names of output files to download, can be one or many}
-	\item{zip}{Zip job files together, default is TRUE}
-	\item{print.curl}{Prints the Curl Statement that can be used in the terminal}
+	\item{zip}{Zip job files together, default is TRUE (only available on Linux computer)}
+	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
 	\item{shared.user.name}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the dir.path becomes the path to the SHARED user's shared folder.}
 	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.  If the application you are running is a private application have suppress.Warnings=TRUE}
 }
