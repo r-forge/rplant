@@ -1,18 +1,19 @@
-RunParsprotein <- function(user.name, token, DE.file.name, DE.file.path="",
-                           job.name=NULL, nprocs=1, print.curl=FALSE,
+RunParsprotein <- function(file.name, file.path="", job.name=NULL,
                            version="phylip-protein-parsimony-lonestar-3.69u1",
-                           shared.user.name=NULL) {
+                           print.curl=FALSE, shared.user.name=NULL, 
+                           suppress.Warnings=FALSE) {
 
-  App <- GetAppInfo(user.name, token, version)[[2]]
+  nprocs <- 1
+  App <- GetAppInfo(version)[[2]]
   input.list <- vector("list",1)
   input.list[[1]] <- App[,2][1]
 
   if (is.null(job.name))
     job.name <- paste(user.name,"_",version,"_viaR", sep="")
 
-  myJob<-SubmitJob(user.name, token, application=version, 
-                   DE.file.list=list(DE.file.name), DE.file.path=DE.file.path, 
-                   input.list=input.list, job.name=job.name, nprocs=nprocs,
+  myJob<-SubmitJob(application=version, job.name=job.name, nprocs=nprocs,
+                   DE.file.list=list(file.name), file.path=file.path, 
+                   input.list=input.list, suppress.Warnings=suppress.Warnings,
                    print.curl=print.curl, shared.user.name=shared.user.name)
 
   return(myJob)
