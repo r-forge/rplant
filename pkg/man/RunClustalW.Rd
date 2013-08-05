@@ -1,4 +1,5 @@
-\name{RunClustal}
+\name{RunClustalW}
+\alias{RunClustalW}
 \alias{RunClustal}
 \title{ClustalW alignment}
 \description{
