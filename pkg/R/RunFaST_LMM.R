@@ -4,6 +4,7 @@ RunFaST_LMM <- function(input.file.list="", ALL.file.path="", print.curl=FALSE,
                         version="FaST-LMM-1.09", shared.user.name=NULL,
                         suppress.Warnings=FALSE) {
   nprocs <- 1
+  private.APP <- TRUE
   input.len <- length(input.file.list)
   input.list <- list()
   if ((input.len) == 3){
@@ -75,7 +76,7 @@ RunFaST_LMM <- function(input.file.list="", ALL.file.path="", print.curl=FALSE,
 
   # Submit
   myJob<-SubmitJob(application=version, options.list=options, args=args, 
-                   file.list=input.file.list, file.path=ALL.file.path,
+                   file.list=input.file.list, file.path=ALL.file.path, private.APP=private.APP,
                    input.list=input.list, job.name=job.name, nprocs=nprocs, 
                    print.curl=print.curl, shared.user.name=shared.user.name,
                    suppress.Warnings=suppress.Warnings)
