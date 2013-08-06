@@ -522,7 +522,7 @@ ListApps<- function (print.curl=FALSE)
   }
 }
 
-GetAppInfo <- function(application, verbose=FALSE, print.curl=FALSE) {
+GetAppInfo <- function(application, return.json=FALSE, print.curl=FALSE) {
 
  if (substring(application,nchar(application)-1,nchar(application)-1) == "u"){
     priv.APP <- substring(application,1,nchar(application)-2)
@@ -581,7 +581,7 @@ GetAppInfo <- function(application, verbose=FALSE, print.curl=FALSE) {
       print(curl.string)
     }
   
-    if (verbose) {
+    if (return.json) {
       return(tmp)
     } else {
       app.info<-c()
@@ -1034,7 +1034,7 @@ ListJobOutput <- function(job.id, print.curl=FALSE, print.total=TRUE) {
   } 
 }
 
-GetJobHistory <- function(verbose=FALSE, print.curl=FALSE) {
+GetJobHistory <- function(return.json=FALSE, print.curl=FALSE) {
   web <- paste(rplant.env$webapps, "jobs/list", sep="")
 
   if (print.curl) {
@@ -1053,7 +1053,7 @@ GetJobHistory <- function(verbose=FALSE, print.curl=FALSE) {
   if ((res$status != "success") || (length(res$result) == 0)) {
     return("Error: Invalid username/password combination")
   } else {
-    if (verbose) 
+    if (return.json) 
       return(res)
     if (length(res$result) != 0) {
       for (i in 1: length(res$result)) {
