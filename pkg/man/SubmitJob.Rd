@@ -12,13 +12,14 @@
 }
 \usage{
 SubmitJob(application, file.path="", file.list=NULL, input.list, 
-          options.list=NULL, job.name, args=NULL, nprocs=1, private.APP=FALSE,
-          print.curl=FALSE, shared.user=NULL, suppress.Warnings=FALSE) 
+          options.list=NULL, job.name, args=NULL, nprocs=1, 
+          private.APP=FALSE, print.curl=FALSE, shared.user=NULL,
+          suppress.Warnings=FALSE) 
 CheckJobStatus(job.id, verbose=FALSE, print.curl=FALSE)
-DeleteJob(job.id, print.curl=FALSE) 
-RetrieveJob(job.id, file.vec, zip=TRUE, print.curl=FALSE, verbose=FALSE)
 ListJobOutput(job.id, print.curl=FALSE, print.total=TRUE)
+RetrieveJob(job.id, file.vec, zip=TRUE, print.curl=FALSE, verbose=FALSE)
 GetJobHistory(verbose=FALSE, print.curl=FALSE)
+DeleteJob(job.id, print.curl=FALSE) 
 }
 \arguments{
 	\item{application}{Name of DE application.  Use the ListApps() function for a list of eligible applications.  To run your own private application use suppress.Warnings=TRUE.}
@@ -39,9 +40,31 @@ GetJobHistory(verbose=FALSE, print.curl=FALSE)
 	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.  If the application you are running is a private application have suppress.Warnings=TRUE}
 }
 \details{
-	Application must match an application name directly out of the DE, to ensure, you can check using \code{ListApps}. The job.id is returned after submitting, and it is used to check the status or download results. It can also be retrieved using \code{GetJobHistory}. For \code{input.list} use the \code{GetAppInfo} function, the 'kind' column verifies if "input" or "output".  What goes in the \code{input.list} is only the name in the 'id' column when the 'kind' column is "input".  For example, when the application is "muscle-lonestar-3.8.31u2", from the \code{GetAppInfo(user.name, token, "muscle-lonestar-3.8.31u2")[[2]]}, we get the \code{input.list=list("stdin")}.  For the application "velveth-1.2.07u1", again using \code{GetAppInfo(user.name, token, "velveth-1.2.07u1")[[2]]}, the \code{input.list=list("reads1", "reads2", "reads3", "reads4", "reads5", "reads6")}.  A couple notes, the \code{input.list} can be shorter than the the number of inputs, for example, using the "velveth-1.2.07u1" application, the input list could be \code{input.list=list("reads1", "reads2", "reads3")}.  Also, the \code{file.list} is the same length as \code{input.list}, and in this example, lets say \code{file.list=list("filer", "filea", "filez")}, then "filer" corresponds with the "read1" input.
+	The function \code{SubmitJob}, takes inputs and options and submits a job on the Foundation API.  For example, take the application \code{velveth-1.2.07u1}.  If the appropriate inputs are put into the \code{SubmitJob} function then \code{velveth-1.2.07u1} will run on the Foundation API. function  provides a list of the supported file types that can be uploaded onto iPlant.  The \code{SubmitJob} function will run the \code{application} with the file inputs \code{file.list} that are in the directory \code{file.path}.  The appropriate options for the \code{application} need to be outlined in \code{input.list} and potentially \code{options.list}.  The \code{SubmitJob} function outputs the \code{job.id} and with that \code{job.id} you can run \code{CheckJobStatus(job.id)}, and this function will tell you what stage your job is at.  The stages are: 
 
-Also for \code{options.list} use \code{GetAppInfo} function, when the 'kind' function is anything other than input or output. The format for \code{options.list} is as follows, \code{list(c(id (from GetAppInfo), value),c(id, value), . . .)}.  The list can be as long as the number of options.
+\tabular{l}{
+	\code{PENDING}            \cr 
+	\code{STAGING_INPUTS}     \cr 
+	\code{CLEANING_UP}        \cr 
+	\code{ARCHIVING}          \cr 
+	\code{STAGING_JOB}        \cr 
+	\code{FINISHED}           \cr 
+	\code{KILLED}             \cr 
+	\code{FAILED}             \cr 
+	\code{STOPPED}            \cr 
+	\code{RUNNING}            \cr 
+	\code{PAUSED}             \cr 
+	\code{QUEUED}             \cr 
+	\code{SUBMITTING}         \cr 
+	\code{STAGED}             \cr 
+	\code{PROCESSING_INPUTS}  \cr 
+	\code{ARCHIVING_FINISHED} \cr 
+	\code{ARCHIVING_FAILED}  
+}
+
+When it is finished it will read \code{ARCHIVING_FINISHED}, unless it failed.  When the job is finished then use the \code{ListJobOutput} function to see all of the files in your job.  The number of output files varies by \code{application}.  The \code{RetrieveJob} function takes the \code{job.id} and the \code{file.vec} as input, it will then download the specified files in the \code{file.vec}.  The files will be downloaded to your working directory (\code{getwd()}).  As said before the \code{file.vec} contains the file names that you want to download.  This vector is a subset of the output from \code{ListJobOutput}.  The \code{DeleteJob} function then deletes the job.  The \code{GetJobHistory} function displays all jobs in your history that have not been deleted.
+
+	For the \code{SubmitJob} function the \code{application} must match an application name that is in the output from the \code{ListApps} function.  For the \code{input.list} use the \code{GetAppInfo} function, the `kind' column verifies if "input" or "output".  What goes in the \code{input.list} is only the name in the 'id' column when the 'kind' column is "input".  For example, when the application is "muscle-lonestar-3.8.31u2", from the \code{GetAppInfo(user.name, token, "muscle-lonestar-3.8.31u2")[[2]]}, we get the \code{input.list=list("stdin")}.  For the application "velveth-1.2.07u1", again using \code{GetAppInfo(user.name, token, "velveth-1.2.07u1")[[2]]}, the \code{input.list=list("reads1", "reads2", "reads3", "reads4", "reads5", "reads6")}.  A couple notes, the \code{input.list} can be shorter than the the number of inputs, for example, using the "velveth-1.2.07u1" application, the input list could be \code{input.list=list("reads1", "reads2", "reads3")}.  Also, the \code{file.list} is the same length as \code{input.list}, and in this example, lets say \code{file.list=list("filer", "filea", "filez")}, then "filer" corresponds with the "read1" input.  Also for \code{options.list} use \code{GetAppInfo} function, when the 'kind' function is anything other than input or output. The format for \code{options.list} is as follows, \code{list(c(id (from GetAppInfo), value),c(id, value),c(id, value) . . .)}.  The list can be as long as the number of options.
 }
 \value{
 	A job ID is provided for jobs submitted via job.submit.  If an error, then a message stating the error should also be reported. 
@@ -57,7 +80,7 @@ Also for \code{options.list} use \code{GetAppInfo} function, when the 'kind' fun
 \dontrun{CheckJobStatus(myJob)}
              
 # Lists and output files a job has created
-\dontrun{ListJobOutput(myJob)  }
+\dontrun{ListJobOutput(myJob)}
              
 # Download output files
 \dontrun{RetrieveJob(myJob, ListJobOutput(myJob))}
