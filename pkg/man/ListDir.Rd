@@ -19,7 +19,7 @@ DeleteDir(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE)
 	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.}
 }
 \details{
-	The \code{ListDir} function lists the files in the given directory, `\code{dir.path}'.  The \code{MakeDir} function makes a directory `\code{dir.name}' in the directory `\code{dir.path}'.  The \code{DeleteDir} function deletes the directory `\code{dir.name}' in the directory `\code{dir.path}'.
+	The \code{ListDir} function lists the files in the given directory, \code{dir.path}.  The \code{MakeDir} function makes a directory \code{dir.name} in the directory \code{dir.path}.  The \code{DeleteDir} function deletes the directory \code{dir.name} in the directory \code{dir.path}.
 }
 \value{
 	If an error, then a message stating the error should also be reported.  
