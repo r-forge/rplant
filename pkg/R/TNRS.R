@@ -72,7 +72,7 @@ GetPhylotasticToken <- function(names, max.per.call=100, verbose=TRUE) {
         res <- suppressWarnings(fromJSON(postForm(name.call)))
     }
   }
-    print(res$message)
+#    print(res$message)
     return(res$token)
 }
 
@@ -115,7 +115,7 @@ CompareNames <- function(old.names, new.names, verbose=TRUE) {
     if (comp[i,1] != comp[i,2]) {
       taxa.changed <- taxa.changed + 1
       if (verbose)
-        print(paste(comp[i,1], " was changed to ", comp[i,2], cat("\n")))
+        print(paste(comp[i,1], " was changed to ", comp[i,2], sep=""))
     }
   }
   print(paste(taxa.changed, "taxa changed names according to TNRS"))
