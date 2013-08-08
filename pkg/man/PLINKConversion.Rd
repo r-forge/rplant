@@ -6,7 +6,7 @@
 }
 \usage{
 PLINKConversion(file.list="", file.path="", output.type="--recode",
-                job.name=NULL, shared.user.name=NULL, print.curl=FALSE,
+                job.name=NULL, shared.username=NULL, print.curl=FALSE,
                 version="plink-1.07", suppress.Warnings=FALSE)
 }
 \arguments{
@@ -16,7 +16,7 @@ PLINKConversion(file.list="", file.path="", output.type="--recode",
 	\item{output.type}{PLINKs conversion methods.  Choices are outlined on the PLINK webpage, see details for more information.}
 	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
 	\item{version}{PLINK version, options include \code{plink-1.07}}
-	\item{shared.user.name}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the dir.path becomes the path to the SHARED user's shared folder.}
+	\item{shared.username}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the dir.path becomes the path to the SHARED user's shared folder.}
 	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.}
 }
 \details{
