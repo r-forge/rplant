@@ -1,7 +1,7 @@
 RunFaST_LMM <- function(input.file.list="", ALL.file.path="", print.curl=FALSE,
                         sim.file.list=NULL, pheno.file.name=NULL, mpheno=1,
                         args=NULL, covar.file.name=NULL, job.name=NULL, 
-                        version="FaST-LMM-1.09", shared.user.name=NULL,
+                        version="FaST-LMM-1.09", shared.username=NULL,
                         suppress.Warnings=FALSE) {
   nprocs <- 1
   private.APP <- TRUE
@@ -27,7 +27,7 @@ RunFaST_LMM <- function(input.file.list="", ALL.file.path="", print.curl=FALSE,
     }
   }
 
-  args <- c("arguments=",args)
+  args <- c(args)
 
   if (input.type=="T"){
     options <- list(c("T",TRUE))
@@ -73,14 +73,14 @@ RunFaST_LMM <- function(input.file.list="", ALL.file.path="", print.curl=FALSE,
 
   # make a single statement
   args <- paste(args, collapse=" ") 
-
+  options <- append(options, list(c("arguments",args)))
   # Submit
-  myJob<-SubmitJob(application=version, options.list=options, args=args, 
-                   file.list=input.file.list, file.path=ALL.file.path, private.APP=private.APP,
-                   input.list=input.list, job.name=job.name, nprocs=nprocs, 
-                   print.curl=print.curl, shared.user.name=shared.user.name,
+  myJob<-SubmitJob(application=version, args.list=options, job.name=job.name,
+                   file.list=file.list, file.path=file.path,  nprocs=nprocs, 
+                   input.list=input.list, private.APP=private.APP,
+                   shared.username=shared.username, print.curl=print.curl,
                    suppress.Warnings=suppress.Warnings)
 
-  return(list(myJob,job.name))
+  return(myJob)
 
 }
