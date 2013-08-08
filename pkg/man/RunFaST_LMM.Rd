@@ -8,7 +8,7 @@
 RunFaST_LMM(input.file.list="", ALL.file.path="", print.curl=FALSE,
             sim.file.list=NULL, pheno.file.name=NULL, mpheno=1,
             args=NULL, covar.file.name=NULL, job.name=NULL, 
-            version="FaST-LMM-1.09", shared.user.name=NULL,
+            version="FaST-LMM-1.09", shared.username=NULL,
             suppress.Warnings=FALSE)
 }
 \arguments{
@@ -23,7 +23,7 @@ RunFaST_LMM(input.file.list="", ALL.file.path="", print.curl=FALSE,
 	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
 	\item{nprocs}{The number of processors to be allocated to the job, default is 1}
 	\item{version}{FaST-LMM version, options include \code{FaST-LMM-1.09}}
-	\item{shared.user.name}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the dir.path becomes the path to the SHARED user's shared folder. }
+	\item{shared.username}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the dir.path becomes the path to the SHARED user's shared folder. }
 }
 \details{
 	Not all of the inputs, for this application will be used at the same time, in fact the inputs are to be used only in three very strict groups.  Group 1: inputTFAM, inputTPED, these are the PLINK transposed filesets.  Group 2: inputMAP, inputPED, these are the PLINK regular filesets.  Group 3: inputBED, inputBIM, inputFAM, these are the PLINK binary filesets.
