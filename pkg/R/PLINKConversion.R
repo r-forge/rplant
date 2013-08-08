@@ -1,6 +1,7 @@
 PLINKConversion <- function(file.list="", file.path="", output.type="--recode",
-                            job.name=NULL, shared.user.name=NULL, print.curl=FALSE,
-                            version="plink-1.07", suppress.Warnings=FALSE) {
+                            job.name=NULL, shared.username=NULL,
+                            print.curl=FALSE, version="plink-1.07", 
+                            suppress.Warnings=FALSE) {
 
   nprocs <- 1
   private.APP <- TRUE
@@ -22,7 +23,7 @@ PLINKConversion <- function(file.list="", file.path="", output.type="--recode",
     if ((ext1 == "tfam" ) || (ext1 == "tped")) {input.type="T"}
   }
 
-  args <- paste("arguments=", output.type)
+  args <- c(output.type)
 
   if (input.type=="T"){
     options <- list(c("T",TRUE))
@@ -78,13 +79,13 @@ PLINKConversion <- function(file.list="", file.path="", output.type="--recode",
 
   # make a single statement
   args <- paste(args, collapse=" ") 
-
+  options <- append(options, list(c("arguments",args)))
   # Submit
-  myJob<-SubmitJob(application=version, options.list=options, 
-                   file.list=file.list, file.path=file.path, private.APP=private.APP,
-                   input.list=input.list, job.name=job.name, nprocs=nprocs, 
-                   shared.user.name=shared.user.name, print.curl=print.curl,
-                   args=args, suppress.Warnings=suppress.Warnings)
+  myJob<-SubmitJob(application=version, args.list=options, job.name=job.name,
+                   file.list=file.list, file.path=file.path,  nprocs=nprocs, 
+                   input.list=input.list, private.APP=private.APP,
+                   shared.username=shared.username, print.curl=print.curl,
+                   suppress.Warnings=suppress.Warnings)
 
-  return(list(myJob,job.name))
+  return(myJob)
 }
