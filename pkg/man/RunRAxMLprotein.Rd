@@ -9,7 +9,7 @@ RunRAxMLprotein(file.name, file.path="", job.name=NULL,
                 model="PROTCAT", bootstrap=NULL, algorithm="d",
                 multipleModelFileName=NULL, args=NULL, numcat=25,
                 nprocs=12, version="raxml-lonestar-7.2.8u1",
-                print.curl=FALSE, shared.user.name=NULL,
+                print.curl=FALSE, shared.username=NULL,
                 suppress.Warnings=FALSE)
 }
 \arguments{
@@ -24,7 +24,7 @@ RunRAxMLprotein(file.name, file.path="", job.name=NULL,
 	\item{nprocs}{The number of processors to be allocated to the job, default = 12}
 	\item{version}{RAxML version, options include \code{raxml-lonestar-7.2.8u1}}
 	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
-	\item{shared.user.name}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the dir.path becomes the path to the SHARED user's shared folder.}
+	\item{shared.username}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the dir.path becomes the path to the SHARED user's shared folder.}
 	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.}
 	\item{args}{Optional for arguments (i.e. flags).  The RAxML model has much additional functionality that is not fit into this wrapper function (\url{http://sco.h-its.org/exelixis/oldPage/RAxML-Manual.7.0.4.pdf}), see details.  This option allows users to add anything that is not included (.i.e. args="-d"), which starts the RAxML search with a random starting tree, see detals.}
 }
