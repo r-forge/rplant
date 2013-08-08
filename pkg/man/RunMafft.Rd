@@ -7,7 +7,7 @@
 \usage{
 RunMafft(file.name, file.path="", job.name=NULL, print.curl=FALSE,
          version="mafft-lonestar-6.864u1",  args=NULL,
-         shared.user.name=NULL, suppress.Warnings=FALSE)
+         shared.username=NULL, suppress.Warnings=FALSE)
 }
 \arguments{
 	\item{file.name}{name of file to be evaluated on the Discovery Environment (DE), see details for supported input formats.}
@@ -15,7 +15,7 @@ RunMafft(file.name, file.path="", job.name=NULL, print.curl=FALSE,
 	\item{job.name}{the name to give the job being submitted}
 	\item{version}{Mafft version, options include \code{mafft-lonestar-6.864u1}, \code{mafftDispatcher-1.0.13100u1}}
 	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
-	\item{shared.user.name}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the dir.path becomes the path to the SHARED user's shared folder.}
+	\item{shared.username}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the dir.path becomes the path to the SHARED user's shared folder.}
 	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.}
 	\item{args}{Optional for arguments (i.e. flags).  The Mafft model has much additional functionality that is not in this wrapper function (\url{http://mafft.cbrc.jp/alignment/software/manual/manual.html#lbAI}), see details.  This option allows users to add anything that is not included (.i.e. args="--auto"), which automatically selects an appropriate strategy according to data size, see details.}
 }
