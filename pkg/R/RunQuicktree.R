@@ -1,11 +1,11 @@
 RunQuicktree <- function(file.name, file.path="", job.name=NULL, UPGMA=FALSE,
                          kimura=FALSE, boot=0, output.file.name=NULL,
                          version="quicktree-tree-lonestar-1.1u1", 
-                         print.curl=FALSE, shared.user.name=NULL, 
+                         print.curl=FALSE, shared.username=NULL, 
                          suppress.Warnings=FALSE) {
 
   if (UPGMA){
-    args="arguments=-upgma"
+    args=c("-upgma")
   } else if (kimura){
     args <- append(args,"-kimura")
   } else if (boot>0){
@@ -27,14 +27,14 @@ RunQuicktree <- function(file.name, file.path="", job.name=NULL, UPGMA=FALSE,
   }
 
   if (!is.null(args)){
-    args <- paste("arguments=,",args)
+    args <- list("arguments", args)
   }
 
   myJob<-SubmitJob(application=version, job.name=job.name, nprocs=nprocs,
                    file.list=list(file.name), file.path=file.path, 
                    input.list=input.list, suppress.Warnings=suppress.Warnings,
-                   print.curl=print.curl, shared.user.name=shared.user.name,
-                   args=args)
+                   print.curl=print.curl, shared.username=shared.username,
+                   args.list=args)
 
   return(myJob)
 }
