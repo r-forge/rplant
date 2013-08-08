@@ -1,7 +1,7 @@
 RunPLINK <- function(DE.file.list="", DE.file.path="", job.name=NULL,
                      association.method="--assoc", no.sex=TRUE, args=NULL,
                      print.curl=FALSE, multi.adjust=TRUE, version="plink-1.07", 
-                     shared.user.name=NULL, suppress.Warnings=FALSE) {
+                     shared.username=NULL, suppress.Warnings=FALSE) {
 
   nprocs <- 1
   private.APP <- TRUE
@@ -23,7 +23,7 @@ RunPLINK <- function(DE.file.list="", DE.file.path="", job.name=NULL,
     if ((ext1 == "tfam" ) || (ext1 == "tped")) {input.type="T"}
   }  
 
-  args <- c(paste("arguments=", association.method), args)
+  args <- c(association.method, args)
 
   if (multi.adjust){args <- append(args, c("--adjust"))}
 
@@ -77,14 +77,14 @@ RunPLINK <- function(DE.file.list="", DE.file.path="", job.name=NULL,
 
   # make a single statement
   args <- paste(args, collapse=" ") 
-
+  options <- append(options, list(c("arguments",args)))
   # Submit
-  myJob<-SubmitJob(application=version, options.list=options, private.APP=private.APP,
-                   DE.file.list=DE.file.list, DE.file.path=DE.file.path,
-                   input.list=input.list, job.name=job.name, nprocs=nprocs, 
-                   print.curl=print.curl, shared.user.name=shared.user.name,
-                   args=args, suppress.Warnings=suppress.Warnings)
+  myJob<-SubmitJob(application=version, args.list=options, job.name=job.name,
+                   file.list=file.list, file.path=file.path,  nprocs=nprocs, 
+                   input.list=input.list, private.APP=private.APP,
+                   shared.username=shared.username, print.curl=print.curl,
+                   suppress.Warnings=suppress.Warnings)
 
-  return(list(myJob,job.name))
+  return(myJob)
 
 }
