@@ -1,6 +1,6 @@
 RunMuscle <- function(file.name, file.path="", job.name=NULL, args=NULL, 
                       version="muscle-lonestar-3.8.31u2", print.curl=FALSE,
-                      shared.user.name=NULL, suppress.Warnings=FALSE) {
+                      shared.username=NULL, suppress.Warnings=FALSE) {
 
   nprocs <- 1
   App <- GetAppInfo(version)[[2]]
@@ -11,14 +11,14 @@ RunMuscle <- function(file.name, file.path="", job.name=NULL, args=NULL,
     job.name <- paste(rplant.env$user,"_",version,"_viaR", sep="")
 
   if (!is.null(args)){
-    args <- paste("arguments=,",args)
+    args <- list(c("arguments",args))
   }
 
   myJob<-SubmitJob(application=version, job.name=job.name, nprocs=nprocs,
                    file.list=list(file.name), file.path=file.path, 
                    input.list=input.list, suppress.Warnings=suppress.Warnings,
-                   print.curl=print.curl, shared.user.name=shared.user.name,
-                   args=args)
+                   print.curl=print.curl, shared.username=shared.username,
+                   args.list=args)
 
   return(myJob)
 }
