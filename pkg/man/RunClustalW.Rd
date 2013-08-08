@@ -7,7 +7,7 @@
 }
 \usage{
 RunClustalW(file.name, file.path="", job.name=NULL, version="ClustalW2-2.1u1",
-            print.curl=FALSE, shared.user.name=NULL, suppress.Warnings=FALSE,
+            print.curl=FALSE, shared.username=NULL, suppress.Warnings=FALSE,
             args=NULL)
 }
 \arguments{
@@ -17,7 +17,7 @@ RunClustalW(file.name, file.path="", job.name=NULL, version="ClustalW2-2.1u1",
 	\item{version}{ClustalW version, options include \code{ClustalW2-2.1u1}, \code{clustalw2Dispatcher-1.0.13100u1}, \code{clustalw2-lonestar-2.1u2}}
 	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
 	\item{args}{Optional for arguments (i.e. flags).  The ClustalW model has much additional functionality that is not fit into this wrapper function (\url{http://www.clustal.org/download/clustalw_help.txt}), see details.  This option allows users to add anything that is not included (.i.e. args="-ITERATION=TREE"), to iterate at each step, see details.}
-	\item{shared.user.name}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the dir.path becomes the path to the SHARED user's shared folder.}
+	\item{shared.username}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the dir.path becomes the path to the SHARED user's shared folder.}
 	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.}
 }
 \seealso{
