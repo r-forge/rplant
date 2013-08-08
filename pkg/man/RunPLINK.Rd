@@ -8,7 +8,7 @@
 RunPLINK(DE.file.list="", DE.file.path="", job.name=NULL,
          association.method="--assoc", no.sex=TRUE, args=NULL,
          print.curl=FALSE, multi.adjust=TRUE, version="plink-1.07", 
-         shared.user.name=NULL, suppress.Warnings=FALSE)
+         shared.username=NULL, suppress.Warnings=FALSE)
 }
 \arguments{
 	\item{file.list}{Names of files, in a list format, to be evaluated on the Discovery Environment (DE).  There are only three possible input groups for file.list, regular fileset (.map/.ped),  transposed fileset (.tfam/.tped), and binary fileset (.bed/.bim/.fam).}
@@ -20,7 +20,7 @@ RunPLINK(DE.file.list="", DE.file.path="", job.name=NULL,
 	\item{args}{Optional for arguments (i.e. flags).  The PLINK model has so much additional functionality that it cannot all be fit into this wrapper function (\url{http://pngu.mgh.harvard.edu/~purcell/plink/reference.shtml#options}).  This option allows users to add anything that is not included (.i.e. args="--silent"), to suppress output to console, see details.}
 	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
 	\item{version}{PLINK version, options include \code{plink-1.07}}
-	\item{shared.user.name}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the dir.path becomes the path to the SHARED user's shared folder.}
+	\item{shared.username}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the dir.path becomes the path to the SHARED user's shared folder.}
 	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.}
 }
 \details{
