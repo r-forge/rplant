@@ -7,7 +7,7 @@
 	Functions for listing the contents of a directory, making new directories, or deleting entire directories in the iPlant infrastructure
 }
 \usage{
-ListDir(dir.path="", print.curl=FALSE, shared.user=NULL, suppress.Warnings=FALSE)
+ListDir(dir.path="", print.curl=FALSE, shared.username=NULL, suppress.Warnings=FALSE)
 MakeDir(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE)
 DeleteDir(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE)
 }
@@ -15,7 +15,7 @@ DeleteDir(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE)
 	\item{dir.path}{optional path to a user's sub directory on the Discovery Environment (DE); default path is empty, which leads to the home directory}
 	\item{dir.name}{name of subdirectory to be modified on the DE in the users home iPlant directory.}
 	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
-	\item{shared.user.name}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to view them, enter their username for this input.  Then the dir.path becomes the path to the SHARED user's shared folder. }
+	\item{shared.username}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to view them, enter their username for this input.  Then the dir.path becomes the path to the SHARED user's shared folder. }
 	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.}
 }
 \details{
