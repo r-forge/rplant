@@ -76,7 +76,7 @@ RunFaST_LMM <- function(input.file.list="", ALL.file.path="", print.curl=FALSE,
   options <- append(options, list(c("arguments",args)))
   # Submit
   myJob<-SubmitJob(application=version, args.list=options, job.name=job.name,
-                   file.list=file.list, file.path=file.path,  nprocs=nprocs, 
+                   file.list=input.file.list, file.path=file.path,  nprocs=nprocs, 
                    input.list=input.list, private.APP=private.APP,
                    shared.username=shared.username, print.curl=print.curl,
                    suppress.Warnings=suppress.Warnings)
