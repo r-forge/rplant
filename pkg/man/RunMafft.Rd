@@ -2,7 +2,7 @@
 \alias{RunMafft}
 \title{MAFFT Multiple Sequence Alignment}
 \description{
-	MAFFT is a multiple sequence alignment program for unix-like operating systems.  It offers a range of multiple alignment methods, L-INS-i (accurate; for alignment of <∼200 sequences), FFT-NS-2 (fast; for alignment of <∼10,000 sequences), etc.  See \url{http://mafft.cbrc.jp/alignment/software/}.  The manual is also available here: \url{http://mafft.cbrc.jp/alignment/software/manual/manual.html} 
+	MAFFT is a multiple sequence alignment program for unix-like operating systems.  It offers a range of multiple alignment methods, L-INS-i (accurate; for alignment of about 200 sequences), FFT-NS-2 (fast; for alignment of about 10,000 sequences), etc.  See \url{http://mafft.cbrc.jp/alignment/software/}.  The manual is also available here: \url{http://mafft.cbrc.jp/alignment/software/manual/manual.html} 
 }
 \usage{
 RunMafft(file.name, file.path="", job.name=NULL, print.curl=FALSE,
