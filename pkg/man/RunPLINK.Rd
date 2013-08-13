@@ -5,7 +5,7 @@
 	PLINK is an open-source whole genome association analysis toolset, designed to perform a range of basic, large-scale analyses in a computationally efficient manner, check \url{http://pngu.mgh.harvard.edu/~purcell/plink/} for details.
 }
 \usage{
-RunPLINK(DE.file.list="", DE.file.path="", job.name=NULL,
+RunPLINK(file.list="", file.path="", job.name=NULL,
          association.method="--assoc", no.sex=TRUE, args=NULL,
          print.curl=FALSE, multi.adjust=TRUE, version="plink-1.07", 
          shared.username=NULL, suppress.Warnings=FALSE)
