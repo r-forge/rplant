@@ -3,6 +3,10 @@
 # Discovery Environment (DE)
 
 # -- AUTHENTICATION FUNCTIONS -- #
+res <- NULL
+JS <- NULL
+tmp <- NULL
+rplant.env <- NULL
 
 TestApp <- function(APP){
   web <- paste(rplant.env$webapps, "apps/name", sep="")
@@ -36,8 +40,8 @@ Error <- function(ERR){
 }
 
 Renew <- function(){
-  assign("curl.call", getCurlHandle(userpwd=paste(rplant.env$user, 
-         rplant.env$pwd, sep=":"), httpauth=1L, ssl.verifypeer=FALSE),
+  assign("curl.call", getCurlHandle(userpwd=paste(get("user", envir=rplant.env), 
+        get("pwd", envir=rplant.env), sep=":"), httpauth=1L, ssl.verifypeer=FALSE),
          envir=rplant.env)
 }
 
@@ -858,10 +862,10 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
 }
 
 CheckJobStatus <- function(job.id, return.json=FALSE, print.curl=FALSE) {
-  web <- paste(rplant.env$webapps, "job", sep="")
+  web <- paste(get("webapps", envir=rplant.env), "job", sep="")
 
   if (print.curl) {
-    curl.string <- paste("curl -X GET -sku '", rplant.env$user, "' ", web, "/",
+    curl.string <- paste("curl -X GET -sku '", get("user", envir=rplant.env), "' ", web, "/",
                          job.id, sep="")
     print(curl.string)
   }
@@ -869,7 +873,7 @@ CheckJobStatus <- function(job.id, return.json=FALSE, print.curl=FALSE) {
   Renew()
 
   tryCatch(res <<- fromJSON(getForm(paste(web, job.id, sep="/"), 
-           .checkparams=FALSE, curl=rplant.env$curl.call)), 
+           .checkparams=FALSE, curl=get("curl.call", envir=rplant.env))), 
            error=function(x){return(res <<- data.frame(status=paste(x)))})
 
   if ((res$status != "success") || (length(res$result) == 0)) {
