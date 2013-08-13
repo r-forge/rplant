@@ -17,7 +17,7 @@ SubmitJob(application, file.path="", file.list=NULL, input.list,
           print.curl=FALSE)
 CheckJobStatus(job.id, return.json=FALSE, print.curl=FALSE)
 ListJobOutput(job.id, print.curl=FALSE, print.total=TRUE)
-RetrieveJob(job.id, file.vec, zip=TRUE, print.curl=FALSE, return.json=FALSE)
+RetrieveJob(job.id, file.vec, print.curl=FALSE, verbose=FALSE)
 GetJobHistory(return.json=FALSE, print.curl=FALSE)
 DeleteJob(job.id, print.curl=FALSE, ALL=FALSE) 
 }
@@ -33,8 +33,9 @@ DeleteJob(job.id, print.curl=FALSE, ALL=FALSE)
 	\item{args.list}{A list of options available is input for the Foundation API application.  (i.e.) For the application \code{velveth-1.2.07u1} \code{args.list=list(c("kmer","100"),c("Output","name"))}.  See details for more information.}
 	\item{return.json}{Optional screen output that displays all of the results from the api, default = FALSE}
 	\item{file.vec}{Names of output files to download, can be one or many}
-	\item{zip}{Zip job files together, default is TRUE (only available on Linux computer)}
 	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
+	\item{print.total}{For the \code{ListJobOuput} function this option will print the total number of files in the folder.}
+	\item{verbose}{For the \code{RetrieveJob} function this option will print the names of the files as they are downloaded.}
 	\item{shared.username}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the dir.path becomes the path to the SHARED user's shared folder.}
 	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.  If the application you are running is a private application have suppress.Warnings=TRUE}
 	\item{ALL}{This option is only on the \code{DeleteJob} function.  If ALL=TRUE then all jobs in the job history will be deleted.}
