@@ -5,7 +5,7 @@
 	Authenticates users and provides tokens to be used in place of unencrypted passwords
 }
 \usage{
-Validate <- function(user, pwd, c("iplant", "cipres", "tnrs"), print.curl=FALSE)
+Validate(user, pwd, api=c("iplant", "cipres", "tnrs"), print.curl=FALSE)
 }
 \arguments{
 	\item{user}{iPlant Discovery Environment user name}
