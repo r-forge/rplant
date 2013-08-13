@@ -7,7 +7,7 @@
 \usage{
 RunQuicktree(file.name, file.path="", job.name=NULL, UPGMA=FALSE,
              kimura=FALSE, boot=0, output.file.name=NULL,
-             version="quicktree-tree-lonestar-1.1u1", 
+             version="quicktree-tree-lonestar-1.1u2", 
              print.curl=FALSE, shared.username=NULL, 
              suppress.Warnings=FALSE)
 }
@@ -22,6 +22,7 @@ RunQuicktree(file.name, file.path="", job.name=NULL, UPGMA=FALSE,
 	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
 	\item{shared.username}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the dir.path becomes the path to the SHARED user's shared folder.}
 	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.}
+	\item{output.file.name}{Manually enter a desired file name for the output files}
 }
 \details{
 	The input file formats that are supported are fasta format \url{http://en.wikipedia.org/wiki/FASTA_format} or stockholm format \url{http://en.wikipedia.org/wiki/Stockholm_format}.
