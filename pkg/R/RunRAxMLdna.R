@@ -9,7 +9,7 @@ RunRAxMLdna <- function(file.name, file.path="", job.name=NULL,
     job.name <- paste(rplant.env$user, "_RAxMLdna_", model, "_viaR", sep="")
   }
 
-  App <- GetAppInfo(version)[[2]]
+  App <- GetAppInfo(version)[[3]]
   input.list <- vector("list",1)
   input.list[[1]] <- App[,2][1]
 
