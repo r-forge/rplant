@@ -2,7 +2,7 @@ RunClustalW <- function(file.name, file.path="", job.name=NULL, args=NULL,
                        version="ClustalW2-2.1u1", print.curl=FALSE,
                        shared.username=NULL, suppress.Warnings=FALSE) {
   nprocs=1
-  App <- GetAppInfo(version)[[2]]
+  App <- GetAppInfo(version)[[3]]
   input.list <- vector("list",1)
   input.list[[1]] <- App[,2][1]
 
