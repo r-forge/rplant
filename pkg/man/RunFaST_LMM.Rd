@@ -21,9 +21,9 @@ RunFaST_LMM(input.file.list="", ALL.file.path="", print.curl=FALSE,
 	\item{covar.file.name}{(optional) Must have at least three tab-delimited columns: family ID, individual ID, and covariate value, and may have any number of covariate values. The same missing value signifier from the phenotype file must be used. Note: the file should not have a header row.}
 	\item{args}{Optional for arguments (i.e. flags).  The FaST-LMM model has much additional functionality that is not fit into this wrapper function (\url{http://fastlmm.codeplex.com/}), see manual.  This option allows users to add anything that is not included (.i.e. args="-Ftest"), to automatically invoke the F-test, see details.}
 	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
-	\item{nprocs}{The number of processors to be allocated to the job, default is 1}
 	\item{version}{FaST-LMM version, options include \code{FaST-LMM-1.09}}
-	\item{shared.username}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the dir.path becomes the path to the SHARED user's shared folder. }
+	\item{shared.username}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the dir.path becomes the path to the SHARED user's shared folder.}
+	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.}
 }
 \details{
 	Not all of the inputs, for this application will be used at the same time, in fact the inputs are to be used only in three very strict groups.  Group 1: inputTFAM, inputTPED, these are the PLINK transposed filesets.  Group 2: inputMAP, inputPED, these are the PLINK regular filesets.  Group 3: inputBED, inputBIM, inputFAM, these are the PLINK binary filesets.
