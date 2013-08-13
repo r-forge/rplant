@@ -38,7 +38,7 @@ SupportFile(print.curl=FALSE)
 	If an error, then a message stating the error should also be reported.  
 }
 \examples{
-Write .fasta file to home directory
+# Write .fasta file to home directory
 \dontrun{data(ex.lp.fasta)}
 \dontrun{write.fasta(sequences = ex.lp.fasta, names = names(ex.lp.fasta), file.out = "ex.lp.fasta")}
          
