@@ -3,10 +3,6 @@
 # Discovery Environment (DE)
 
 # -- AUTHENTICATION FUNCTIONS -- #
-res <- NULL
-JS <- NULL
-tmp <- NULL
-rplant.env <- NULL
 
 TestApp <- function(APP){
   web <- paste(rplant.env$webapps, "apps/name", sep="")
@@ -557,14 +553,15 @@ GetAppInfo <- function(application, return.json=FALSE, print.curl=FALSE) {
       return(paste(tmp$status))
     }
   } else {
-    if (tmp$result[[1]]$public == FALSE) {
+    len <- length(tmp$result)
+    if (tmp$result[[len]]$public == FALSE) {
       text <- "Private App"
     }  else if (length(tmp) == 0) {
       return("No information on application")
     }
 
     if (text == "Public App"){
-      APP <- tmp$result[[1]]$id
+      APP <- tmp$result[[len]]$id
       if (substring(APP,nchar(APP)-1,nchar(APP)-1) == "u"){
         priv.APP <- substring(APP,1,nchar(APP)-2)
         version.APP <- as.numeric(substring(APP,nchar(APP),nchar(APP)))
@@ -589,22 +586,22 @@ GetAppInfo <- function(application, return.json=FALSE, print.curl=FALSE) {
       return(tmp)
     } else {
       app.info<-c()
-      for (input in sequence(length(tmp$result[[1]]$inputs))) {
-        app.info <- rbind(app.info, c("input", tmp$result[[1]]$inputs[[input]]$id,
-                          tmp$result[[1]]$inputs[[input]]$semantics$fileTypes[1], tmp$result[[1]]$inputs[[input]]$details$description))
+      for (input in sequence(length(tmp$result[[len]]$inputs))) {
+        app.info <- rbind(app.info, c("input", tmp$result[[len]]$inputs[[input]]$id,
+                          tmp$result[[len]]$inputs[[input]]$semantics$fileTypes[1], tmp$result[[len]]$inputs[[input]]$details$description))
       }
-      for (output in sequence(length(tmp$result[[1]]$output))) {
-        app.info <- rbind(app.info, c("output", tmp$result[[1]]$outputs[[output]]$id,
-                          tmp$result[[1]]$outputs[[output]]$semantics$fileTypes[1], tmp$result[[1]]$outputs[[output]]$details$description)) 
+      for (output in sequence(length(tmp$result[[len]]$output))) {
+        app.info <- rbind(app.info, c("output", tmp$result[[len]]$outputs[[output]]$id,
+                          tmp$result[[len]]$outputs[[output]]$semantics$fileTypes[1], tmp$result[[len]]$outputs[[output]]$details$description)) 
       }
-      for (parameter in sequence(length(tmp$result[[1]]$parameters))) {
-        app.info <- rbind(app.info, c("parameters", tmp$result[[1]]$parameters[[parameter]]$id, tmp$result[[1]]$parameters[[parameter]]$value$type, tmp$result[[1]]$parameters[[parameter]]$details$label))
+      for (parameter in sequence(length(tmp$result[[len]]$parameters))) {
+        app.info <- rbind(app.info, c("parameters", tmp$result[[len]]$parameters[[parameter]]$id, tmp$result[[len]]$parameters[[parameter]]$value$type, tmp$result[[len]]$parameters[[parameter]]$details$label))
       }
       colnames(app.info)<-c("kind", "id", "fileType/value", "details")
       if (text == "Private App"){
-        return(list(tmp$result[[1]]$longDescription, application=c(application, text), app.info))
+        return(list(tmp$result[[len]]$longDescription, application=c(application, text), app.info))
       } else {
-        return(list(Description=tmp$result[[1]]$longDescription,Application=c(application, text, v.text), Information=app.info))
+        return(list(Description=tmp$result[[len]]$longDescription,Application=c(application, text, v.text), Information=app.info))
       }
     }
   }
@@ -683,21 +680,23 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
     Renew()
     tmp <- fromJSON(getForm(paste(paste(rplant.env$webapps, "apps/name", sep=""), priv.APP, sep="/"), .checkparams=FALSE, curl=rplant.env$curl.call))
 
+    len <- length(tmp$result)
     if (private.APP==FALSE) {
-      if (tmp$result[[1]]$public == FALSE) {
+      if (tmp$result[[len]]$public == FALSE) {
         return("Not a valid application: it's private, must be public.  Check ListApps function")
       }
     }
     if (length(tmp) == 0) {
       return("No information on application: not valid")
-    } else if (tmp$result[[1]]$id != application){
-      return(paste("Application deprecated, should be:",tmp$result[[1]]$id))
+    } else if (tmp$result[[len]]$id != application){
+      return(paste("Application deprecated, should be:",tmp$result[[len]]$id))
     }
 
+
     app.info<-c()
-    for (input in sequence(length(tmp$result[[1]]$inputs))) {
-      app.info <- rbind(app.info, c("input", tmp$result[[1]]$inputs[[input]]$id,
-                        tmp$result[[1]]$inputs[[input]]$semantics$fileTypes[1]))
+    for (input in sequence(length(tmp$result[[len]]$inputs))) {
+      app.info <- rbind(app.info, c("input", tmp$result[[len]]$inputs[[input]]$id,
+                        tmp$result[[len]]$inputs[[input]]$semantics$fileTypes[1]))
     }
   
     test.input <- rep(0, length(input.list))
@@ -730,12 +729,14 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
     tmp <- fromJSON(getForm(paste(paste(rplant.env$webapps, "apps/name", sep=""), priv.APP, sep="/"), .checkparams=FALSE, curl=rplant.env$curl.call))
   }
 
-  for (i in 1:length(tmp$result)){
-    set <- tryCatch(tmp$result[[i]]$parallelism, error=function(x){return(NA)})
-    if (!is.na(set)){
-      break
-    }
-  }
+  set <- tmp$result[[len]]$parallelism
+
+# for (i in 1:length(tmp$result)){
+#   set <- tryCatch(tmp$result[[i]]$parallelism, error=function(x){return(NA)})
+#   if (!is.na(set)){
+#     break
+#   }
+# }
 
   if (set == "PARALLEL"){
     if (nprocs < 2){
