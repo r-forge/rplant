@@ -874,7 +874,7 @@ CheckJobStatus <- function(job.id, return.json=FALSE, print.curl=FALSE) {
   Renew()
 
   tryCatch(res <<- fromJSON(getForm(paste(web, job.id, sep="/"), 
-           .checkparams=FALSE, curl=get("curl.call", envir=rplant.env))), 
+           .checkparams=FALSE, curl=rplant.env$curl.call)), 
            error=function(x){return(res <<- data.frame(status=paste(x)))})
 
   if ((res$status != "success") || (length(res$result) == 0)) {
@@ -1048,15 +1048,16 @@ RetrieveJob <- function(job.id, file.vec, print.curl=FALSE, verbose=FALSE) {
     return(paste("Error: job: `",job.id,"' does not exist", sep=""))
   } else {
 
-    dir.path <- file.path(getwd(), paste("job_",job.id,sep=""))
-
-    if (.Platform$OS.type=="windows") {
-      invisible(shell(paste("mkdir job_",job.id,sep="")))
-    } else {
-      dir.create(dir.path)
-    }
-
     if (JS$res$status == "ARCHIVING_FINISHED") {
+
+      dir.path <- file.path(getwd(), paste("job_",job.id,sep=""))
+
+      if (.Platform$OS.type=="windows") {
+        invisible(shell(paste("mkdir job_",job.id,sep="")))
+      } else {
+        dir.create(dir.path)
+      }
+
       fileList <- ListJobOutput(job.id, print.total=FALSE)
       for (file in 1:length(file.vec)) {
         # if file exists in output then download
