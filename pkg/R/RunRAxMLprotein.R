@@ -1,21 +1,45 @@
-RunRAxMLprotein <- function(file.name, file.path="", job.name=NULL,
-                            model="PROTCAT", bootstrap=NULL, algorithm="d",
-                            multipleModelFileName=NULL, args=NULL, numcat=25,
-                            nprocs=12, version="raxml-lonestar-7.2.8u1",
-                            print.curl=FALSE, shared.username=NULL,
-                            suppress.Warnings=FALSE) {
+RAxML <- function(file.name, file.path="", job.name=NULL, type="DNA",
+                  model=NULL, bootstrap=NULL, algorithm="d",
+                  multipleModelFileName=NULL, args=NULL, numcat=25,
+                  nprocs=12, version="raxml-lonestar-7.2.8u1",
+                  print.curl=FALSE, shared.username=NULL,
+                  suppress.Warnings=FALSE) {
 
-  if (is.null(job.name)){
-    job.name <- paste(rplant.env$user, "_RAxMLdna_", model, "_viaR", sep="")
+  type <- match.arg(type, c("DNA", "PROTEIN"))
+
+  if (type == "DNA"){
+
+    if (is.null(model)){
+      model="GTRCAT"
+    }
+
+    model <- match.arg(model, c("GTRCAT", "GTRGAMMA", "GTRCAT.GAMMA", "GTRGAMMAI", "GTRCAT.GAMMAI"))
+
+    if (is.null(job.name)){
+      job.name <- paste(rplant.env$user, "_RAxMLdna_", model, "_viaR", sep="")
+    }
+
+  } else {
+
+    if (is.null(model)){
+      model="PROTCAT"
+    }
+
+    model <- match.arg(model, c("PROTCAT", "PROTGAMMA", "PROTCAT.GAMMA", "PROTGAMMAI", "PROTCAT.GAMMAI"))
+
+    if (is.null(job.name)){
+      job.name <- paste(rplant.env$user, "_RAxMLprotein_", model, "_viaR", sep="")
+    }
   }
 
-  App <- GetAppInfo(version)[[2]]
+  App <- GetAppInfo(version)[[3]]
   input.list <- vector("list",1)
   input.list[[1]] <- App[,2][1]
 
   #initialize arguments
   args <- c(args)
   args <- append(args, c("-m", model))
+  args <- append(args, c("-N", 10))
   #args <- append(args, c("-T", numberOfThreads))
   if (!is.null(bootstrap)) {
     args <- append(args, c("-b", bootstrap))
@@ -31,9 +55,8 @@ RunRAxMLprotein <- function(file.name, file.path="", job.name=NULL,
   }
   args <- paste(args, collapse=" ")  # make a single statement
  
-  if (!is.null(args)){
-    args <- list("arguments", args)
-  }
+  args <- list(c("arguments", args))
+
 
   # Submit
   myJob<-SubmitJob(application=version, job.name=job.name, nprocs=nprocs,
