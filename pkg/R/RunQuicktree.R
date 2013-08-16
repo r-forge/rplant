@@ -39,8 +39,6 @@ RunQuicktree <- function(file.name, file.path="", job.name=NULL, UPGMA=FALSE,
     args <- NULL
   }
 
-  Renew()
-
   myJob<-SubmitJob(application=version, job.name=job.name, nprocs=nprocs,
                    file.list=list(file.name), file.path=file.path, 
                    input.list=input.list, suppress.Warnings=suppress.Warnings,
