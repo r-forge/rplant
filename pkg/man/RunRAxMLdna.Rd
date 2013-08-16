@@ -5,12 +5,12 @@
 	RAxML (Randomized Accelerated Maximum Likelihood) is a program for sequential and parallel Maximum Likelihood based inference of large phylogenetic tress.  It has originall been derived from from fastDNAml which in turn was derived from Joe Felsentein's dnaml which is part of the PHYLIP package. See \url{http://sco.h-its.org/exelixis/oldPage/RAxML-Manual.7.0.4.pdf} for details.
 }
 \usage{
-RunRAxMLdna(file.name, file.path="", job.name=NULL,
-            model="GTRCAT", bootstrap=NULL, algorithm="d",
-            multipleModelFileName=NULL, args=NULL, numcat=25,
-            nprocs=12, version="raxml-lonestar-7.2.8u1",
-            print.curl=FALSE, shared.username=NULL,
-            suppress.Warnings=FALSE)
+RAxML(file.name, file.path="", job.name=NULL, type="DNA",
+      model=NULL, bootstrap=NULL, algorithm="d",
+      multipleModelFileName=NULL, args=NULL, numcat=25,
+      nprocs=12, version="raxml-lonestar-7.2.8u1",
+      print.curl=FALSE, shared.username=NULL,
+      suppress.Warnings=FALSE)
 }
 \arguments{
 	\item{file.name}{Name of file to be evaluated on the Discovery Environment (DE), see details for supported input formats.}
