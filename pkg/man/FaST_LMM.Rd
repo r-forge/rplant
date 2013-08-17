@@ -1,11 +1,11 @@
-\name{RunFaST_LMM}
-\alias{RunFaST_LMM}
+\name{FaST_LMM}
+\alias{FaST_LMM}
 \title{FaST-LMM-1.09}
 \description{
 	FaST-LMM (Factored Spectrally Transformed Linear Mixed Models) is a program for performing genome-wide association studies (GWAS) on large data sets.  FaST-LMM is described more fully at \url{http://www.nature.com/nmeth/journal/v8/n10/abs/nmeth.1681.html}, and also at \url{http://fastlmm.codeplex.com/}
 }
 \usage{
-RunFaST_LMM(input.file.list="", ALL.file.path="", print.curl=FALSE,
+FaST_LMM(input.file.list="", ALL.file.path="", print.curl=FALSE,
             sim.file.list=NULL, pheno.file.name=NULL, mpheno=1,
             args=NULL, covar.file.name=NULL, job.name=NULL, 
             version="FaST-LMM-1.09", shared.username=NULL,
@@ -36,5 +36,5 @@ Not all information on the FaST-LMM model is here, see the FaST-LMM website \url
 	\code{\link{SubmitJob}}
 }
 \examples{
-\dontrun{RunPLINK(file.list=list("geno_test.tfam","geno_test.tped"), file.path="data/Default", print.curl=TRUE)}
+\dontrun{PLINK(file.list=list("geno_test.tfam","geno_test.tped"), file.path="data/Default", print.curl=TRUE)}
 }	
