@@ -1,6 +1,6 @@
-RunMafft <- function(file.name, file.path="", job.name=NULL, print.curl=FALSE,
-                     version="mafft-lonestar-6.864u1",  args=NULL,
-                     shared.username=NULL, suppress.Warnings=FALSE) {
+Mafft <- function(file.name, file.path="", job.name=NULL, print.curl=FALSE,
+                  version="mafft-lonestar-6.864u1",  args=NULL,
+                  shared.username=NULL, suppress.Warnings=FALSE) {
 
   nprocs <- 1
   App <- GetAppInfo(version)[[3]]
