@@ -1,8 +1,8 @@
-RunQuicktree <- function(file.name, file.path="", job.name=NULL, UPGMA=FALSE,
-                         kimura=FALSE, boot=0, output.file.name=NULL,
-                         version="quicktree-tree-lonestar-1.1u2", 
-                         print.curl=FALSE, shared.username=NULL, 
-                         suppress.Warnings=FALSE) {
+Quicktree <- function(file.name, file.path="", job.name=NULL, UPGMA=FALSE,
+                      kimura=FALSE, boot=0, output.file.name=NULL,
+                      version="quicktree-tree-lonestar-1.1u2", 
+                      print.curl=FALSE, shared.username=NULL, 
+                      suppress.Warnings=FALSE) {
 
   flag <- 0
   if (UPGMA){
