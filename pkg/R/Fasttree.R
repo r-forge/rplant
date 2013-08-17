@@ -1,6 +1,6 @@
-RunFasttree <- function(file.name, file.path="", job.name=NULL, args=NULL,
-                        print.curl=FALSE, version="fasttreeDispatcher-1.0.0u1", 
-                        shared.username=NULL, suppress.Warnings=FALSE) {
+Fasttree <- function(file.name, file.path="", job.name=NULL, args=NULL,
+                     print.curl=FALSE, version="fasttreeDispatcher-1.0.0u1", 
+                     shared.username=NULL, suppress.Warnings=FALSE) {
 
   nprocs <- 1
   App <- GetAppInfo(version)[[3]]
