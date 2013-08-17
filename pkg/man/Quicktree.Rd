@@ -1,11 +1,11 @@
-\name{RunQuicktree}
-\alias{RunQuicktree}
+\name{Quicktree}
+\alias{Quicktree}
 \title{Quicktree}
 \description{
 	QuickTree allows the reconstruction of phylogenies for very large protein families that would be infeasible using other popular methods. see \url{http://bioinformatics.oxfordjournals.org/content/18/11/1546}
 }
 \usage{
-RunQuicktree(file.name, file.path="", job.name=NULL, UPGMA=FALSE,
+Quicktree(file.name, file.path="", job.name=NULL, UPGMA=FALSE,
              kimura=FALSE, boot=0, output.file.name=NULL,
              version="quicktree-tree-lonestar-1.1u2", 
              print.curl=FALSE, shared.username=NULL, 
@@ -34,5 +34,5 @@ RunQuicktree(file.name, file.path="", job.name=NULL, UPGMA=FALSE,
 	\code{\link{SubmitJob}}
 }
 \examples{
-\dontrun{RunQuicktree(file.name="ex.lp.fasta", job.name="QTrun")}
+\dontrun{Quicktree(file.name="ex.lp.fasta", job.name="QTrun")}
 }	
