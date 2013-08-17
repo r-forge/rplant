@@ -1,11 +1,11 @@
-\name{RunPLINK}
-\alias{RunPLINK}
+\name{PLINK}
+\alias{PLINK}
 \title{PLINK-1.07}
 \description{
 	PLINK is an open-source whole genome association analysis toolset, designed to perform a range of basic, large-scale analyses in a computationally efficient manner, check \url{http://pngu.mgh.harvard.edu/~purcell/plink/} for details.
 }
 \usage{
-RunPLINK(file.list="", file.path="", job.name=NULL,
+PLINK(file.list="", file.path="", job.name=NULL,
          association.method="--assoc", no.sex=TRUE, args=NULL,
          print.curl=FALSE, multi.adjust=TRUE, version="plink-1.07", 
          shared.username=NULL, suppress.Warnings=FALSE)
@@ -37,5 +37,5 @@ See the PLINK website for more information. \url{http://pngu.mgh.harvard.edu/~pu
 	\code{\link{SubmitJob}}
 }
 \examples{
-\dontrun{RunPLINK(file.list=list("geno_test.tfam","geno_test.tped"), file.path="data/Default", print.curl=TRUE)}
+\dontrun{PLINK(file.list=list("geno_test.tfam","geno_test.tped"), file.path="data/Default", print.curl=TRUE)}
 }	
