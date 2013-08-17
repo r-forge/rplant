@@ -1,8 +1,8 @@
-RunFaST_LMM <- function(input.file.list="", ALL.file.path="", print.curl=FALSE,
-                        sim.file.list=NULL, pheno.file.name=NULL, mpheno=1,
-                        args=NULL, covar.file.name=NULL, job.name=NULL, 
-                        version="FaST-LMM-1.09", shared.username=NULL,
-                        suppress.Warnings=FALSE) {
+FaST_LMM <- function(input.file.list="", ALL.file.path="", print.curl=FALSE,
+                     sim.file.list=NULL, pheno.file.name=NULL, mpheno=1,
+                     args=NULL, covar.file.name=NULL, job.name=NULL, 
+                     version="FaST-LMM-1.09", shared.username=NULL,
+                     suppress.Warnings=FALSE) {
   nprocs <- 1
   private.APP <- TRUE
   input.len <- length(input.file.list)
@@ -76,7 +76,7 @@ RunFaST_LMM <- function(input.file.list="", ALL.file.path="", print.curl=FALSE,
   options <- append(options, list(c("arguments",args)))
   # Submit
   myJob<-SubmitJob(application=version, args.list=options, job.name=job.name,
-                   file.list=input.file.list, file.path=file.path,  nprocs=nprocs, 
+                   file.list=input.file.list, file.path=file.path, nprocs=nprocs,
                    input.list=input.list, private.APP=private.APP,
                    shared.username=shared.username, print.curl=print.curl,
                    suppress.Warnings=suppress.Warnings)
