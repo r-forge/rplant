@@ -1,11 +1,11 @@
-\name{RunMuscle}
-\alias{RunMuscle}
+\name{Muscle}
+\alias{Muscle}
 \title{MUSCLE alignment}
 \description{
 	MUSCLE is a program for creating multiple alignments of amino acid or nucleotide sequences. A range of options is provided that give you the choice of optimizing accuracy, speed, or some compromise between the two.  The manual is also available here: \url{http://www.drive5.com/muscle/muscle_userguide3.8.html} 
 }
 \usage{
-RunMuscle(file.name, file.path="", job.name=NULL, args=NULL, 
+Muscle(file.name, file.path="", job.name=NULL, args=NULL, 
           version="muscle-lonestar-3.8.31u2", print.curl=FALSE,
           shared.username=NULL, suppress.Warnings=FALSE)
 }
@@ -31,5 +31,5 @@ RunMuscle(file.name, file.path="", job.name=NULL, args=NULL,
 	\code{\link{SubmitJob}}
 }
 \examples{
-\dontrun{RunMuscle("ex.lp.fasta", job.name="muscleJob1")}
+\dontrun{Muscle("ex.lp.fasta", job.name="muscleJob1")}
 }	
