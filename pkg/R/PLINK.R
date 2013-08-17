@@ -1,7 +1,7 @@
-RunPLINK <- function(file.list="", file.path="", job.name=NULL,
-                     association.method="--assoc", no.sex=TRUE, args=NULL,
-                     print.curl=FALSE, multi.adjust=TRUE, version="plink-1.07", 
-                     shared.username=NULL, suppress.Warnings=FALSE) {
+PLINK <- function(file.list="", file.path="", job.name=NULL,
+                  association.method="--assoc", no.sex=TRUE, args=NULL,
+                  print.curl=FALSE, multi.adjust=TRUE, version="plink-1.07", 
+                  shared.username=NULL, suppress.Warnings=FALSE) {
 
   nprocs <- 1
   private.APP <- TRUE
