@@ -1,14 +1,14 @@
-\name{RunClustalW}
-\alias{RunClustalW}
-\alias{RunClustal}
+\name{ClustalW}
+\alias{ClustalW}
+\alias{Clustal}
 \title{ClustalW alignment}
 \description{
 	An approach for performing multiple alignments of large numbers of amino acid or nucleotide sequences is described. The method is based on first deriving a phylogenetic tree from a matrix of all pairwise sequence similarity scores, obtained using a fast pairwise alignment algorithm.  See details on \url{http://www.clustal.org/clustal2/}.
 }
 \usage{
-RunClustalW(file.name, file.path="", job.name=NULL, args=NULL,
-            version="ClustalW2-2.1u1", print.curl=FALSE,
-            shared.username=NULL, suppress.Warnings=FALSE)
+ClustalW(file.name, file.path="", job.name=NULL, args=NULL,
+         version="ClustalW2-2.1u1", print.curl=FALSE,
+         shared.username=NULL, suppress.Warnings=FALSE)
 }
 \arguments{
 	\item{file.name}{Name of file to be evaluated on the Discovery Environment (DE), see details for supported input formats.}
@@ -32,5 +32,5 @@ RunClustalW(file.name, file.path="", job.name=NULL, args=NULL,
 	A list containing the job id and the job name is provided for jobs submitted.  If an error, then a message stating the error should also be reported.
 }
 \examples{
-\dontrun{RunClustalW(file.name="ex.lp.fasta", job.name="clustalw.Job1", version="clustalw2-lonestar-2.1u2")}
+\dontrun{ClustalW(file.name="ex.lp.fasta", job.name="clustalw.Job1", version="clustalw2-lonestar-2.1u2")}
 }	
