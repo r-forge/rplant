@@ -1,11 +1,11 @@
-\name{RunFasttree}
-\alias{RunFasttree}
+\name{Fasttree}
+\alias{Fasttree}
 \title{FastTree Dispatcher}
 \description{
 	FastTree infers approximately-maximum-likelihood phylogenetic trees from alignments of nucleotide or protein sequences. See \url{http://meta.microbesonline.org/fasttree/}
 }
 \usage{
-RunFasttree(file.name, file.path="", job.name=NULL, args=NULL,
+Fasttree(file.name, file.path="", job.name=NULL, args=NULL,
             print.curl=FALSE, version="fasttreeDispatcher-1.0.0u1", 
             shared.username=NULL, suppress.Warnings=FALSE)
 }
@@ -31,5 +31,5 @@ RunFasttree(file.name, file.path="", job.name=NULL, args=NULL,
 	\code{\link{SubmitJob}}
 }
 \examples{
-	\dontrun{RunFasttree("muscle.phy")}
+	\dontrun{Fasttree("muscle.phy")}
 }	
