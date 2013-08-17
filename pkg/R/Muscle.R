@@ -1,6 +1,6 @@
-RunMuscle <- function(file.name, file.path="", job.name=NULL, args=NULL,
-                      version="muscle-lonestar-3.8.31u2", print.curl=FALSE,
-                      shared.username=NULL, suppress.Warnings=FALSE) {
+Muscle <- function(file.name, file.path="", job.name=NULL, args=NULL,
+                   version="muscle-lonestar-3.8.31u2", print.curl=FALSE,
+                   shared.username=NULL, suppress.Warnings=FALSE) {
 
   if (version == "Muscle-3.8.32"){
     private.APP = TRUE
