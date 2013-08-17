@@ -1,6 +1,6 @@
-RunClustalW <- function(file.name, file.path="", job.name=NULL, args=NULL,
-                       version="ClustalW2-2.1u1", print.curl=FALSE,
-                       shared.username=NULL, suppress.Warnings=FALSE) {
+ClustalW <- function(file.name, file.path="", job.name=NULL, args=NULL,
+                     version="ClustalW2-2.1u1", print.curl=FALSE,
+                     shared.username=NULL, suppress.Warnings=FALSE) {
   nprocs=1
   App <- GetAppInfo(version)[[3]]
   input.list <- vector("list",1)
