@@ -7,5 +7,6 @@ Maintainer: Barb Banbury <bbanbury@utk.edu>, Kurt Michels <kamichels@math.arizon
 Depends: R (>= 2.13.0), rjson, RCurl, seqinr, knitcitations
 LazyData:yes
 Repository/R-Forge/Project: rplant
-Description: rPlant is an R interface to the the many computational resources iPlant offers through their RESTful application programming interface. Currently, rPlant functions interact with the iPlant foundational API, the Taxonomic Name Resolution Service API, and the Phylotastic Taxosaurus API. Before using rPlant, users will have to register with the iPlant Collaborative. http://www.iplantcollaborative.org/discover/discovery-environment
+Description: rPlant is an R interface to the the many computational resources iPlant offers through their RESTful application programming interface. Currently, rPlant functions interact with the iPlant foundational API, the Taxonomic Name Resolution Service API, and the Phylotastic Taxosaurus API. Before using rPlant, users will have to register with the iPlant Collaborative. 
+URL: http://www.iplantcollaborative.org/discover/discovery-environment
 License: GPL (>= 2)
