@@ -6,10 +6,10 @@
 }
 \usage{
 Quicktree(file.name, file.path="", job.name=NULL, UPGMA=FALSE,
-             kimura=FALSE, boot=0, output.file.name=NULL,
-             version="quicktree-tree-lonestar-1.1u2", 
-             print.curl=FALSE, shared.username=NULL, 
-             suppress.Warnings=FALSE)
+          kimura=FALSE, boot=0, output.file.name=NULL,
+          version="quicktree-tree-lonestar-1.1u2", 
+          print.curl=FALSE, shared.username=NULL, 
+          suppress.Warnings=FALSE)
 }
 \arguments{
 	\item{file.name}{Name of file to be evaluated on the Discovery Environment (DE), see details for supported input formats.}
@@ -26,6 +26,8 @@ Quicktree(file.name, file.path="", job.name=NULL, UPGMA=FALSE,
 }
 \details{
 	The input file formats that are supported are fasta format \url{http://en.wikipedia.org/wiki/FASTA_format} or stockholm format \url{http://en.wikipedia.org/wiki/Stockholm_format}.
+
+	Quicktree outputs trees in Newick format \url{http://en.wikipedia.org/wiki/Newick_format}.
 }
 \value{
 	A list containing the job id and the job name is provided for jobs submitted.  If an error, then a message stating the error should also be reported.
@@ -34,5 +36,5 @@ Quicktree(file.name, file.path="", job.name=NULL, UPGMA=FALSE,
 	\code{\link{SubmitJob}}
 }
 \examples{
-\dontrun{Quicktree(file.name="ex.lp.fasta", job.name="QTrun")}
+\dontrun{Quicktree("fasta.aln", job.name="QuicktreeFASTA")}
 }	
