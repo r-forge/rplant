@@ -77,7 +77,7 @@ GetPhylotasticToken <- function(names, max.per.call=100, verbose=TRUE) {
 }
 
 RetrieveTNRSNames <- function(names, token, source=c("iPlant_TNRS", "NCBI"), 
-                              match.threshold=0.5, verbose=F) {
+                              match.threshold=0.5, verbose=FALSE) {
   web <- "http://www.taxosaurus.org/retrieve"
   res <- suppressWarnings(fromJSON(getURL(paste(web, token, sep="/"))))
 
