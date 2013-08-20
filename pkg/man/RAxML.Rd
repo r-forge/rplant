@@ -16,7 +16,7 @@ RAxML(file.name, file.path="", job.name=NULL, type="DNA",
 	\item{file.name}{Name of file to be evaluated on the Discovery Environment (DE), see details for supported input formats.}
 	\item{file.path}{Optional path to a user's subdirectory on the DE; default path is empty, which leads to the home directory}
 	\item{job.name}{the name to give the job being submitted}
-	\item{type}{Is the alignment type protein or nucleotides, default is nucleotides.}
+	\item{type}{Two options "PROTEIN" or "DNA".  This defines the type of sequences in the file, either proteins or nucleotides.}
 	\item{model}{(-m) Substitution model.  For DNA the choices are \code{GTRCAT}, \code{GTRGAMMA}, \code{GTRCAT.GAMMA}, \code{GTRGAMMAI}, \code{GTRCAT.GAMMAI}.  For protein the choices are \code{PROTCAT}, \code{PROTGAMMA}, \code{PROTCAT.GAMMA}, \code{PROTGAMMAI}, \code{PROTCAT.GAMMAI}.  The details p. 10-11 of manual.}
 	\item{bootstrap}{(-b) Random Seed Number for non-parametric bootstrapping, details bottom of p. 7 of manual}
 	\item{algorithm}{(-f) Select the type of algorithm/function you want. "d" is default, details bottom of p. 8 of manual}
@@ -33,6 +33,8 @@ RAxML(file.name, file.path="", job.name=NULL, type="DNA",
 	The input file format that is supported is the interleaved phylip format \url{http://www.bioperl.org/wiki/PHYLIP_multiple_alignment_format}.
 
 	Additional arguments, \code{args}, can be found at \url{http://sco.h-its.org/exelixis/oldPage/RAxML-Manual.7.0.4.pdf}.  The args input is text with the flags and inputs for those flags in a string like on the command line.
+
+	For this application there are numerous output files.  See pg 16-17 of the manual for complete details.  RAxM outputs trees in Newick format \url{http://en.wikipedia.org/wiki/Newick_format}.
 }
 \value{
 	A list containing the job id and the job name is provided for jobs submitted.  If an error, then a message stating the error should also be reported.
