@@ -15,10 +15,11 @@ TestApp <- function(APP){
   }
   Renew()
   res <- fromJSON(getForm(paste(web, priv.APP, sep="/"), .checkparams=FALSE, curl=rplant.env$curl.call))
-  if ((res$result[[1]]$public == FALSE) || (length(res) == 0)){
+  len <- length(res$result)
+  if ((res$result[[len]]$public == FALSE) || (length(res) == 0)){
     return(NULL)
   } else {
-    return(c(res$result[[1]]$id))
+    return(c(res$result[[len]]$id))
   }
 }
 
@@ -616,8 +617,8 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
                       print.curl=FALSE) {
 
   ### Job Name is automatically time stamped
-  job.name <- paste(job.name, "_", format(Sys.time(), "%Y-%m-%d_%k-%M-%OS3"),
-                    sep="")
+  job.name <- paste(unlist(strsplit(paste(job.name, "_", format(Sys.time(), 
+                    "%Y-%m-%d_%k-%M-%OS3"), sep=""), " ")), collapse="")
 
   if (suppress.Warnings == FALSE){
     Renew()
