@@ -1,8 +1,13 @@
 require(rPlant)
 
-load("user.name.RData")
-load("user.pwd.RData")
-Validate(user.name,user.pwd)
+# GetNames <- function() {
+# This function works fine, but it can not be used in a batch script such as this, it will just read the next line down instead of waiting for input.  Bummer.  
+# 	user.name <- readline("enter your username")
+# 	user.pwd <- readline("enter your secret password")
+# 	return(list=c(user.name, user.pwd))
+# }
+
+Validate("user.name", "user.pwd")  # add your own user.name and user.pwd
 
 data(ex.lp.fasta)
 write.fasta(sequences = ex.lp.fasta, names = names(ex.lp.fasta), file.out = "ex.lp.fasta")
