@@ -1059,10 +1059,10 @@ RetrieveJob <- function(job.id, file.vec, print.curl=FALSE, verbose=FALSE) {
 
     if (JS$res$status == "ARCHIVING_FINISHED") {
 
-      dir.path <- file.path(getwd(), paste("job_",job.id,sep=""))
+      dir.path <- file.path(getwd(), JS$result[[2]])
 
       if (.Platform$OS.type=="windows") {
-        invisible(shell(paste("mkdir job_",job.id,sep="")))
+        invisible(shell(paste("mkdir ", JS$result[[2]], sep="")))
       } else {
         dir.create(dir.path)
       }
