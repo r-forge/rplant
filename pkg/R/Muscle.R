@@ -10,7 +10,7 @@ Muscle <- function(file.name, file.path="", job.name=NULL, args=NULL,
   if (is.null(job.name))
     job.name <- paste(rplant.env$user,"_",version,"_viaR", sep="")
 
-  if (!is.null(job.name)){
+  if (!is.null(args)){
     args <- list(c("arguments",args))
   }
 
