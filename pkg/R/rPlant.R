@@ -75,6 +75,14 @@ UploadFile <- function(local.file.name, local.file.path="", file.type,
 
   web <- paste(rplant.env$webio, "io/", rplant.env$user, sep="")
 
+  Renew()
+
+  file.exist <- fromJSON(getURL(paste(rplant.env$webio, "io/list/", rplant.env$user, "/", local.file.name, sep=""), curl=rplant.env$curl.call)) 
+
+  if (length(file.exist$result) != 0){
+    return(paste("Error: file `", local.file.name, "' already exists", sep=""))
+  }
+     
   if (print.curl) {
     curl.string <- paste("curl -sku '", rplant.env$user, "' -F 'fileToUpload=@",
                          local.file.path, local.file.name, "' -F 'fileType=",
