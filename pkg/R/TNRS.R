@@ -72,7 +72,7 @@ GetPhylotasticToken <- function(names, max.per.call=100, verbose=TRUE) {
         res <- suppressWarnings(fromJSON(postForm(name.call)))
     }
   }
-    cat(res$message)
+    cat(res$message, "\n\nOR use the rPlant function RetrieveTNRSNames to pull directly into R")
     return(res$token)
 }
 
