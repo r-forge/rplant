@@ -80,7 +80,7 @@ UploadFile <- function(local.file.name, local.file.path="", file.type,
   file.exist <- fromJSON(getURL(paste(rplant.env$webio, "io/list/", rplant.env$user, "/", local.file.name, sep=""), curl=rplant.env$curl.call)) 
 
   if (length(file.exist$result) != 0){
-    return(paste("Error: file `", local.file.name, "' already exists", sep=""))
+    return(paste("Error: file `", local.file.name, "' already exists in iPlant directory", sep=""))
   }
      
   if (print.curl) {
