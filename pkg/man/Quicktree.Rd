@@ -20,7 +20,7 @@ Quicktree(file.name, file.path="", job.name=NULL, UPGMA=FALSE,
 	\item{job.name}{The name to give the job being submitted}
 	\item{version}{QuickTree version, options include \code{quicktree-tree-lonestar-1.1u2}, \code{quicktree-dm-lonestar-1.1u2}}
 	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
-	\item{shared.username}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the dir.path becomes the path to the SHARED user's shared folder.}
+	\item{shared.username}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.}
 	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.}
 	\item{output.file.name}{Manually enter a desired file name for the output files}
 }
