@@ -20,7 +20,7 @@ Fasttree(file.name, file.path="", job.name=NULL, args=NULL,
 	\item{gamma}{(-gamma) Use this option (about 5\% slower) if you want to rescale the branch lengths and compute a Gamma20-based likelihood. Gamma likelihoods are more comparable across runs (default is FALSE).}
 	\item{stat}{(-log) This allows for statistical comparisons (when gamma=TRUE) of the likelihood of different topologies.  The result file is `logfile'.}
 	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
-	\item{shared.username}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the dir.path becomes the path to the SHARED user's shared folder.}
+	\item{shared.username}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.}
 	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.}
 	\item{args}{Optional for arguments (i.e. flags).  The Fasttree model has much additional functionality that is not fit into this wrapper function (\url{http://meta.microbesonline.org/fasttree/#Usage}), see details.  This option allows users to add anything that is not included, see details.}
 }
