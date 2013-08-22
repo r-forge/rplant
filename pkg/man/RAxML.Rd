@@ -34,7 +34,7 @@ RAxML(file.name, file.path="", job.name=NULL, type="DNA",
 
 	Additional arguments, \code{args}, can be found at \url{http://sco.h-its.org/exelixis/oldPage/RAxML-Manual.7.0.4.pdf}.  The args input is text with the flags and inputs for those flags in a string like on the command line.
 
-	For this application there are numerous output files.  See pg 16-17 of the manual for complete details.  RAxM outputs trees in Newick format \url{http://en.wikipedia.org/wiki/Newick_format}.
+	For this application there are numerous output files.  See pg 16-17 of the manual for complete details.  RAxML outputs trees in Newick format \url{http://en.wikipedia.org/wiki/Newick_format}.
 }
 \value{
 	A list containing the job id and the job name is provided for jobs submitted.  If an error, then a message stating the error should also be reported.
