@@ -5,12 +5,12 @@
 	Authenticates users and provides tokens to be used in place of unencrypted passwords
 }
 \usage{
-Validate(user, pwd, api=c("iplant", "cipres", "tnrs"), print.curl=FALSE)
+Validate(user, pwd, api="iplant", print.curl=FALSE)
 }
 \arguments{
 	\item{user}{iPlant Discovery Environment user name}
 	\item{pwd}{iPlant Discovery Environment password}
-	\item{api}{the API to interfaced with, currently only the iPlant API is supported}
+	\item{api}{the API to interfaced with, currently only the iPlant API is supported.  There are three options: "iplant", "cipres" and "tnrs"}
 	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
 }
 \details{
