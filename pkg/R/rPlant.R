@@ -50,18 +50,19 @@ Validate <- function(user, pwd, api="iplant", print.curl=FALSE) {
 
   res <- fromJSON(getURL("https://foundation.iplantc.org/auth-v1/", curl=curl.call)) 
 
-  if (print.curl){
-    curl.string <- paste("curl -X '", rplant.env$user, "' ", rplant.env$webauth, sep="")
- 
-    print(curl.string)
-  }
-
   if (res$status == "success"){
     assign("rplant.env", new.env(hash = TRUE), envir = .GlobalEnv)
     assign("webio", "https://foundation.iplantc.org/io-v1/", envir=rplant.env)
     assign("webapps", "https://foundation.iplantc.org/apps-v1/", envir=rplant.env)
+    assign("webauth", "https://foundation.iplantc.org/auth-v1/", envir=rplant.env)
     assign("user", user, envir=rplant.env)
     assign("pwd", pwd, envir=rplant.env) 
+
+    if (print.curl){
+      curl.string <- paste("curl -X '", rplant.env$user, "' ", rplant.env$webauth, sep="")
+      print(curl.string)
+    }
+
   } else {
     return(res$message)
   }
