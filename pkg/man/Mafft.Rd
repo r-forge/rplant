@@ -17,7 +17,7 @@ Mafft(file.name, file.path="", type="DNA",  print.curl=FALSE,
 	\item{job.name}{the name to give the job being submitted}
 	\item{version}{Mafft version, options include \code{mafftDispatcher-1.0.13100u1}}
 	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
-	\item{shared.username}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the dir.path becomes the path to the SHARED user's shared folder.}
+	\item{shared.username}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.}
 	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.}
 	\item{args}{Optional for arguments (i.e. flags).  The Mafft model has much additional functionality that is not in this wrapper function (\url{http://mafft.cbrc.jp/alignment/software/manual/manual.html#lbAI}), see details.  This option allows users to add anything that is not included (.i.e. args="--auto"), which automatically selects an appropriate strategy according to data size, see details.}
 	\item{aln.filetype}{Mafft does alignment of sequences, this option selects the file type of that result file.  There are two options \code{FASTA} and \code{CLUSTALW}.  Note: the result file is ALWAYS `mafft.fa'}
