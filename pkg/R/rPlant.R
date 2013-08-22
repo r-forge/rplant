@@ -123,6 +123,84 @@ UploadFile <- function(local.file.name, local.file.path="", file.type,
   }
 }
 
+ShareFile <- function(file.name, file.path="", shared.username, read=TRUE, execute=TRUE, print.curl=FALSE, suppress.Warnings=FALSE) {
+
+  if (suppress.Warnings == FALSE){
+    Renew()
+
+    dir.exist <- fromJSON(getURL(paste(rplant.env$webio, "io/list/", rplant.env$user, "/", file.path, sep=""), curl=rplant.env$curl.call)) 
+
+    if (length(dir.exist$result) != 0){
+      if (file.path==""){
+        file.exist <- fromJSON(getURL(paste(rplant.env$webio, "io/list/", rplant.env$user, "/", file.name, sep=""), curl=rplant.env$curl.call))
+      } else {
+        file.exist <- fromJSON(getURL(paste(rplant.env$webio, "io/list/", rplant.env$user, "/", file.path, "/", file.name, sep=""), curl=rplant.env$curl.call))
+      }
+    } else {
+      if (dir.exist$status == "error"){
+        if (dir.exist$message == "File does not exist"){
+          return("Error: `file.path' not proper directory")
+        } else {
+          return("Error: improper username/password combination")
+        }
+      } else {
+        return("Error: `file.path' not proper directory")
+      }
+    }
+
+    if (length(file.exist$result) == 0){
+      return(paste("Error: Invalid `file.name', no `", file.name, "' in the directory `", file.path, "'", sep=""))
+    }
+  }
+
+  content <- c()
+
+  if ((read == TRUE) && (execute == TRUE)) {
+    content[1] <- "can_execute=true"
+    content[2] <- "can_read=true"
+    content[3] <- paste("username=", shared.username, sep="")
+    string <- paste("can_execute=true&can_read=true&username=", shared.username, sep="")
+  } else if ((read == TRUE) && (execute == FALSE)) {
+    content[1] <- "can_read=true"
+    content[2] <- paste("username=", shared.username, sep="")
+    string <- paste("can_read=true&username=", shared.username, sep="")
+  } else if ((read == FALSE) && (execute == TRUE)) {
+    content[1] <- "can_execute=true"
+    content[2] <- paste("username=", shared.username, sep="")
+    string <- paste("can_execute=true&username=", shared.username, sep="")
+  }
+
+  if (print.curl){
+    curl.string <- paste("curl -XPOST -d '", string, "' -sku '", rplant.env$user, "' ", web, sep="")
+    print(curl.string)
+  }
+
+  val <- charToRaw(paste(content, collapse = "&"))
+
+  if (file.path == "") {
+    web <- paste(rplant.env$webio, "io/share/", rplant.env$user, "/", file.name, sep="")
+  } else {
+    web <- paste(rplant.env$webio, "io/share/", rplant.env$user, "/", file.path, "/", file.name, sep="")
+  }
+
+  Renew()
+  tryCatch(res <<- fromJSON(getURLContent(web, curl=rplant.env$curl.call, 
+           infilesize=length(val), readfunction=val, upload=TRUE,
+           customrequest="POST")), 
+           error=function(x){return(res <<- data.frame(status=paste(x)))})
+
+  if (res$status != "success") {
+    sub <- substring(res$status,1,5)
+    if (sub == "Error"){
+      return("Error: Shared username is not valid")
+    } else if (sub == "error"){
+      return(res$message)
+    } else {
+      return(paste(res$status))
+    }
+  }
+}
+
 RenameFile <- function(file.name, new.file.name, file.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
   web <- paste(rplant.env$webio, "io", sep="")
 
@@ -387,6 +465,208 @@ ListDir <- function(dir.path="", print.curl=FALSE, shared.username=NULL, suppres
     res[i, 2] <- tmp$result[[i]]$type
   }
   return(res)
+}
+
+ShareDir <- function(dir.path="", shared.username, read=TRUE, execute=TRUE, print.curl=FALSE, suppress.Warnings=FALSE) {
+
+  if (suppress.Warnings == FALSE){
+    Renew()
+
+    dir.exist <- fromJSON(getURL(paste(rplant.env$webio, "io/list/", rplant.env$user, "/", dir.path, sep=""), curl=rplant.env$curl.call)) 
+
+    if (length(dir.exist$result) == 0){
+      if (dir.exist$status == "error"){
+        if (dir.exist$message == "File does not exist"){
+          return("Error: `dir.path' not proper directory")
+        } else {
+          return("Error: improper username/password combination")
+        }
+      } else {
+        return("Error: `dir.path' not proper directory")
+      }
+    }
+  }
+
+  content <- c()
+
+  if ((read == TRUE) && (execute == TRUE)) {
+    content[1] <- "can_execute=true"
+    content[2] <- "can_read=true"
+    content[3] <- paste("username=", shared.username, sep="")
+    string <- paste("can_execute=true&can_read=true&username=", shared.username, sep="")
+  } else if ((read == TRUE) && (execute == FALSE)) {
+    content[1] <- "can_read=true"
+    content[2] <- paste("username=", shared.username, sep="")
+    string <- paste("can_read=true&username=", shared.username, sep="")
+  } else if ((read == FALSE) && (execute == TRUE)) {
+    content[1] <- "can_execute=true"
+    content[2] <- paste("username=", shared.username, sep="")
+    string <- paste("can_execute=true&username=", shared.username, sep="")
+  }
+
+  if (print.curl){
+    curl.string <- paste("curl -XPOST -d '", string, "' -sku '", rplant.env$user, "' ", web, sep="")
+    print(curl.string)
+  }
+
+  val <- charToRaw(paste(content, collapse = "&"))
+
+  web <- paste(rplant.env$webio, "io/share/", rplant.env$user, "/", dir.path, sep="")
+
+  Renew()
+  tryCatch(res <<- fromJSON(getURLContent(web, curl=rplant.env$curl.call, 
+           infilesize=length(val), readfunction=val, upload=TRUE,
+           customrequest="POST")), 
+           error=function(x){return(res <<- data.frame(status=paste(x)))})
+
+  if (res$status != "success") {
+    sub <- substring(res$status,1,5)
+    if (sub == "Error"){
+      return("Error: Shared username is not valid")
+    } else if (sub == "error"){
+      return(res$message)
+    } else {
+      return(paste(res$status))
+    }
+  }
+}
+
+RenameDir <- function(dir.name, new.dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
+  web <- paste(rplant.env$webio, "io", sep="")
+
+  if (suppress.Warnings == FALSE){
+    Renew()
+
+    dir.exist <- fromJSON(getURL(paste(rplant.env$webio, "io/list/", rplant.env$user, "/", dir.path, sep=""), curl=rplant.env$curl.call)) 
+
+    if (length(dir.exist$result) != 0){
+      if (dir.path==""){
+        file.exist <- fromJSON(getURL(paste(rplant.env$webio, "io/list/", rplant.env$user, "/", dir.name, sep=""), curl=rplant.env$curl.call))
+        new.file.exist <- fromJSON(getURL(paste(rplant.env$webio, "io/list/", rplant.env$user, "/", new.dir.name, sep=""), curl=rplant.env$curl.call))    
+      } else {
+        file.exist <- fromJSON(getURL(paste(rplant.env$webio, "io/list/", rplant.env$user, "/", dir.path, "/", dir.name, sep=""), curl=rplant.env$curl.call))
+        new.file.exist <- fromJSON(getURL(paste(rplant.env$webio, "io/list/", rplant.env$user, "/", dir.path, "/", new.dir.name, sep=""), curl=rplant.env$curl.call)) 
+      }
+    } else {
+      if (dir.exist$status == "error"){
+        if (dir.exist$message == "Directory does not exist"){
+          return("Error: `dir.path' not proper directory")
+        } else {
+          return("Error: improper username/password combination")
+        }
+      } else {
+        return("Error: `dir.path' not proper directory")
+      }
+    }
+
+    if (length(file.exist$result) == 0){
+      return(paste("Error: Invalid `dir.name', no `", dir.name, "' in the directory `", dir.path, "'", sep=""))
+    }
+
+    if (length(new.file.exist$result) != 0){
+      return(paste("Error: Invalid `new.dir.name', already directory named `", new.dir.name, "' in the directory", sep=""))
+    }
+  }
+
+  if (print.curl){
+    if (dir.path == "") {
+      curl.string <- paste("curl -sku '", rplant.env$user, "' -X PUT -d 'newName=",
+                           new.dir.name, "&action=rename", "' ", web, "/", 
+                           rplant.env$user, "/", dir.name, sep="")
+    } else {
+      curl.string <- paste("curl -sku '", rplant.env$user, "' -X PUT -d 'newName=",
+                           new.dir.name, "&action=rename", "' ", web, "/", 
+                           rplant.env$user, "/", dir.path, "/", dir.name, sep="")
+    }
+    print(curl.string)
+  }
+
+  Renew()
+
+  content <- c()
+  content[1] <- "action=rename"
+  content[2] <- paste("newName=", new.dir.name, sep="")
+  val <- charToRaw(paste(content, collapse = "&"))
+  if (dir.path == "") {
+    res <- fromJSON(httpPUT(paste(web, rplant.env$user, dir.name, 
+                     sep="/"), content=val, curl=rplant.env$curl.call))
+  } else {
+    res <- fromJSON(httpPUT(paste(web, rplant.env$user, dir.path, 
+                     dir.name, sep="/"), content=val, curl=rplant.env$curl.call))
+  }
+}
+
+MoveDir <- function(dir.name, dir.path="", end.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
+  web <- paste(rplant.env$webio, "io", sep="")
+
+  if (print.curl){
+    curl.string <- paste("curl -sku '", rplant.env$user, "' -X PUT -d 'newPath=",
+                         rplant.env$user, "/", end.path, "/", dir.name,
+                         "&action=move", "' ", web, "/", rplant.env$user, "/",
+                         dir.path, "/", dir.name, sep="")
+
+    print(curl.string)
+  }
+
+  if (suppress.Warnings == FALSE){
+    Renew()
+
+    dir.exist <- fromJSON(getURL(paste(rplant.env$webio, "io/list/", rplant.env$user, "/", dir.path, sep=""), curl=rplant.env$curl.call)) 
+
+    if (length(dir.exist$result) != 0){
+
+      if (dir.path==""){
+        file.exist <- fromJSON(getURL(paste(rplant.env$webio, "io/list/", rplant.env$user, "/", dir.name, sep=""), curl=rplant.env$curl.call)) 
+      } else {
+        file.exist <- fromJSON(getURL(paste(rplant.env$webio, "io/list/", rplant.env$user, "/", dir.path, "/", dir.name, sep=""), curl=rplant.env$curl.call))
+      }
+    } else {
+      if (dir.exist$status == "error"){
+        if (dir.exist$message == "File does not exist"){
+          return("Error: `dir.path' not proper directory")
+        } else {
+          return("Error: improper username/password combination")
+        }
+      } else {
+        return("Error: `dir.path' not proper directory")
+      }
+    }
+
+    if (length(file.exist$result) == 0){
+      return(paste("Error: Invalid `dir.name', no `", dir.name, "' in the directory `", dir.path, "'", sep=""))
+    }
+
+    dir2.exist <- fromJSON(getURL(paste(rplant.env$webio, "io/list/", rplant.env$user, "/", end.path, sep=""), curl=rplant.env$curl.call)) 
+
+    if (length(dir2.exist$result) != 0){
+
+      if (end.path==""){
+        file2.exist <- fromJSON(getURL(paste(rplant.env$webio, "io/list/", rplant.env$user, "/", dir.name, sep=""), curl=rplant.env$curl.call)) 
+      } else {
+        file2.exist <- fromJSON(getURL(paste(rplant.env$webio, "io/list/", rplant.env$user, "/", end.path, "/", dir.name, sep=""), curl=rplant.env$curl.call))
+      }
+    } else {
+      return("Error: `end.path' not proper directory")
+    }
+
+    if (length(file2.exist$result) != 0){
+      return(paste("Error: Cannot move file because `", dir.name,"' is already in the directory `", end.path, "'", sep=""))
+    }
+  }
+  Renew()
+  content <- c()
+  content[1] <- "action=move"
+  content[2] <- paste("newPath=", rplant.env$user, "/", end.path, "/", 
+                      dir.name, sep="")
+  val <- charToRaw(paste(content, collapse = "&"))
+
+  if (dir.path == "") {
+    res <- fromJSON(httpPUT(paste(web, rplant.env$user, dir.name, 
+             sep="/"), content=val, curl=rplant.env$curl.call))
+  } else {
+    res <- fromJSON(httpPUT(paste(web, rplant.env$user, dir.path,
+             dir.name, sep="/"), content=val, curl=rplant.env$curl.call))
+  }
 }
 
 MakeDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
