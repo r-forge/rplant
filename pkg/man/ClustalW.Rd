@@ -20,7 +20,7 @@ ClustalW(file.name, file.path="", type="DNA", job.name=NULL,
 	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
 	\item{args}{Optional for arguments (i.e. flags).  The ClustalW model has much additional functionality that is not fit into this wrapper function (\url{http://www.clustal.org/download/clustalw_help.txt}), see details.  This option allows users to add anything that is not included (.i.e. args="-ITERATION=TREE"), to iterate at each step, see details.}
 	\item{aln.filetype}{ClustalW does alignment of sequences, this option selects the file type of that result file.  There are five options \code{PHYLIP}, \code{NEXUS}, \code{GCG}, \code{GDE},  and \code{PIR}.  Note: the result file is ALWAYS `clustalw2.fa'}
-	\item{shared.username}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.  Then the dir.path becomes the path to the SHARED user's shared folder.}
+	\item{shared.username}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.}
 	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.}
 }
 \seealso{
