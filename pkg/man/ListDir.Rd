@@ -10,8 +10,8 @@
 	Functions for listing the contents of a directory, making new directories, or deleting entire directories in the iPlant infrastructure
 }
 \usage{
-ListDir(dir.path="", print.curl=FALSE, shared.username=NULL, suppress.Warnings=FALSE)
-ShareDir(dir.path="", shared.username, read=TRUE, execute=TRUE, print.curl=FALSE, suppress.Warnings=FALSE)
+ListDir(dir.name, dir.path="", print.curl=FALSE, shared.username=NULL, suppress.Warnings=FALSE)
+ShareDir(dir.name, dir.path="", shared.username, read=TRUE, execute=TRUE, print.curl=FALSE, suppress.Warnings=FALSE)
 RenameDir(dir.name, new.dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE)
 MoveDir(dir.name, dir.path="", end.path="", print.curl=FALSE, suppress.Warnings=FALSE)
 MakeDir(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE)
@@ -19,7 +19,7 @@ DeleteDir(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE)
 }
 \arguments{
 	\item{dir.path}{optional path to a user's sub directory on the iPlant servers; default path is empty, which leads to the home directory}
-	\item{dir.name}{name of subdirectory to be modified on the iPlant server in the users home iPlant directory.}
+	\item{dir.name}{name of subdirectory to be modified on the iPlant server in the \code{dir.path}}
 	\item{new.dir.name}{the new name of the directory on the iPlant server to be renamed} 
 	\item{end.path}{Path to destination sub directory where directory on the iPlant server is moved to; default path is empty which leads to a users home directory}
 	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
