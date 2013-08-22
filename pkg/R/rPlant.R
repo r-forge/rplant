@@ -59,7 +59,7 @@ Validate <- function(user, pwd, api="iplant", print.curl=FALSE) {
     assign("pwd", pwd, envir=rplant.env) 
 
     if (print.curl){
-      curl.string <- paste("curl -X '", rplant.env$user, "' ", rplant.env$webauth, sep="")
+      curl.string <- paste("curl -sku '", rplant.env$user, "' ", rplant.env$webauth, sep="")
       print(curl.string)
     }
 
@@ -418,13 +418,24 @@ SupportFile <- function(print.curl=FALSE) {
 # -- END -- #
 
 # -- DIRECTORY FUNCTIONS -- #
-ListDir <- function(dir.path="", print.curl=FALSE, shared.username=NULL, suppress.Warnings=FALSE) {
+ListDir <- function(dir.name, dir.path="", print.curl=FALSE, shared.username=NULL, suppress.Warnings=FALSE) {
   web <- paste(rplant.env$webio, "io/list", sep="")
 
   if (suppress.Warnings == FALSE){
     Renew()
-    dir.exist <- fromJSON(getURL(paste(rplant.env$webio, "io/list/", rplant.env$user, "/", dir.path, sep=""), curl=rplant.env$curl.call)) 
-
+    if (is.null(shared.username)){
+      if (dir.path == ""){
+        dir.exist <- fromJSON(getURL(paste(rplant.env$webio, "io/list/", rplant.env$user, "/", dir.name, sep=""), curl=rplant.env$curl.call))
+      } else {
+        dir.exist <- fromJSON(getURL(paste(rplant.env$webio, "io/list/", rplant.env$user, "/", dir.path, "/", dir.name, sep=""), curl=rplant.env$curl.call))
+      }
+    } else {
+      if (dir.path == ""){
+        dir.exist <- fromJSON(getURL(paste(rplant.env$webio, "io/list/", shared.username, "/", dir.name, sep=""), curl=rplant.env$curl.call))
+      } else {
+        dir.exist <- fromJSON(getURL(paste(rplant.env$webio, "io/list/", shared.username, "/", dir.path, "/", dir.name, sep=""), curl=rplant.env$curl.call))
+      }
+    }
     if (length(dir.exist$result) == 0){
       if (dir.exist$status == "error"){
         if (dir.exist$message == "File does not exist"){
@@ -440,11 +451,21 @@ ListDir <- function(dir.path="", print.curl=FALSE, shared.username=NULL, suppres
 
   if (print.curl) {
     if (is.null(shared.username)){
-      curl.string <- paste("curl -sku '", rplant.env$user, "' ", web, "/", 
-                           rplant.env$user, "/", dir.path, sep="")
+      if (dir.path == ""){
+        curl.string <- paste("curl -sku '", rplant.env$user, "' ", web, "/", 
+                             rplant.env$user, "/", dir.name, sep="")
+      } else {
+        curl.string <- paste("curl -sku '", rplant.env$user, "' ", web, "/", 
+                             rplant.env$user, "/", dir.path, "/", dir.name, sep="")
+      }
     } else {
-      curl.string <- paste("curl -sku '", rplant.env$user, "' ", web, "/",
-                           shared.username, "/", dir.path, sep="")
+      if (dir.path == ""){
+        curl.string <- paste("curl -sku '", rplant.env$user, "' ", web, "/",
+                             shared.username, "/", dir.name, sep="")
+      } else {
+        curl.string <- paste("curl -sku '", rplant.env$user, "' ", web, "/", 
+                             shared.username, "/", dir.path, "/", dir.name, sep="")
+      }
     }
     print(curl.string)
   }
@@ -452,11 +473,21 @@ ListDir <- function(dir.path="", print.curl=FALSE, shared.username=NULL, suppres
   Renew()
 
   if (is.null(shared.username)) {
-    tmp <<- fromJSON(getURL(paste(web, rplant.env$user, dir.path, 
-                     sep="/"), curl=rplant.env$curl.call))
+    if (dir.path == ""){
+      tmp <<- fromJSON(getURL(paste(web, rplant.env$user, dir.name, 
+                       sep="/"), curl=rplant.env$curl.call))
+    } else {
+      tmp <<- fromJSON(getURL(paste(web, rplant.env$user, dir.path, dir.name, 
+                       sep="/"), curl=rplant.env$curl.call))
+    }
   } else {
-    tmp <<- fromJSON(getURL(paste(web, shared.username, dir.path, 
-                     sep="/"), curl=rplant.env$curl.call))
+    if (dir.path == ""){
+      tmp <<- fromJSON(getURL(paste(web, shared.username, dir.name, 
+                       sep="/"), curl=rplant.env$curl.call))
+    } else {
+      tmp <<- fromJSON(getURL(paste(web, shared.username, dir.path, dir.name,
+                       sep="/"), curl=rplant.env$curl.call))
+    }
   }
 
   res <- matrix(, length(tmp$result), 2)
@@ -468,12 +499,16 @@ ListDir <- function(dir.path="", print.curl=FALSE, shared.username=NULL, suppres
   return(res)
 }
 
-ShareDir <- function(dir.path="", shared.username, read=TRUE, execute=TRUE, print.curl=FALSE, suppress.Warnings=FALSE) {
+ShareDir <- function(dir.name, dir.path="", shared.username, read=TRUE, execute=TRUE, print.curl=FALSE, suppress.Warnings=FALSE) {
 
   if (suppress.Warnings == FALSE){
     Renew()
-
-    dir.exist <- fromJSON(getURL(paste(rplant.env$webio, "io/list/", rplant.env$user, "/", dir.path, sep=""), curl=rplant.env$curl.call)) 
+  
+    if (dir.path == ""){
+      dir.exist <- fromJSON(getURL(paste(rplant.env$webio, "io/list/", rplant.env$user, "/", dir.name, sep=""), curl=rplant.env$curl.call))
+    } else {
+      dir.exist <- fromJSON(getURL(paste(rplant.env$webio, "io/list/", rplant.env$user, "/", dir.path, "/", dir.name, sep=""), curl=rplant.env$curl.call))
+    }
 
     if (length(dir.exist$result) == 0){
       if (dir.exist$status == "error"){
@@ -512,7 +547,11 @@ ShareDir <- function(dir.path="", shared.username, read=TRUE, execute=TRUE, prin
 
   val <- charToRaw(paste(content, collapse = "&"))
 
-  web <- paste(rplant.env$webio, "io/share/", rplant.env$user, "/", dir.path, sep="")
+  if (dir.path == ""){
+    web <- paste(rplant.env$webio, "io/share/", rplant.env$user, "/", dir.name, sep="")
+  } else {
+    web <- paste(rplant.env$webio, "io/share/", rplant.env$user, "/", dir.path, "/", dir.name, sep="")
+  }
 
   Renew()
   tryCatch(res <<- fromJSON(getURLContent(web, curl=rplant.env$curl.call, 
