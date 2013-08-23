@@ -9,15 +9,18 @@ RAxML(file.name, file.path="", job.name=NULL, type="DNA",
       model=NULL, bootstrap=NULL, algorithm="d",
       multipleModelFileName=NULL, args=NULL, numcat=25,
       nprocs=12, version="raxml-lonestar-7.2.8u1",
-      print.curl=FALSE, shared.username=NULL,
-      suppress.Warnings=FALSE)
+      print.curl=FALSE, shared.username=NULL, 
+      substitution_matrix=NULL, empirical.frequencies=FALSE,
+      suppress.Warnings=FALSE) 
 }
 \arguments{
 	\item{file.name}{Name of file to be evaluated on the Discovery Environment (DE), see details for supported input formats.}
 	\item{file.path}{Optional path to a user's subdirectory on the DE; default path is empty, which leads to the home directory}
 	\item{job.name}{the name to give the job being submitted}
 	\item{type}{Two options "PROTEIN" or "DNA".  This defines the type of sequences in the file, either proteins or nucleotides.}
-	\item{model}{(-m) Substitution model.  For DNA the choices are \code{GTRCAT}, \code{GTRGAMMA}, \code{GTRCAT.GAMMA}, \code{GTRGAMMAI}, \code{GTRCAT.GAMMAI}.  For protein the choices are \code{PROTCAT}, \code{PROTGAMMA}, \code{PROTCAT.GAMMA}, \code{PROTGAMMAI}, \code{PROTCAT.GAMMAI}.  The details p. 10-11 of manual.}
+	\item{model}{(-m) Substitution model.  For DNA the choices are \code{GTRCAT}, \code{GTRGAMMA}, \code{GTRCATI} and \code{GTRGAMMAI}.  For protein the choices are \code{PROTCAT}, \code{PROTGAMMA}, \code{PROTCATI} and \code{PROTGAMMAI}.  The details p. 10-11 of manual.}
+	\item{substitution_matrix}{This is only necessary for the protein alignments.  The choices are: \code{DAYHOFF}, \code{DCMUT}, \code{JTT}, \code{MTREV}, \code{WAG}, \code{RTREV}, \code{CPREV}, \code{VT}, \code{BLOSUM62}, \code{MTMAM}, \code{LG}, \code{MTART}, \code{MTZOA}, \code{PMB}, \code{HIVB}, \code{HIVW}, \code{JTTDCMUT}, \code{FLU} and \code{GTR}, the default is \code{BLOSUM62}}
+	\item{empirical.frequencies}{(F) Only used for protein alighnments, with appendix you can specify if you want to use empirical base frequencies.}
 	\item{bootstrap}{(-b) Random Seed Number for non-parametric bootstrapping, details bottom of p. 7 of manual}
 	\item{algorithm}{(-f) Select the type of algorithm/function you want. "d" is default, details bottom of p. 8 of manual}
 	\item{multipleModelFileName}{(-q) substitution model file, details bottom of p. 7 of manual}
