@@ -2,7 +2,8 @@ RAxML <- function(file.name, file.path="", job.name=NULL, type="DNA",
                   model=NULL, bootstrap=NULL, algorithm="d",
                   multipleModelFileName=NULL, args=NULL, numcat=25,
                   nprocs=12, version="raxml-lonestar-7.2.8u1",
-                  print.curl=FALSE, shared.username=NULL,
+                  print.curl=FALSE, shared.username=NULL, 
+                  substitution_matrix=NULL, empirical.frequencies=FALSE,
                   suppress.Warnings=FALSE) {
 
   type <- match.arg(type, c("DNA", "PROTEIN"))
@@ -13,7 +14,7 @@ RAxML <- function(file.name, file.path="", job.name=NULL, type="DNA",
       model="GTRCAT"
     }
 
-    model <- match.arg(model, c("GTRCAT", "GTRGAMMA", "GTRCAT.GAMMA", "GTRGAMMAI", "GTRCAT.GAMMAI"))
+    model <- match.arg(model, c("GTRCAT", "GTRGAMMA", "GTRCATI", "GTRGAMMAI"))
 
     if (is.null(job.name)){
       job.name <- paste(rplant.env$user, "_RAxMLdna_", model, "_viaR", sep="")
@@ -21,11 +22,49 @@ RAxML <- function(file.name, file.path="", job.name=NULL, type="DNA",
 
   } else {
 
-    if (is.null(model)){
-      model="PROTCAT"
+    if (!is.null(substitution_matrix)){
+      substitution_matrix  <- match.arg(substitution_matrix, c("DAYHOFF", "DCMUT", "JTT", "MTREV", "WAG", "RTREV", "CPREV", "VT", "BLOSUM62", "MTMAM", "LG", "MTART", "MTZOA", "PMB", "HIVB", "HIVW", "JTTDCMUT", "FLU", "GTR"))
     }
 
-    model <- match.arg(model, c("PROTCAT", "PROTGAMMA", "PROTCAT.GAMMA", "PROTGAMMAI", "PROTCAT.GAMMAI"))
+    if (is.null(model)){
+      if (empirical.frequencies==FALSE){
+        if (is.null(substitution_matrix)){
+          model="PROTCATBLOSUM62"
+          other.models <- c("PROTCATBLOSUM62", "PROTGAMMABLOSUM62", "PROTCATIBLOSUM62", "PROTGAMMAIBLOSUM62")
+        } else {
+          model=paste("PROTCAT", substitution_matrix, sep="")
+          other.models <- c(paste("PROTCAT", substitution_matrix, sep=""), paste("PROTGAMMA", substitution_matrix, sep=""), paste("PROTCATI", substitution_matrix, sep=""), paste("PROTGAMMAI", substitution_matrix, sep=""))
+        }
+      } else {
+        if (is.null(substitution_matrix)){
+          model="PROTCATBLOSUM62F"
+          other.models <- c("PROTCATBLOSUM62F", "PROTGAMMABLOSUM62F", "PROTCATIBLOSUM62F", "PROTGAMMAIBLOSUM62F")
+        } else {
+          model=paste("PROTCAT", substitution_matrix, "F", sep="")
+          other.models <- c(paste("PROTCAT", substitution_matrix, "F", sep=""), paste("PROTGAMMA", substitution_matrix, "F", sep=""), paste("PROTCATI", substitution_matrix, "F", sep=""), paste("PROTGAMMAI", substitution_matrix, "F", sep=""))
+        }
+      }
+    } else {
+      if (empirical.frequencies==FALSE){
+        if (is.null(substitution_matrix)){
+          model=paste(model, "BLOSUM62", sep="")
+          other.models <- c("PROTCATBLOSUM62", "PROTGAMMABLOSUM62", "PROTCATIBLOSUM62", "PROTGAMMAIBLOSUM62")
+        } else {
+          model=paste(model, substitution_matrix, sep="")
+          other.models <- c(paste("PROTCAT", substitution_matrix, sep=""), paste("PROTGAMMA", substitution_matrix, sep=""), paste("PROTCATI", substitution_matrix, sep=""), paste("PROTGAMMAI", substitution_matrix, sep=""))
+        }
+      } else {
+        if (is.null(substitution_matrix)){
+          model=paste(model, "BLOSUM62F", sep="")
+          other.models <- c("PROTCATBLOSUM62F", "PROTGAMMABLOSUM62F", "PROTCATIBLOSUM62F", "PROTGAMMAIBLOSUM62F")
+        } else {
+          model=paste(model, substitution_matrix, "F", sep="")
+          other.models <- c(paste("PROTCAT", substitution_matrix, "F", sep=""), paste("PROTGAMMA", substitution_matrix, "F", sep=""), paste("PROTCATI", substitution_matrix, "F", sep=""), paste("PROTGAMMAI", substitution_matrix, "F", sep=""))
+        }
+      }
+    }
+
+    model <- match.arg(model, other.models)
 
     if (is.null(job.name)){
       job.name <- paste(rplant.env$user, "_RAxMLprotein_", model, "_viaR", sep="")
