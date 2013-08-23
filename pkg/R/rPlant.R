@@ -17,9 +17,18 @@ TestApp <- function(APP){
   res <- fromJSON(getForm(paste(web, priv.APP, sep="/"), .checkparams=FALSE, curl=rplant.env$curl.call))
   len <- length(res$result)
   if ((res$result[[len]]$public == FALSE) || (length(res) == 0)){
-    return(NULL)
+    return(list(NULL))
   } else {
-    return(c(res$result[[len]]$id))
+    shortd <- res$result[[len]]$shortDescription
+    shortn <- nchar(shortd)
+    longd <- res$result[[len]]$longDescription
+    longn <- nchar(longd)
+    if (longn >= shortn) {
+      description <- longd
+    } else {
+      description <- shortd
+    }
+    return(c(res$result[[len]]$id, description))
   }
 }
 
@@ -72,18 +81,20 @@ Validate <- function(user, pwd, api="iplant", print.curl=FALSE) {
 
 # -- FILE AND DATA FUNCTIONS -- #
 UploadFile <- function(local.file.name, local.file.path="", file.type,
-                       print.curl=FALSE) {
+                       print.curl=FALSE, suppress.Warnings=FALSE) {
 
   web <- paste(rplant.env$webio, "io/", rplant.env$user, sep="")
 
   Renew()
 
-  file.exist <- fromJSON(getURL(paste(rplant.env$webio, "io/list/", rplant.env$user, "/", local.file.name, sep=""), curl=rplant.env$curl.call)) 
+  if (suppress.Warnings == FALSE){
+    file.exist <- fromJSON(getURL(paste(rplant.env$webio, "io/list/", rplant.env$user, "/", local.file.name, sep=""), curl=rplant.env$curl.call)) 
 
-  if (length(file.exist$result) != 0){
-    return(paste("Error: file `", local.file.name, "' already exists in iPlant directory", sep=""))
+    if (length(file.exist$result) != 0){
+      return(paste("Error: file `", local.file.name, "' already exists in iPlant directory", sep=""))
+    }
   }
-     
+
   if (print.curl) {
     curl.string <- paste("curl -sku '", rplant.env$user, "' -F 'fileToUpload=@",
                          local.file.path, local.file.name, "' -F 'fileType=",
@@ -529,20 +540,18 @@ ShareDir <- function(dir.name, dir.path="", shared.username, read=TRUE, execute=
     content[1] <- "can_execute=true"
     content[2] <- "can_read=true"
     content[3] <- paste("username=", shared.username, sep="")
-    string <- paste("can_execute=true&can_read=true&username=", shared.username, sep="")
+    content[4] <- "recursive=true"
+    string <- paste("can_execute=true&can_read=true&username=", shared.username,"&recursive=true", sep="")
   } else if ((read == TRUE) && (execute == FALSE)) {
     content[1] <- "can_read=true"
     content[2] <- paste("username=", shared.username, sep="")
-    string <- paste("can_read=true&username=", shared.username, sep="")
+    content[3] <- "recursive=true"
+    string <- paste("can_read=true&username=", shared.username,"&recursive=true", sep="")
   } else if ((read == FALSE) && (execute == TRUE)) {
     content[1] <- "can_execute=true"
     content[2] <- paste("username=", shared.username, sep="")
-    string <- paste("can_execute=true&username=", shared.username, sep="")
-  }
-
-  if (print.curl){
-    curl.string <- paste("curl -XPOST -d '", string, "' -sku '", rplant.env$user, "' ", web, sep="")
-    print(curl.string)
+    content[3] <- "recursive=true"
+    string <- paste("can_execute=true&username=", shared.username,"&recursive=true", sep="")
   }
 
   val <- charToRaw(paste(content, collapse = "&"))
@@ -551,6 +560,11 @@ ShareDir <- function(dir.name, dir.path="", shared.username, read=TRUE, execute=
     web <- paste(rplant.env$webio, "io/share/", rplant.env$user, "/", dir.name, sep="")
   } else {
     web <- paste(rplant.env$webio, "io/share/", rplant.env$user, "/", dir.path, "/", dir.name, sep="")
+  }
+
+  if (print.curl){
+    curl.string <- paste("curl -XPOST -d '", string, "' -sku '", rplant.env$user, "' ", web, sep="")
+    print(curl.string)
   }
 
   Renew()
@@ -806,7 +820,7 @@ DeleteDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings
 
 
 # -- APPLICATION FUNCTIONS -- #
-ListApps<- function (print.curl=FALSE) 
+ListApps<- function (description=FALSE, print.curl=FALSE) 
 {
   web <- paste(rplant.env$webapps, "apps/list", sep="")
 
@@ -834,19 +848,27 @@ ListApps<- function (print.curl=FALSE)
     Apps <- list()
     for (j in 1:length(tmp$result)){
       ans <- TestApp(tmp$result[[j]]$id)
-      if ((j != 1) & (!is.null(ans))){
+      if ((j != 1) & (!is.null(ans[1]))){
         for (k in 1:length(Apps)){
-          if (ans == Apps[k]){
-            ans <- NULL
+          if (ans[1] == Apps[[k]][1]){
+            ans <- c(NULL, NULL)
             break
           }
         }
       }
-      Apps <- append(Apps,ans)
+      if (!is.null(ans[1])){
+        Apps <- append(Apps,list(c(ans)))
+      }
     }
-    res <- matrix(, length(Apps))
-    colnames(res) <- "Application"
-    for (i in 1:length(Apps)) res[i, 1] <- Apps[[i]]
+    if (description == TRUE){
+      res <- matrix(, length(Apps))
+      colnames(res) <- "Application"
+      for (i in 1:length(Apps)) res[i, 1] <- paste(Apps[[i]], collapse=" - ")
+    } else {
+      res <- matrix(, length(Apps))
+      colnames(res) <- "Application"
+      for (i in 1:length(Apps)) res[i, 1] <- Apps[[i]][1]
+    }
     return(sort(res))
   }
 }
@@ -1058,6 +1080,7 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
     tmp <- fromJSON(getForm(paste(paste(rplant.env$webapps, "apps/name", sep=""), priv.APP, sep="/"), .checkparams=FALSE, curl=rplant.env$curl.call))
   }
 
+  len <- length(tmp$result)
   set <- tmp$result[[len]]$parallelism
 
 # for (i in 1:length(tmp$result)){
@@ -1191,7 +1214,7 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
   }
 }
 
-CheckJobStatus <- function(job.id, return.json=FALSE, print.curl=FALSE) {
+CheckJobStatus <- function(job.id, print.curl=FALSE) {
   web <- paste(get("webapps", envir=rplant.env), "job", sep="")
 
   if (print.curl) {
@@ -1216,11 +1239,7 @@ CheckJobStatus <- function(job.id, return.json=FALSE, print.curl=FALSE) {
     }
     return(paste("Error: job: `",job.id,"' does not exist", sep=""))
   } else {
-    if (return.json){
-      return(res)
-    } else {
-      return(res$result$status)
-    }
+    return(res$result$status)
   }
 }
 
