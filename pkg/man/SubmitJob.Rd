@@ -15,7 +15,7 @@ SubmitJob(application, file.path="", file.list=NULL, input.list,
           args.list=NULL, job.name, nprocs=1, private.APP=FALSE, 
           suppress.Warnings=FALSE,  shared.username=NULL,
           print.curl=FALSE)
-CheckJobStatus(job.id, return.json=FALSE, print.curl=FALSE)
+CheckJobStatus(job.id, print.curl=FALSE)
 ListJobOutput(job.id, print.curl=FALSE, print.total=TRUE)
 RetrieveJob(job.id, file.vec, print.curl=FALSE, verbose=FALSE)
 GetJobHistory(return.json=FALSE, print.curl=FALSE)
