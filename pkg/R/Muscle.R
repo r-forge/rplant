@@ -1,6 +1,26 @@
 Muscle <- function(file.name, file.path="", job.name=NULL, args=NULL,
-                   version="Muscle-3.8.32u1", print.curl=FALSE,
-                   shared.username=NULL, suppress.Warnings=FALSE) {
+                   version="Muscle-3.8.32u2", print.curl=FALSE,
+                   aln.filetype="INT_PHYLIP", shared.username=NULL,
+                   suppress.Warnings=FALSE) {
+
+  aln.filetype <- match.arg(aln.filetype, c("INT_PHYLIP", "SEQ_PHYLIP", "FASTA", "CLUSTALW", "MSF"))
+
+  if (aln.filetype == "INT_PHYLIP"){
+    args <- append(args, "-phyiout")
+    aln.name <- "phylip_interleaved.aln"
+  } else if (aln.filetype == "SEQ_PHYLIP"){
+    args <- append(args, "-physout")
+    aln.name <- "phylip_sequential.aln"
+  } else if (aln.filetype == "FASTA"){
+    args <- append(args, "-fastaout")
+    aln.name <- "fasta.aln"
+  } else if (aln.filetype == "CLUSTALW"){
+    args <- append(args, "-clwout")
+    aln.name <- "clustalw.aln"
+  } else if (aln.filetype == "MSF"){
+    args <- append(args, "-msfout")
+    aln.name <- "msf.aln"
+  }
 
   nprocs <- 1
   App <- GetAppInfo(version)[[3]]
@@ -20,5 +40,6 @@ Muscle <- function(file.name, file.path="", job.name=NULL, args=NULL,
                    print.curl=print.curl, shared.username=shared.username,
                    args.list=args)
 
+  cat(paste("Result file: ", aln.name, "\n", sep=""))
   return(myJob)
 }
