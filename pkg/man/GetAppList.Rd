@@ -6,11 +6,12 @@
 	Functions for listing applications deployed in the iPlant software infrastructure and information about them.
 }
 \usage{
-ListApps(print.curl=FALSE)
+ListApps(description=FALSE, print.curl=FALSE)
 GetAppInfo(application, return.json=FALSE, print.curl=FALSE)
 }
 \arguments{
 	\item{application}{name of DE application}
+	\item{description}{when the description=TRUE, then the \code{ListApps} function will include a brief description of the app, default = FALSE}
 	\item{return.json}{optional screen output that displays all of the results from the api, default = FALSE}
 	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
 }
