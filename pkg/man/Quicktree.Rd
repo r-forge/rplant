@@ -25,7 +25,7 @@ Quicktree(file.name, file.path="", job.name=NULL, UPGMA=FALSE,
 	\item{output.file.name}{Manually enter a desired file name for the output files}
 }
 \details{
-	The input file formats that are supported are fasta format \url{http://en.wikipedia.org/wiki/FASTA_format} or stockholm format \url{http://en.wikipedia.org/wiki/Stockholm_format}.
+	The input file formats that are supported are phylip format \url{http://www.bioperl.org/wiki/PHYLIP_multiple_alignment_format} or stockholm format \url{http://en.wikipedia.org/wiki/Stockholm_format}.
 
 	Quicktree outputs trees in Newick format \url{http://en.wikipedia.org/wiki/Newick_format}.
 }
