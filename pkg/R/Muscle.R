@@ -1,14 +1,14 @@
 Muscle <- function(file.name, file.path="", job.name=NULL, args=NULL,
                    version="Muscle-3.8.32u3", print.curl=FALSE,
-                   aln.filetype="INT_PHYLIP", shared.username=NULL,
+                   aln.filetype="PHYLIP_INT", shared.username=NULL,
                    suppress.Warnings=FALSE) {
 
   aln.filetype <- match.arg(aln.filetype, c("PHYLIP_INT", "PHYLIP_SEQ", "PHYLIP_PARS", "FASTA", "CLUSTALW", "MSF"))
 
-  if (aln.filetype == "INT_PHYLIP"){
+  if (aln.filetype == "PHYLIP_INT"){
     args <- append(args, "-phyiout")
     aln.name <- "phylip_interleaved.aln"
-  } else if (aln.filetype == "SEQ_PHYLIP"){
+  } else if (aln.filetype == "PHYLIP_SEQ"){
     args <- append(args, "-physout")
     aln.name <- "phylip_sequential.aln"
   } else if (aln.filetype == "FASTA"){
@@ -20,7 +20,7 @@ Muscle <- function(file.name, file.path="", job.name=NULL, args=NULL,
   } else if (aln.filetype == "MSF"){
     args <- append(args, "-msfout")
     aln.name <- "msf.aln"
-  } else if (aln.filetype == "PARS_PHYLIP"){
+  } else if (aln.filetype == "PHYLIP_PARS"){
     args <- append(args, "-parsout")
     aln.name <- "phylip_pars.aln"
   }
