@@ -32,7 +32,7 @@ Fasttree <- function(file.name, file.path="", job.name=NULL, args=NULL,
 
   if (model == "GTRCAT"){
     args <- append(args, "-gtr -nt")
-  } else if (aln.filetype == "WAGCAT"){
+  } else if (model == "WAGCAT"){
     args <- append(args, "-wag")
   }
 
