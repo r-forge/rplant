@@ -29,8 +29,8 @@ CompareNames(old.names, new.names, verbose=TRUE)
 	Vector of taxonomic names for \code{ResolveNames} and \code{RetrieveTNRSNames}. Unique identifier (=token) for \code{GetPhylotasticToken}
 }
 \examples{
-data(ex.lp.fasta)
-speciesNames <- names(ex.lp.fasta)
+data(DNA.fasta)
+speciesNames <- names(DNA.fasta)
 
 #Taxonomic name checking by iPlant TNRS
 \dontrun{TNRSspeciesNames <- ResolveNames(speciesNames, 100, verbose=F)}
