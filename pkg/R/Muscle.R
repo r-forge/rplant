@@ -1,9 +1,9 @@
 Muscle <- function(file.name, file.path="", job.name=NULL, args=NULL,
-                   version="Muscle-3.8.32u2", print.curl=FALSE,
+                   version="Muscle-3.8.32u3", print.curl=FALSE,
                    aln.filetype="INT_PHYLIP", shared.username=NULL,
                    suppress.Warnings=FALSE) {
 
-  aln.filetype <- match.arg(aln.filetype, c("INT_PHYLIP", "SEQ_PHYLIP", "FASTA", "CLUSTALW", "MSF"))
+  aln.filetype <- match.arg(aln.filetype, c("PHYLIP_INT", "PHYLIP_SEQ", "PHYLIP_PARS", "FASTA", "CLUSTALW", "MSF"))
 
   if (aln.filetype == "INT_PHYLIP"){
     args <- append(args, "-phyiout")
@@ -20,6 +20,9 @@ Muscle <- function(file.name, file.path="", job.name=NULL, args=NULL,
   } else if (aln.filetype == "MSF"){
     args <- append(args, "-msfout")
     aln.name <- "msf.aln"
+  } else if (aln.filetype == "PARS_PHYLIP"){
+    args <- append(args, "-parsout")
+    aln.name <- "phylip_pars.aln"
   }
 
   nprocs <- 1
