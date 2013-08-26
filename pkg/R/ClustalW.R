@@ -1,11 +1,11 @@
 ClustalW <- function(file.name, file.path="", type="DNA", job.name=NULL,
                      version="ClustalW2-2.1u1", print.curl=FALSE,  args=NULL,
-                     aln.filetype="PHYLIP", shared.username=NULL,
+                     aln.filetype="PHYLIP_INT", shared.username=NULL,
                      suppress.Warnings=FALSE) {
 
   type <- match.arg(type, c("DNA", "PROTEIN"))
 
-  aln.filetype <- match.arg(aln.filetype, c("CLUSTAL", "PHYLIP", "NEXUS", "GCG", "GDE", "PIR"))
+  aln.filetype <- match.arg(aln.filetype, c("CLUSTALW", "PHYLIP_INT", "NEXUS", "GCG", "GDE", "PIR"))
 
   if (type == "DNA"){
     args <- append(args, "-TYPE=DNA")
@@ -13,7 +13,7 @@ ClustalW <- function(file.name, file.path="", type="DNA", job.name=NULL,
     args <- append(args, "-TYPE=PROTEIN")
   }
 
-  if (aln.filetype == "PHYLIP"){
+  if (aln.filetype == "PHYLIP_INT"){
     args <- append(args, "-OUTPUT=PHYLIP")
   } else if (aln.filetype == "NEXUS"){
     args <- append(args, "-OUTPUT=NEXUS")
