@@ -83,7 +83,7 @@ PLINK <- function(file.list="", file.path="", job.name=NULL,
 
   # Submit
   myJob<-SubmitJob(application=version, args.list=options, job.name=job.name,
-                   file.list=input.file.list, file.path=ALL.file.path, 
+                   file.list=file.list, file.path=file.path, 
                    input.list=input.list, shared.username=shared.username,
                    print.curl=print.curl, suppress.Warnings=suppress.Warnings)
 
