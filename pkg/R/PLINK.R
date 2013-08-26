@@ -1,10 +1,8 @@
 PLINK <- function(file.list="", file.path="", job.name=NULL,
                   association.method="--assoc", no.sex=TRUE, args=NULL,
-                  print.curl=FALSE, multi.adjust=TRUE, version="plink-1.07", 
+                  print.curl=FALSE, multi.adjust=TRUE, version="plink-1.07u1", 
                   shared.username=NULL, suppress.Warnings=FALSE) {
 
-  nprocs <- 1
-  private.APP <- TRUE
   input.len <- length(file.list)
   input.list <- list()
   if ((input.len) == 3){
@@ -20,7 +18,11 @@ PLINK <- function(file.list="", file.path="", job.name=NULL,
     ext2 <- unlist(strsplit(file.list[[2]], "\\."))[2]
     input.list[[1]] <- find.input(ext1)
     input.list[[2]] <- find.input(ext2)
-    if ((ext1 == "tfam" ) || (ext1 == "tped")) {input.type="T"}
+    if ((ext1 == "tfam" ) || (ext1 == "tped")) {
+      input.type="T"
+    } else {
+      input.type="R"
+    }
   }  
 
   args <- c(association.method, args)
@@ -78,12 +80,12 @@ PLINK <- function(file.list="", file.path="", job.name=NULL,
   # make a single statement
   args <- paste(args, collapse=" ") 
   options <- append(options, list(c("arguments",args)))
+
   # Submit
   myJob<-SubmitJob(application=version, args.list=options, job.name=job.name,
-                   file.list=file.list, file.path=file.path,  nprocs=nprocs, 
-                   input.list=input.list, private.APP=private.APP,
-                   shared.username=shared.username, print.curl=print.curl,
-                   suppress.Warnings=suppress.Warnings)
+                   file.list=input.file.list, file.path=ALL.file.path, 
+                   input.list=input.list, shared.username=shared.username,
+                   print.curl=print.curl, suppress.Warnings=suppress.Warnings)
 
   return(myJob)
 
