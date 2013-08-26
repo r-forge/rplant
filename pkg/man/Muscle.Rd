@@ -6,7 +6,7 @@
 }
 \usage{
 Muscle(file.name, file.path="", job.name=NULL, args=NULL,
-       version="Muscle-3.8.32u3", print.curl=FALSE,
+       version="Muscle-3.8.32u4", print.curl=FALSE,
        aln.filetype="PHYLIP_INT", shared.username=NULL,
        suppress.Warnings=FALSE)
 }
@@ -14,7 +14,7 @@ Muscle(file.name, file.path="", job.name=NULL, args=NULL,
 	\item{file.name}{name of file to be evaluated on the Discovery Environment (DE), see details for supported input formats.}
 	\item{file.path}{optional path to a user's subdirectory on the DE; default path is empty, which leads to the home directory}
 	\item{job.name}{the name to give the job being submitted}
-	\item{version}{Muscle version \code{Muscle-3.8.32u2}, do not use any other muscle versions.}
+	\item{version}{Muscle version \code{Muscle-3.8.32u4}, do not use any other muscle versions.}
 	\item{aln.filetype}{Muscle does alignment of sequences, this option selects the file type of that result file.  There are five options \code{PHYLIP_INT}, \code{PHYLIP_SEQ}, \code{PHYLIP_PARS}, \code{FASTA}, \code{CLUSTALW}, \code{MSF}, see details}
 	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
 	\item{shared.username}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.}
@@ -26,7 +26,7 @@ Muscle(file.name, file.path="", job.name=NULL, args=NULL,
 
 	Additional arguments, \code{args}, can be found at \url{http://www.drive5.com/muscle/muscle_userguide3.8.html#_Toc260497051}.  The args input is text with the flags and inputs for those flags in a string like on the command line.
 
-	There are five possible alignment output files, named appropriately: \code{phylip_interleaved.aln} \url{http://www.bioperl.org/wiki/PHYLIP_multiple_alignment_format}, \code{phylip_sequential.aln} \url{http://www.bioperl.org/wiki/PHYLIP_multiple_alignment_format}, \code{phylip_pars.aln} \url{http://www.bioperl.org/wiki/PHYLIP_multiple_alignment_format} (this output is specifically for the \code{PHYLIP-Pars} model),\code{fasta.aln} \url{http://en.wikipedia.org/wiki/FASTA_format}, \code{clustalw.aln} \url{http://meme.nbcr.net/meme/doc/clustalw-format.html}, \code{msf.aln} \url{http://en.wikipedia.org/wiki/MSF}.
+	There are six possible alignment output files, named appropriately: \code{phylip_interleaved.aln} \url{http://www.bioperl.org/wiki/PHYLIP_multiple_alignment_format}, \code{phylip_sequential.aln} \url{http://www.bioperl.org/wiki/PHYLIP_multiple_alignment_format}, \code{phylip_pars.aln} \url{http://www.bioperl.org/wiki/PHYLIP_multiple_alignment_format} (this output is specifically for the \code{PHYLIP-Pars} model),\code{fasta.aln} \url{http://en.wikipedia.org/wiki/FASTA_format}, \code{clustalw.aln} \url{http://meme.nbcr.net/meme/doc/clustalw-format.html}, \code{msf.aln} \url{http://en.wikipedia.org/wiki/MSF}.
 }
 \value{
 	A list containing the job id and the job name is provided for jobs submitted.  If an error, then a message stating the error should also be reported.
