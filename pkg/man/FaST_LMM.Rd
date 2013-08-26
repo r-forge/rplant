@@ -8,12 +8,12 @@
 FaST_LMM(input.file.list="", ALL.file.path="", print.curl=FALSE,
             sim.file.list=NULL, pheno.file.name=NULL, mpheno=1,
             args=NULL, covar.file.name=NULL, job.name=NULL, 
-            version="FaST-LMM-1.09", shared.username=NULL,
+            version="FaST-LMM-1.09u1", shared.username=NULL,
             suppress.Warnings=FALSE)
 }
 \arguments{
-	\item{input.file.list}{(required) Names of files, in a list format, to be evaluated on the Discovery Environment (DE).  There are only three possible input groups for file.list, regular fileset (.map/.ped),  transposed fileset (.tfam/.tped), and binary fileset (.bed/.bim/.fam).}
-	\item{ALL.file.path}{Optional path to a user's subdirectory on the DE; default path is empty, which leads to the home directory.  All files specified including optional files must be in this directory.}
+	\item{input.file.list}{(required) Names of files, in a list format, to be evaluated on the iPlant servers.  There are only three possible input groups for file.list, regular fileset (.map/.ped),  transposed fileset (.tfam/.tped), and binary fileset (.bed/.bim/.fam).}
+	\item{ALL.file.path}{Optional path to a user's subdirectory on the iPlant servers; default path is empty, which leads to the home directory.  All files specified including optional files must be in this directory.}
 	\item{job.name}{The name to give the job being submitted}
 	\item{sim.file.list}{(optional) A list containing the names of genetic similarity files.  These are used to determine the genetic similarities between individuals. The may be different from the input.file.list but MUST have the same formats as the input.file.list.}
 	\item{pheno.file.name}{(optional) The full file name of the PLINK alternative phenotype file. This includes at least three columns, family ID, individual ID, and phenotype value, and may have any number of phenotype columns. Missing value as default is -9 but it can be changed.}
@@ -21,7 +21,7 @@ FaST_LMM(input.file.list="", ALL.file.path="", print.curl=FALSE,
 	\item{covar.file.name}{(optional) Must have at least three tab-delimited columns: family ID, individual ID, and covariate value, and may have any number of covariate values. The same missing value signifier from the phenotype file must be used. Note: the file should not have a header row.}
 	\item{args}{Optional for arguments (i.e. flags).  The FaST-LMM model has much additional functionality that is not fit into this wrapper function (\url{http://fastlmm.codeplex.com/}), see manual.  This option allows users to add anything that is not included (.i.e. args="-Ftest"), to automatically invoke the F-test, see details.}
 	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
-	\item{version}{FaST-LMM version, options include \code{FaST-LMM-1.09}}
+	\item{version}{FaST-LMM version, options include \code{FaST-LMM-1.09u1}}
 	\item{shared.username}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.}
 	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.}
 }
