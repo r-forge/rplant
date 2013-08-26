@@ -848,15 +848,15 @@ ListApps<- function (description=FALSE, print.curl=FALSE)
     Apps <- list()
     for (j in 1:length(tmp$result)){
       ans <- TestApp(tmp$result[[j]]$id)
-      if ((j != 1) & (!is.null(ans[1]))){
+      if ((j != 1) & (!is.null(ans[[1]]))){
         for (k in 1:length(Apps)){
-          if (ans[1] == Apps[[k]][1]){
-            ans <- c(NULL, NULL)
+          if (ans[[1]] == Apps[[k]][1]){
+            ans <- list(NULL, NULL)
             break
           }
         }
       }
-      if (!is.null(ans[1])){
+      if (!is.null(ans[[1]])){
         Apps <- append(Apps,list(c(ans)))
       }
     }
