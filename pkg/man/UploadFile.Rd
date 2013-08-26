@@ -10,7 +10,8 @@
 	Functions for uploading and manipulating files in the iPlant infrastructure
 }
 \usage{
-UploadFile(local.file.name, local.file.path="", file.type, print.curl=FALSE)
+UploadFile(local.file.name, local.file.path="", filetype=NULL,
+           print.curl=FALSE, suppress.Warnings=FALSE)
 ShareFile(file.name, file.path="", shared.username, read=TRUE, execute=TRUE, print.curl=FALSE, suppress.Warnings=FALSE)
 RenameFile(file.name, new.file.name, file.path="", print.curl=FALSE,
            suppress.Warnings=FALSE)
@@ -22,7 +23,7 @@ SupportFile(print.curl=FALSE)
 \arguments{
 	\item{local.file.name}{Name of local file on user's computer.  This file cannot be an object in the R workspace.}
 	\item{local.file.path}{optional path to a sub directory where local file on user's computer is located (include ENTIRE path); default path is empty which leads to a users home directory}
-	\item{file.type}{format of file that is to be uploaded. Currently 34 file formats supported}
+	\item{filetype}{format of file that is to be uploaded. Currently 34 file formats supported.  A filetype is not required to upload the file, but some applications require that your data set have a file type assigned to it.}
 	\item{file.name}{Name of file to be modified on the iPlant servers.}
 	\item{new.file.name}{the new name of the file on the iPlant server to be renamed} 
 	\item{file.path}{optional path to a sub directory where file on the iPlant server is located; default path is empty which leads to a users home directory}
@@ -34,7 +35,7 @@ SupportFile(print.curl=FALSE)
 	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.}
 }
 \details{
-	The \code{SupportFile} function provides a list of the supported file types that can be uploaded onto the iPlant servers.  The \code{UploadFile} function uploads a file, \code{local.file.name}, that is on your computer (i.e. local directory), in the directory \code{local.file.path}.  If the \code{local.file.path} is not specified your working directory is the default path (use \code{getwd()} to find that).  The \code{file.type} is required, use the \code{SupportFile} function to view the 34 file formats that are supported (i.e. for a fasta file use \code{FASTA-0}).  iPlant offers sharing of files between two (or more) iPlant users, the \code{ShareFile} makes it so.  The \code{RenameFile} function renames the \code{file.name} in \code{file.path} (on the iPlant servers), to the \code{new.file.name}.  The \code{MoveFile} function moves a \code{file.name} in the \code{file.path} to the \code{end.path}.  The \code{DeleteFile} function  deletes the \code{file.name} in the \code{file.path}.
+	The \code{SupportFile} function provides a list of the supported file types that can be uploaded onto the iPlant servers.  The \code{UploadFile} function uploads a file, \code{local.file.name}, that is on your computer (i.e. local directory), in the directory \code{local.file.path}.  If the \code{local.file.path} is not specified your working directory is the default path (use \code{getwd()} to find that).  The \code{filetype} is NOT required, but if you do use it then use the \code{SupportFile} function to view the 34 file formats that are supported (i.e. for a fasta file use \code{FASTA-0}).  iPlant offers sharing of files between two (or more) iPlant users, the \code{ShareFile} makes it so.  The \code{RenameFile} function renames the \code{file.name} in \code{file.path} (on the iPlant servers), to the \code{new.file.name}.  The \code{MoveFile} function moves a \code{file.name} in the \code{file.path} to the \code{end.path}.  The \code{DeleteFile} function  deletes the \code{file.name} in the \code{file.path}.
 }
 \seealso{
 	\code{\link{ListDir}}
@@ -48,8 +49,9 @@ SupportFile(print.curl=FALSE)
 \dontrun{write.fasta(sequences = ex.lp.fasta, names = names(ex.lp.fasta), file.out = "ex.lp.fasta")}
          
 # Upload a file to the DE
-\dontrun{UploadFile(local.file.name="ex.lp.fasta", file.type="FASTA-0")}
-\dontrun{UploadFile(local.file.name="ex.lp.fasta", local.file.path="path/to/dir", file.type="FASTA-0")}
+\dontrun{UploadFile(local.file.name="ex.lp.fasta", filetype="FASTA-0")}
+\dontrun{UploadFile(local.file.name="ex.lp.fasta", local.file.path="path/to/dir", filetype="FASTA-0")}
+\dontrun{UploadFile(local.file.name="simulation1.map")}
 
 # Shares the file named "ex.lp.fasta" with the iPlant user "dude"
 \dontrun{ShareFile(file.name="ex.lp.fasta", shared.username="dude")}
