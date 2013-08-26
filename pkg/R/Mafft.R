@@ -17,6 +17,8 @@ Mafft <- function(file.name, file.path="", type="DNA",  print.curl=FALSE,
     args <- append(args, "--clustalout")
   }
 
+  args <- paste(args, collapse=" ")  # make a single statement
+
   nprocs <- 1
   App <- GetAppInfo(version)[[3]]
   input.list <- vector("list",1)
