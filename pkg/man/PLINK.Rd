@@ -6,9 +6,9 @@
 }
 \usage{
 PLINK(file.list="", file.path="", job.name=NULL,
-         association.method="--assoc", no.sex=TRUE, args=NULL,
-         print.curl=FALSE, multi.adjust=TRUE, version="plink-1.07", 
-         shared.username=NULL, suppress.Warnings=FALSE)
+      association.method="--assoc", no.sex=TRUE, args=NULL,
+      print.curl=FALSE, multi.adjust=TRUE, version="plink-1.07", 
+      shared.username=NULL, suppress.Warnings=FALSE)
 }
 \arguments{
 	\item{file.list}{Names of files, in a list format, to be evaluated on the Discovery Environment (DE).  There are only three possible input groups for file.list, regular fileset (.map/.ped),  transposed fileset (.tfam/.tped), and binary fileset (.bed/.bim/.fam).}
@@ -29,6 +29,8 @@ PLINK(file.list="", file.path="", job.name=NULL,
 See the PLINK website for more information. \url{http://pngu.mgh.harvard.edu/~purcell/plink}
 
 	Additional arguments, \code{args}, can be found at \url{http://pngu.mgh.harvard.edu/~purcell/plink/reference.shtml#options}.  The args input is text with the flags and inputs for those flags in a string like on the command line.
+
+	There are many output files possible, \url{http://pngu.mgh.harvard.edu/~purcell/plink/reference.shtml#output}
 }
 \value{
 	A list containing the job id and the job name is provided for jobs submitted.  If an error, then a message stating the error should also be reported.
