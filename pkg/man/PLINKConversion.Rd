@@ -36,7 +36,8 @@ PLINKConversion(file.list="", file.path="", output.type="--recode",
          [,8] \tab --recode-bimbam    \tab Ouput bimbam format file                     \cr
          [,9] \tab --recode-structure \tab Ouput structure format file                  \cr
          [,10] \tab --recodeA         \tab Raw data file with additive coding           \cr
-         [,11] \tab --recodeAD        \tab Raw data file with additive/dominance coding 
+         [,11] \tab --recodeAD        \tab Raw data file with additive/dominance coding \cr
+         [,12] \tab --recode --transpose \tab Transposed Filests (.tfam/.tped)          \cr
        } 
 
 See the PLINK website for more information. \url{http://pngu.mgh.harvard.edu/~purcell/plink}
