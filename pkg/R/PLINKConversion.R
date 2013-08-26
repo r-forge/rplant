@@ -1,10 +1,8 @@
 PLINKConversion <- function(file.list="", file.path="", output.type="--recode",
                             job.name=NULL, shared.username=NULL,
-                            print.curl=FALSE, version="plink-1.07", 
+                            print.curl=FALSE, version="plink-1.07u1", 
                             suppress.Warnings=FALSE) {
 
-  nprocs <- 1
-  private.APP <- TRUE
   input.len <- length(file.list)
   input.list <- list()
   if ((input.len) == 3){
@@ -20,7 +18,11 @@ PLINKConversion <- function(file.list="", file.path="", output.type="--recode",
     ext2 <- unlist(strsplit(file.list[[2]], "\\."))[2]
     input.list[[1]] <- find.input(ext1)
     input.list[[2]] <- find.input(ext2)
-    if ((ext1 == "tfam" ) || (ext1 == "tped")) {input.type="T"}
+    if ((ext1 == "tfam" ) || (ext1 == "tped")) {
+      input.type="T"
+    } else {
+      input.type="R"
+    }
   }
 
   args <- c(output.type)
@@ -80,12 +82,12 @@ PLINKConversion <- function(file.list="", file.path="", output.type="--recode",
   # make a single statement
   args <- paste(args, collapse=" ") 
   options <- append(options, list(c("arguments",args)))
+
   # Submit
   myJob<-SubmitJob(application=version, args.list=options, job.name=job.name,
-                   file.list=file.list, file.path=file.path,  nprocs=nprocs, 
-                   input.list=input.list, private.APP=private.APP,
-                   shared.username=shared.username, print.curl=print.curl,
-                   suppress.Warnings=suppress.Warnings)
+                   file.list=file.list, file.path=file.path,   
+                   input.list=input.list, suppress.Warnings=suppress.Warnings,
+                   shared.username=shared.username, print.curl=print.curl)
 
   return(myJob)
 }
