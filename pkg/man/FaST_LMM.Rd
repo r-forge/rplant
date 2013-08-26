@@ -36,5 +36,5 @@ Not all information on the FaST-LMM model is here, see the FaST-LMM website \url
 	\code{\link{SubmitJob}}
 }
 \examples{
-\dontrun{PLINK(file.list=list("geno_test.tfam","geno_test.tped"), file.path="data/Default", print.curl=TRUE)}
+\dontrun{FaST_LMM(input.file.list=list("geno_test.tfam","geno_test.tped"), ALL.file.path="data/Default")}
 }	
