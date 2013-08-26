@@ -1,10 +1,8 @@
 Muscle <- function(file.name, file.path="", job.name=NULL, args=NULL,
-                   version="Muscle-3.8.32", print.curl=FALSE,
+                   version="Muscle-3.8.32u4", print.curl=FALSE,
                    aln.filetype="PHYLIP_INT", shared.username=NULL,
                    suppress.Warnings=FALSE) {
 
-  private.APP <- TRUE
-  suppress.Warnings <- TRUE
   aln.filetype <- match.arg(aln.filetype, c("PHYLIP_INT", "PHYLIP_SEQ", "PHYLIP_PARS", "FASTA", "CLUSTALW", "MSF"))
 
   if (aln.filetype == "PHYLIP_INT"){
@@ -29,7 +27,6 @@ Muscle <- function(file.name, file.path="", job.name=NULL, args=NULL,
 
   args <- paste(args, collapse=" ")  # make a single statement
 
-  nprocs <- 1
   App <- GetAppInfo(version)[[3]]
   input.list <- vector("list",1)
   input.list[[1]] <- App[,2][1]
@@ -41,11 +38,10 @@ Muscle <- function(file.name, file.path="", job.name=NULL, args=NULL,
     args <- list(c("arguments",args))
   }
 
-  myJob<-SubmitJob(application=version, job.name=job.name, nprocs=nprocs,
+  myJob<-SubmitJob(application=version, job.name=job.name, args.list=args,
                    file.list=list(file.name), file.path=file.path, 
                    input.list=input.list, suppress.Warnings=suppress.Warnings,
-                   print.curl=print.curl, shared.username=shared.username,
-                   args.list=args, private.APP=private.APP)
+                   print.curl=print.curl, shared.username=shared.username)
 
   cat(paste("Result file: ", aln.name, "\n", sep=""))
   return(myJob)
