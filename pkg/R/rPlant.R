@@ -80,7 +80,7 @@ Validate <- function(user, pwd, api="iplant", print.curl=FALSE) {
 
 
 # -- FILE AND DATA FUNCTIONS -- #
-UploadFile <- function(local.file.name, local.file.path="", file.type,
+UploadFile <- function(local.file.name, local.file.path="", filetype=NULL,
                        print.curl=FALSE, suppress.Warnings=FALSE) {
 
   web <- paste(rplant.env$webio, "io/", rplant.env$user, sep="")
@@ -96,33 +96,69 @@ UploadFile <- function(local.file.name, local.file.path="", file.type,
   }
 
   if (print.curl) {
-    curl.string <- paste("curl -sku '", rplant.env$user, "' -F 'fileToUpload=@",
-                         local.file.path, local.file.name, "' -F 'fileType=",
-                         file.type, "' ", web, sep="")
-
+    if (!is.null(filetype)){
+      if (local.file.path == "") {
+        curl.string <- paste("curl -sku '", rplant.env$user, "' -F 'fileToUpload=@",
+                             local.file.name, "' -F 'fileType=", filetype, "' ",
+                             web, sep="")
+      } else {
+        curl.string <- paste("curl -sku '", rplant.env$user, "' -F 'fileToUpload=@",
+                             local.file.path, "/", local.file.name,
+                             "' -F 'fileType=", filetype, "' ", web, sep="")
+      }
+    } else {
+      if (local.file.path == "") {
+        curl.string <- paste("curl -sku '", rplant.env$user, "' -F 'fileToUpload=@",
+                             local.file.name, " ", web, sep="")
+      } else {
+         curl.string <- paste("curl -sku '", rplant.env$user, "' -F 'fileToUpload=@",
+                              local.file.path, "/", local.file.name, " ", web,
+                              sep="")   
+      }
+    }
     print(curl.string)
   }
   Renew()
-  if (local.file.path == "") {
-    tryCatch(res <<- fromJSON(postForm(web, style="httppost",
-                              fileToUpload=fileUpload(local.file.name), 
-                              fileType=file.type, 
-                              .opts=list(userpwd=paste(rplant.env$user, 
-                                                       rplant.env$pwd, sep=":"),
-                              ssl.verifypeer=FALSE, httpauth=AUTH_BASIC,
-                              useragent="R", followlocation=TRUE))),
-              error=function(x){return(res <<- data.frame(status=paste(x)))})
+  if (!is.null(filetype)){
+    if (local.file.path == "") {
+      tryCatch(res <<- fromJSON(postForm(web, style="httppost",
+                                fileToUpload=fileUpload(local.file.name), 
+                                fileType=file.type, 
+                                .opts=list(userpwd=paste(rplant.env$user, 
+                                                         rplant.env$pwd, sep=":"),
+                                ssl.verifypeer=FALSE, httpauth=AUTH_BASIC,
+                                useragent="R", followlocation=TRUE))),
+                error=function(x){return(res <<- data.frame(status=paste(x)))})
+    } else {
+      tryCatch(res <<- fromJSON(postForm(web, style="httppost",
+                                fileToUpload=fileUpload(paste(local.file.path, 
+                                local.file.name, sep="/")), fileType=file.type,
+                                .opts=list(userpwd=paste(rplant.env$user, 
+                                                         rplant.env$pwd, sep=":"),
+                                ssl.verifypeer=FALSE, httpauth=AUTH_BASIC, 
+                                useragent="R", followlocation=TRUE))),
+                error=function(x){return(res <<- data.frame(status=paste(x)))})
+    }
   } else {
-    tryCatch(res <<- fromJSON(postForm(web, style="httppost",
-                              fileToUpload=fileUpload(paste(local.file.path, 
-                              local.file.name, sep="/")), fileType=file.type,
-                              .opts=list(userpwd=paste(rplant.env$user, 
-                                                       rplant.env$pwd, sep=":"),
-                              ssl.verifypeer=FALSE, httpauth=AUTH_BASIC, 
-                              useragent="R", followlocation=TRUE))),
-              error=function(x){return(res <<- data.frame(status=paste(x)))})
+    if (local.file.path == "") {
+      tryCatch(res <<- fromJSON(postForm(web, style="httppost",
+                                fileToUpload=fileUpload(local.file.name), 
+                                .opts=list(userpwd=paste(rplant.env$user, 
+                                                         rplant.env$pwd, sep=":"),
+                                ssl.verifypeer=FALSE, httpauth=AUTH_BASIC,
+                                useragent="R", followlocation=TRUE))),
+                error=function(x){return(res <<- data.frame(status=paste(x)))})
+    } else {
+      tryCatch(res <<- fromJSON(postForm(web, style="httppost",
+                                fileToUpload=fileUpload(paste(local.file.path, 
+                                local.file.name, sep="/")),
+                                .opts=list(userpwd=paste(rplant.env$user, 
+                                                         rplant.env$pwd, sep=":"),
+                                ssl.verifypeer=FALSE, httpauth=AUTH_BASIC, 
+                                useragent="R", followlocation=TRUE))),
+                error=function(x){return(res <<- data.frame(status=paste(x)))})
+    }
   }
-
   if (res$status != "success") {
     sub <- substring(res$status,1,5)
     if (sub == "Error"){
