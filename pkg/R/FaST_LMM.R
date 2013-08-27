@@ -2,7 +2,7 @@ FaST_LMM <- function(input.file.list="", ALL.file.path="", print.curl=FALSE,
                      sim.file.list=NULL, pheno.file.name=NULL, mpheno=1,
                      args=NULL, covar.file.name=NULL, job.name=NULL, 
                      version="FaST-LMM-1.09u1", shared.username=NULL,
-                     suppress.Warnings=FALSE) {
+                     suppress.Warnings=FALSE, out.basename=NULL) {
 
 
   input.len <- length(input.file.list)
@@ -52,11 +52,15 @@ FaST_LMM <- function(input.file.list="", ALL.file.path="", print.curl=FALSE,
     }
   }
 
-  if (is.null(job.name)){
-    job.name <- unlist(strsplit(input.file.list[[1]], "\\."))[1]
+  if (is.null(out.basename)){
+    out.basename <- unlist(strsplit(input.file.list[[1]], "\\."))[1]
   }
 
-  args <- append(args, c("-out",job.name))
+  args <- append(args, c("-out",out.basename))
+
+  if (is.null(job.name)){
+    job.name <- out.basename
+  }
 
   if (!is.null(pheno.file.name)){
     input.file.list <- append(input.file.list, pheno.file.name)
