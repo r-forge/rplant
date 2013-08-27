@@ -4,6 +4,7 @@ FaST_LMM <- function(input.file.list="", ALL.file.path="", print.curl=FALSE,
                      version="FaST-LMM-1.09u1", shared.username=NULL,
                      suppress.Warnings=FALSE) {
 
+
   input.len <- length(input.file.list)
   input.list <- list()
   if ((input.len) == 3){
@@ -53,7 +54,6 @@ FaST_LMM <- function(input.file.list="", ALL.file.path="", print.curl=FALSE,
 
   if (is.null(job.name)){
     job.name <- unlist(strsplit(input.file.list[[1]], "\\."))[1]
-
   }
 
   args <- append(args, c("-out",job.name))
