@@ -6,14 +6,16 @@
 }
 \usage{
 PLINKConversion(file.list="", file.path="", output.type="--recode",
-                job.name=NULL, shared.username=NULL, print.curl=FALSE,
-                version="plink-1.07u1", suppress.Warnings=FALSE)
+                job.name=NULL, shared.username=NULL, 
+                print.curl=FALSE, version="plink-1.07u1", 
+                suppress.Warnings=FALSE, out.basename=NULL)
 }
 \arguments{
 	\item{file.list}{Names of files, in a list format, to be evaluated on the Discovery Environment (DE).  There are only three possible input groups for file.list, regular fileset (.map/.ped),  transposed fileset (.tfam/.tped), and binary fileset (.bed/.bim/.fam).}
 	\item{file.path}{Optional path to a user's subdirectory on the DE; default path is empty, which leads to the home directory}
 	\item{job.name}{The name to give the job being submitted}
 	\item{output.type}{PLINKs conversion methods.  Choices are outlined on the PLINK webpage, see details for more information.}
+	\item{out.basename}{The base name for the output files (not including extension).}
 	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
 	\item{version}{PLINK version, options include \code{plink-1.07u1}}
 	\item{shared.username}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.}
