@@ -1,4 +1,4 @@
-PLINK <- function(file.list="", file.path="", job.name=NULL,
+PLINK <- function(file.list="", file.path="", job.name=NULL, out.basename=NULL,
                   association.method="--assoc", no.sex=TRUE, args=NULL,
                   print.curl=FALSE, multi.adjust=TRUE, version="plink-1.07u1", 
                   shared.username=NULL, suppress.Warnings=FALSE) {
@@ -33,21 +33,21 @@ PLINK <- function(file.list="", file.path="", job.name=NULL,
 
   if (input.type=="T"){
     options <- list(c("T",TRUE))
-    if (is.null(job.name)){
+    if (is.null(out.basename)){
       BASE1 <- substr(file.list[[1]],1,nchar(file.list[[1]])-5)
       EXT1 <- substr(file.list[[1]],nchar(file.list[[1]])-3,nchar(file.list[[1]]))
       BASE2 <- substr(file.list[[2]],1,nchar(file.list[[2]])-5)
       if (EXT1 == "tfam"){
-        job.name <- paste(BASE1,"_",BASE2,"_", association.method, sep="")
+        out.basename <- paste(BASE1,"_",BASE2,"_", association.method, sep="")
       } else {
-        job.name <- paste(BASE2,"_",BASE1,"_", association.method, sep="")
+        out.basename <- paste(BASE2,"_",BASE1,"_", association.method, sep="")
       }
-      job.name <- paste(unlist(strsplit(job.name, " ")), collapse="")
+      out.basename <- paste(unlist(strsplit(out.basename, " ")), collapse="")
     }
-    args <- append(args, c("--out",job.name))
+    args <- append(args, c("--out",out.basename))
   } else if (input.type=="B") {
     options <- list(c("B",TRUE))
-    if (is.null(job.name)){
+    if (is.null(out.basename)){
       BASE1 <- substr(file.list[[1]],1,nchar(file.list[[1]])-4)
       EXT1 <- substr(file.list[[1]],nchar(file.list[[1]])-2,nchar(file.list[[1]]))
       BASE2 <- substr(file.list[[2]],1,nchar(file.list[[2]])-4)
@@ -55,27 +55,33 @@ PLINK <- function(file.list="", file.path="", job.name=NULL,
       BASE3 <- substr(file.list[[3]],1,nchar(file.list[[3]])-4)
       EXT3 <- substr(file.list[[3]],nchar(file.list[[3]])-2,nchar(file.list[[1]]))
       if (EXT1 == "bed" && EXT3 == "bam"){
-        job.name <- paste(BASE1, "_", BASE3, "_", BASE2, "_", association.method, sep="")
+        out.basename <- paste(BASE1, "_", BASE3, "_", BASE2, "_", association.method, sep="")
       } else if (EXT1 == "bed" && EXT2 == "bam") {
-        job.name <- paste(BASE1, "_", BASE2, "_", BASE3, "_", association.method, sep="")
+        out.basename <- paste(BASE1, "_", BASE2, "_", BASE3, "_", association.method, sep="")
       } else if (EXT2 == "bed" && EXT3 == "bam"){
-        job.name <- paste(BASE2, "_", BASE3, "_", BASE1, "_", association.method, sep="")
+        out.basename <- paste(BASE2, "_", BASE3, "_", BASE1, "_", association.method, sep="")
       } else if (EXT3 == "bed" && EXT1 == "bam"){
-        job.name <- paste(BASE3, "_", BASE1, "_", BASE2, "_", association.method, sep="")
+        out.basename <- paste(BASE3, "_", BASE1, "_", BASE2, "_", association.method, sep="")
       } else if (EXT2 == "bed" && EXT1 == "bam") {
-        job.name <- paste(BASE2, "_", BASE1, "_", BASE3, "_", association.method, sep="")
+        out.basename <- paste(BASE2, "_", BASE1, "_", BASE3, "_", association.method, sep="")
       } else {
-        job.name <- paste(BASE3, "_", BASE2, "_", BASE1, "_", association.method, sep="")
+        out.basename <- paste(BASE3, "_", BASE2, "_", BASE1, "_", association.method, sep="")
       }
+      out.basename <- paste(unlist(strsplit(out.basename, " ")), collapse="")
     }
-    args <- append(args, c("--out",job.name))
+    args <- append(args, c("--out",out.basename))
   } else {
     options <- NULL
-    if (is.null(job.name)){
+    if (is.null(out.basename)){
       BASE1 <- substr(file.list[[1]],1,nchar(file.list[[1]])-4)
-      job.name <- paste(BASE1,"_", association.method, sep="")
+      out.basename <- paste(BASE1,"_", association.method, sep="")
     }
-    args <- append(args, c("--out",job.name))
+    out.basename <- paste(unlist(strsplit(out.basename, " ")), collapse="")
+    args <- append(args, c("--out",out.basename))
+  }
+
+  if (is.null(job.name)){
+    job.name <- out.basename
   }
 
   # make a single statement
