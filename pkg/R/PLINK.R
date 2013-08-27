@@ -42,6 +42,7 @@ PLINK <- function(file.list="", file.path="", job.name=NULL,
       } else {
         job.name <- paste(BASE2,"_",BASE1,"_", association.method, sep="")
       }
+      job.name <- paste(unlist(strsplit(job.name, " ")), collapse="")
     }
     args <- append(args, c("--out",job.name))
   } else if (input.type=="B") {
