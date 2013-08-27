@@ -6,15 +6,16 @@
 }
 \usage{
 FaST_LMM(input.file.list="", ALL.file.path="", print.curl=FALSE,
-            sim.file.list=NULL, pheno.file.name=NULL, mpheno=1,
-            args=NULL, covar.file.name=NULL, job.name=NULL, 
-            version="FaST-LMM-1.09u1", shared.username=NULL,
-            suppress.Warnings=FALSE)
+         sim.file.list=NULL, pheno.file.name=NULL, mpheno=1,
+         args=NULL, covar.file.name=NULL, job.name=NULL, 
+         version="FaST-LMM-1.09u1", shared.username=NULL,
+         suppress.Warnings=FALSE, out.basename=NULL) 
 }
 \arguments{
 	\item{input.file.list}{(required) Names of files, in a list format, to be evaluated on the iPlant servers.  There are only three possible input groups for file.list, regular fileset (.map/.ped),  transposed fileset (.tfam/.tped), and binary fileset (.bed/.bim/.fam).}
 	\item{ALL.file.path}{Optional path to a user's subdirectory on the iPlant servers; default path is empty, which leads to the home directory.  All files specified including optional files must be in this directory.}
 	\item{job.name}{The name to give the job being submitted}
+	\item{out.basename}{The base name for the output files (not including extension).}
 	\item{sim.file.list}{(optional) A list containing the names of genetic similarity files.  These are used to determine the genetic similarities between individuals. The may be different from the input.file.list but MUST have the same formats as the input.file.list.}
 	\item{pheno.file.name}{(optional) The full file name of the PLINK alternative phenotype file. This includes at least three columns, family ID, individual ID, and phenotype value, and may have any number of phenotype columns. Missing value as default is -9 but it can be changed.}
 	\item{mpheno}{(optional) This value MUST be entered if a phenotype file is provided.  This value is the index for phenotype in -pheno file to process, starting at 1 for the first phenotype column.  Default is 1}
