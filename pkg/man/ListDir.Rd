@@ -25,6 +25,8 @@ DeleteDir(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE)
 	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
 	\item{shared.username}{With iPlant you have the ability to share files with other users, their username is the value for the shared.username, see details.}
 	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.}
+	\item{read}{Gives read permissions for shared directory}
+	\item{execute}{Gives execute permissions for shared directory}
 }
 \details{
 	The \code{ListDir} function lists the files in the given directory, \code{dir.path}.  If listing shared folders then the \code{dir.path} becomes the path to the SHARED users shared folder.  iPlant offers sharing of files between two (or more) iPlant users, the \code{ShareDir} makes it so.  The \code{RenameDir} function renames the \code{dir.name} in \code{dir.path} (on the iPlant servers), to the \code{new.dir.name}.  The \code{MoveDir} function moves a \code{dir.name} in the \code{dir.path} to the \code{end.path}  .The \code{MakeDir} function makes a directory \code{dir.name} in the directory \code{dir.path}.  The \code{DeleteDir} function deletes the directory \code{dir.name} in the directory \code{dir.path}.
