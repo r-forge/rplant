@@ -4,6 +4,8 @@
 
 # -- AUTHENTICATION FUNCTIONS -- #
 
+utils::globalVariables(c("rplant.env"))
+
 TestApp <- function(APP){
   web <- paste(rplant.env$webapps, "apps/name", sep="")
   if (substring(APP,nchar(APP)-1,nchar(APP)-1) == "u"){
@@ -121,42 +123,42 @@ UploadFile <- function(local.file.name, local.file.path="", filetype=NULL,
   Renew()
   if (!is.null(filetype)){
     if (local.file.path == "") {
-      tryCatch(res <<- fromJSON(postForm(web, style="httppost",
+      tryCatch(res <- fromJSON(postForm(web, style="httppost",
                                 fileToUpload=fileUpload(local.file.name), 
                                 fileType=filetype, 
                                 .opts=list(userpwd=paste(rplant.env$user, 
                                                          rplant.env$pwd, sep=":"),
                                 ssl.verifypeer=FALSE, httpauth=AUTH_BASIC,
                                 useragent="R", followlocation=TRUE))),
-                error=function(x){return(res <<- data.frame(status=paste(x)))})
+                error=function(x){return(res <- data.frame(status=paste(x)))})
     } else {
-      tryCatch(res <<- fromJSON(postForm(web, style="httppost",
+      tryCatch(res <- fromJSON(postForm(web, style="httppost",
                                 fileToUpload=fileUpload(paste(local.file.path, 
                                 local.file.name, sep="/")), fileType=filetype,
                                 .opts=list(userpwd=paste(rplant.env$user, 
                                                          rplant.env$pwd, sep=":"),
                                 ssl.verifypeer=FALSE, httpauth=AUTH_BASIC, 
                                 useragent="R", followlocation=TRUE))),
-                error=function(x){return(res <<- data.frame(status=paste(x)))})
+                error=function(x){return(res <- data.frame(status=paste(x)))})
     }
   } else {
     if (local.file.path == "") {
-      tryCatch(res <<- fromJSON(postForm(web, style="httppost",
+      tryCatch(res <- fromJSON(postForm(web, style="httppost",
                                 fileToUpload=fileUpload(local.file.name), 
                                 .opts=list(userpwd=paste(rplant.env$user, 
                                                          rplant.env$pwd, sep=":"),
                                 ssl.verifypeer=FALSE, httpauth=AUTH_BASIC,
                                 useragent="R", followlocation=TRUE))),
-                error=function(x){return(res <<- data.frame(status=paste(x)))})
+                error=function(x){return(res <- data.frame(status=paste(x)))})
     } else {
-      tryCatch(res <<- fromJSON(postForm(web, style="httppost",
+      tryCatch(res <- fromJSON(postForm(web, style="httppost",
                                 fileToUpload=fileUpload(paste(local.file.path, 
                                 local.file.name, sep="/")),
                                 .opts=list(userpwd=paste(rplant.env$user, 
                                                          rplant.env$pwd, sep=":"),
                                 ssl.verifypeer=FALSE, httpauth=AUTH_BASIC, 
                                 useragent="R", followlocation=TRUE))),
-                error=function(x){return(res <<- data.frame(status=paste(x)))})
+                error=function(x){return(res <- data.frame(status=paste(x)))})
     }
   }
   if (res$status != "success") {
@@ -232,10 +234,10 @@ ShareFile <- function(file.name, file.path="", shared.username, read=TRUE, execu
   }
 
   Renew()
-  tryCatch(res <<- fromJSON(getURLContent(web, curl=rplant.env$curl.call, 
+  tryCatch(res <- fromJSON(getURLContent(web, curl=rplant.env$curl.call, 
            infilesize=length(val), readfunction=val, upload=TRUE,
            customrequest="POST")), 
-           error=function(x){return(res <<- data.frame(status=paste(x)))})
+           error=function(x){return(res <- data.frame(status=paste(x)))})
 
   if (res$status != "success") {
     sub <- substring(res$status,1,5)
@@ -441,9 +443,9 @@ SupportFile <- function(print.curl=FALSE) {
 
   Renew()
 
-  tryCatch(res <<- fromJSON(getForm(paste(web, sep="/"), .checkparams=FALSE,
+  tryCatch(res <- fromJSON(getForm(paste(web, sep="/"), .checkparams=FALSE,
            curl=rplant.env$curl.call)), 
-           error=function(x){return(res <<- data.frame(status=paste(x)))})
+           error=function(x){return(res <- data.frame(status=paste(x)))})
 
   if (res$status != "success") {
     sub <- substring(res$status,1,5)
@@ -521,18 +523,18 @@ ListDir <- function(dir.name, dir.path="", print.curl=FALSE, shared.username=NUL
 
   if (is.null(shared.username)) {
     if (dir.path == ""){
-      tmp <<- fromJSON(getURL(paste(web, rplant.env$user, dir.name, 
+      tmp <- fromJSON(getURL(paste(web, rplant.env$user, dir.name, 
                        sep="/"), curl=rplant.env$curl.call))
     } else {
-      tmp <<- fromJSON(getURL(paste(web, rplant.env$user, dir.path, dir.name, 
+      tmp <- fromJSON(getURL(paste(web, rplant.env$user, dir.path, dir.name, 
                        sep="/"), curl=rplant.env$curl.call))
     }
   } else {
     if (dir.path == ""){
-      tmp <<- fromJSON(getURL(paste(web, shared.username, dir.name, 
+      tmp <- fromJSON(getURL(paste(web, shared.username, dir.name, 
                        sep="/"), curl=rplant.env$curl.call))
     } else {
-      tmp <<- fromJSON(getURL(paste(web, shared.username, dir.path, dir.name,
+      tmp <- fromJSON(getURL(paste(web, shared.username, dir.path, dir.name,
                        sep="/"), curl=rplant.env$curl.call))
     }
   }
@@ -604,10 +606,10 @@ ShareDir <- function(dir.name, dir.path="", shared.username, read=TRUE, execute=
   }
 
   Renew()
-  tryCatch(res <<- fromJSON(getURLContent(web, curl=rplant.env$curl.call, 
+  tryCatch(res <- fromJSON(getURLContent(web, curl=rplant.env$curl.call, 
            infilesize=length(val), readfunction=val, upload=TRUE,
            customrequest="POST")), 
-           error=function(x){return(res <<- data.frame(status=paste(x)))})
+           error=function(x){return(res <- data.frame(status=paste(x)))})
 
   if (res$status != "success") {
     sub <- substring(res$status,1,5)
@@ -802,7 +804,7 @@ MakeDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=F
   content[2] <- paste("dirName=", dir.name, sep="")
   val <- charToRaw(paste(content, collapse = "&"))
   Renew()
-  res <<- fromJSON(httpPUT(paste(web, rplant.env$user, dir.path, 
+  res <- fromJSON(httpPUT(paste(web, rplant.env$user, dir.path, 
                    sep="/"), content=val, curl=rplant.env$curl.call))
 }
 
@@ -844,10 +846,10 @@ DeleteDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings
   }
   Renew()
   if (dir.path == "") {
-    res <<- fromJSON(httpDELETE(paste(web, rplant.env$user, dir.name,
+    res <- fromJSON(httpDELETE(paste(web, rplant.env$user, dir.name,
                      sep="/"), curl=rplant.env$curl.call))
   } else {
-    res <<- fromJSON(httpDELETE(paste(web,rplant.env$user, dir.path,
+    res <- fromJSON(httpDELETE(paste(web,rplant.env$user, dir.path,
                      dir.name, sep="/"), curl=rplant.env$curl.call))
   }
 }
@@ -867,9 +869,9 @@ ListApps<- function (description=FALSE, print.curl=FALSE)
 
   Renew()
 
-  tryCatch(tmp <<- fromJSON(getForm(web, .checkparams=FALSE, 
+  tryCatch(tmp <- fromJSON(getForm(web, .checkparams=FALSE, 
            curl=rplant.env$curl.call)), 
-           error=function(x){return(tmp <<- data.frame(status=paste(x)))})
+           error=function(x){return(tmp <- data.frame(status=paste(x)))})
 
   if (tmp$status != "success") {
     sub <- substring(tmp$status,1,5)
@@ -926,9 +928,9 @@ GetAppInfo <- function(application, return.json=FALSE, print.curl=FALSE) {
 
   Renew()
   web <- paste(rplant.env$webapps, "apps/name", sep="")
-  tryCatch(tmp <<- fromJSON(getForm(paste(web, priv.APP, sep="/"), 
+  tryCatch(tmp <- fromJSON(getForm(paste(web, priv.APP, sep="/"), 
                   .checkparams=FALSE, curl=rplant.env$curl.call)), 
-           error=function(x){return(tmp <<- data.frame(status=paste(x)))})
+           error=function(x){return(tmp <- data.frame(status=paste(x)))})
 
   if (tmp$status != "success") {
     sub <- substring(tmp$status,1,5)
@@ -1229,10 +1231,10 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
   val <- charToRaw(paste(content, collapse = "&"))
 
   Renew()
-  tryCatch(res <<- fromJSON(getURLContent(web, curl=rplant.env$curl.call, 
+  tryCatch(res <- fromJSON(getURLContent(web, curl=rplant.env$curl.call, 
            infilesize=length(val), readfunction=val, upload=TRUE,
            customrequest="POST")), 
-           error=function(x){return(res <<- data.frame(status=paste(x)))})
+           error=function(x){return(res <- data.frame(status=paste(x)))})
 
   if (res$status != "success") {
     sub <- substring(res$status,1,5)
@@ -1261,9 +1263,9 @@ CheckJobStatus <- function(job.id, print.curl=FALSE) {
 
   Renew()
 
-  tryCatch(res <<- fromJSON(getForm(paste(web, job.id, sep="/"), 
+  tryCatch(res <- fromJSON(getForm(paste(web, job.id, sep="/"), 
            .checkparams=FALSE, curl=rplant.env$curl.call)), 
-           error=function(x){return(res <<- data.frame(status=paste(x)))})
+           error=function(x){return(res <- data.frame(status=paste(x)))})
 
   if ((res$status != "success") || (length(res$result) == 0)) {
     sub <- substring(res$status,1,5)
@@ -1282,7 +1284,7 @@ CheckJobStatus <- function(job.id, print.curl=FALSE) {
 DeleteALL <- function() {
 
   Renew()
-  tryCatch(res <<- fromJSON(getForm(paste(rplant.env$webapps, "jobs/list", sep=""), .checkparams=FALSE, curl=rplant.env$curl.call)), error=function(x){return(res <<- data.frame(status=paste(x)))})
+  tryCatch(res <- fromJSON(getForm(paste(rplant.env$webapps, "jobs/list", sep=""), .checkparams=FALSE, curl=rplant.env$curl.call)), error=function(x){return(res <- data.frame(status=paste(x)))})
 
   if (res$status != "success") {
     sub <- substring(res$status,1,5)
@@ -1299,10 +1301,10 @@ DeleteALL <- function() {
     for (i in 1:length(res$result)){
       if ((res$result[[i]]$status == "ARCHIVING_FINISHED") || (res$result[[i]]$status == "FAILED")){
         Renew()
-        tryCatch(JS <<- fromJSON(getForm(paste(paste(rplant.env$webapps,
+        tryCatch(JS <- fromJSON(getForm(paste(paste(rplant.env$webapps,
                  "job", sep=""), res$result[[i]]$id, sep="/"),
                  .checkparams=FALSE, curl=rplant.env$curl.call)), 
-                 error=function(x){return(JS <<- data.frame(status=paste(x)))})
+                 error=function(x){return(JS <- data.frame(status=paste(x)))})
 
         dir.name <- unlist(strsplit(JS$result$archivePath, "/"))[length(unlist(strsplit(JS$result$archivePath, "/")))]
 
@@ -1333,10 +1335,10 @@ DeleteOne <- function(job.id, print.curl=FALSE) {
   }
     
   Renew()
-  tryCatch(JS <<- fromJSON(getForm(paste(paste(rplant.env$webapps, "job", 
+  tryCatch(JS <- fromJSON(getForm(paste(paste(rplant.env$webapps, "job", 
            sep=""), job.id, sep="/"), .checkparams=FALSE, 
            curl=rplant.env$curl.call)), 
-           error=function(x){return(JS <<- data.frame(status=paste(x)))})
+           error=function(x){return(JS <- data.frame(status=paste(x)))})
 
   if (JS$status != "success"){
     sub <- substring(JS$status,1,5)
@@ -1378,10 +1380,10 @@ DeleteJob <- function(job.id, print.curl=FALSE, ALL=FALSE) {
     }
   } else {
     Renew()
-    tryCatch(JS <<- fromJSON(getForm(paste(paste(rplant.env$webapps, "job", 
+    tryCatch(JS <- fromJSON(getForm(paste(paste(rplant.env$webapps, "job", 
              sep=""), job.id, sep="/"), .checkparams=FALSE, 
              curl=rplant.env$curl.call)), 
-             error=function(x){return(JS <<- data.frame(status=paste(x)))})
+             error=function(x){return(JS <- data.frame(status=paste(x)))})
     
     if (JS$status != "success"){
       sub <- substring(JS$status,1,5)
@@ -1402,7 +1404,7 @@ RetrieveOne <- function(job.id, file, archive.path, file.path) {
 
   Renew()
   
-  out <<- getForm(paste(paste(rplant.env$webio, "io", sep=""), archive.path, "/", 
+  out <- getForm(paste(paste(rplant.env$webio, "io", sep=""), archive.path, "/", 
                   file, sep=""), .checkparams=FALSE, 
                   curl=rplant.env$curl.call)
 
@@ -1416,10 +1418,10 @@ RetrieveJob <- function(job.id, file.vec, print.curl=FALSE, verbose=FALSE) {
   web <- paste(rplant.env$webio, "io", sep="")
 
   Renew()
-  tryCatch(JS <<- fromJSON(getForm(paste(paste(rplant.env$webapps, "job", 
+  tryCatch(JS <- fromJSON(getForm(paste(paste(rplant.env$webapps, "job", 
            sep=""), job.id, sep="/"), .checkparams=FALSE, 
            curl=rplant.env$curl.call)), 
-           error=function(x){return(JS <<- data.frame(status=paste(x)))})
+           error=function(x){return(JS <- data.frame(status=paste(x)))})
 
   if ((JS$status != "success") || (length(JS$result) == 0)) {
     sub <- substring(JS$status,1,5)
@@ -1474,10 +1476,10 @@ ListJobOutput <- function(job.id, print.curl=FALSE, print.total=TRUE) {
 
   Renew()
  
-  tryCatch(JS <<- fromJSON(getForm(paste(paste(rplant.env$webapps, "job", 
+  tryCatch(JS <- fromJSON(getForm(paste(paste(rplant.env$webapps, "job", 
            sep=""), job.id, sep="/"), .checkparams=FALSE, 
            curl=rplant.env$curl.call)), 
-           error=function(x){return(JS <<- data.frame(status=paste(x)))})
+           error=function(x){return(JS <- data.frame(status=paste(x)))})
 
   if ((JS$status != "success") || (length(JS$result) == 0)) {
     sub <- substring(JS$status,1,5)
@@ -1532,9 +1534,9 @@ GetJobHistory <- function(return.json=FALSE, print.curl=FALSE) {
   jobList <- c()
 
   Renew()
-  tryCatch(res <<- fromJSON(getForm(web, .checkparams=FALSE, 
+  tryCatch(res <- fromJSON(getForm(web, .checkparams=FALSE, 
            curl=rplant.env$curl.call)), 
-           error=function(x){return(res <<- data.frame(status=paste(x)))})
+           error=function(x){return(res <- data.frame(status=paste(x)))})
 
   if (res$status != "success") {
     return("Error: Invalid username/password combination")
