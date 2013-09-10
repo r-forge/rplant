@@ -38,5 +38,5 @@ Fasttree(file.name, file.path="", job.name=NULL, args=NULL,
 	\code{\link{SubmitJob}}
 }
 \examples{
-	\dontrun{Fasttree("fasta.aln", gamma=TRUE, stat=TRUE, print.curl=TRUE)}
+\dontrun{Fasttree("fasta.aln", type="PROTEIN", gamma=TRUE, stat=TRUE, print.curl=TRUE)}
 }	
