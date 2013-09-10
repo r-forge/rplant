@@ -35,5 +35,5 @@ Muscle(file.name, file.path="", job.name=NULL, args=NULL,
 	\code{\link{SubmitJob}}
 }
 \examples{
-\dontrun{Muscle("ex.lp.fasta", job.name="muscleJob1")}
+\dontrun{Muscle("DNA.fasta", job.name="muscleJob1")}
 }	
