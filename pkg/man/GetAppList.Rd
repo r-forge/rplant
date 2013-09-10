@@ -25,5 +25,5 @@ GetAppInfo(application, return.json=FALSE, print.curl=FALSE)
 }
 \examples{
 	\dontrun{ListApps()}
-	\dontrun{GetAppInfo("Muscle-3.8.31u1")}
+	\dontrun{GetAppInfo("Muscle-3.8.32u4")}
 }
