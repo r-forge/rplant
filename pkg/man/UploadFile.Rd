@@ -45,19 +45,20 @@ SupportFile(print.curl=FALSE)
 }
 \examples{
 # Write .fasta file to home directory
-\dontrun{data(ex.lp.fasta)}
-\dontrun{write.fasta(sequences = ex.lp.fasta, names = names(ex.lp.fasta), file.out = "ex.lp.fasta")}
+\dontrun{data(DNA.fasta)}
+\dontrun{write.fasta(sequences = DNA.fasta, names = names(DNA.fasta), file.out = "DNA.fasta")}
          
 # Upload a file to the DE
-\dontrun{UploadFile(local.file.name="ex.lp.fasta", filetype="FASTA-0")}
-\dontrun{UploadFile(local.file.name="ex.lp.fasta", local.file.path="path/to/dir", filetype="FASTA-0")}
+\dontrun{UploadFile(local.file.name="DNA.fasta", filetype="FASTA-0")}
+\dontrun{UploadFile(local.file.name="DNA.fasta", local.file.path="path/to/dir", filetype="FASTA-0")}
 \dontrun{UploadFile(local.file.name="simulation1.map")}
+\dontrun{UploadFile(local.file.name="simulation1.ped")}
 
-# Shares the file named "ex.lp.fasta" with the iPlant user "dude"
-\dontrun{ShareFile(file.name="ex.lp.fasta", shared.username="dude")}
+# Shares the file named "DNA.fasta" with the iPlant user "dude"
+\dontrun{ShareFile(file.name="DNA.fasta", shared.username="dude")}
 
 # Rename a file 
-\dontrun{RenameFile(file.name="ex.lp.fasta", new.file.name="lp.fasta")}
+\dontrun{RenameFile(file.name="DNA.fasta", new.file.name="lp.fasta")}
              
 # Move a file from the subdirectory rplant to the home directory
 \dontrun{MoveFile(file.name="lp.fasta", file.path="", end.path="data")}
