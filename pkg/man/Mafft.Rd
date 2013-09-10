@@ -36,5 +36,5 @@ Mafft(file.name, file.path="", type="DNA",  print.curl=FALSE,
 	\code{\link{SubmitJob}}
 }
 \examples{
-\dontrun{Mafft("ex.lp.fasta", job.name="MafftFASTA")}
+\dontrun{Mafft("PROTEIN.fasta", type="PROTEIN", job.name="MafftFASTA")}
 }	
