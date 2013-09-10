@@ -37,5 +37,5 @@ ClustalW(file.name, file.path="", type="DNA", job.name=NULL,
 	A list containing the job id and the job name is provided for jobs submitted.  If an error, then a message stating the error should also be reported.
 }
 \examples{
-\dontrun{ClustalW("ex.lp.fasta", job.name="ClustalWPHY", aln.filetype="PHYLIP")}
+\dontrun{ClustalW("DNA.fasta", job.name="ClustalWPHY", aln.filetype="PHYLIP_INT")}
 }	
