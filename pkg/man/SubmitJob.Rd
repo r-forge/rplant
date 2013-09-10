@@ -75,7 +75,7 @@ When it is finished it will read \code{ARCHIVING_FINISHED}, unless it failed.  W
 }
 \examples{
 # Submit a MUSCLE job using landplant data, which will return a job.id
-\dontrun{myJob <- SubmitJob(application="muscle-lonestar-3.8.31u2", file.list=list("ex.lp.fasta"), input.list=list("stdin"), file.path="data", job.name="MUSCLE")}
+\dontrun{myJob <- SubmitJob(application=""Muscle-3.8.32u4"", file.list=list("DNA.fasta"), input.list=list("stdin"), job.name="MUSCLE")}
 
 # Check the status of any job
 \dontrun{CheckJobStatus(myJob)}
@@ -84,11 +84,12 @@ When it is finished it will read \code{ARCHIVING_FINISHED}, unless it failed.  W
 \dontrun{ListJobOutput(myJob)}
              
 # Download output files
-\dontrun{RetrieveJob(myJob, ListJobOutput(myJob))}
+\dontrun{RetrieveJob(myJob, ListJobOutput(myJob, print.total=FALSE))}
      
 # View job history
 \dontrun{GetJobHistory()}
 
 # Delete Job
 \dontrun{DeleteJob(myJob)}
+\dontrun{DeleteJob(ALL=TRUE)}
 }
