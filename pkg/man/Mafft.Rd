@@ -33,8 +33,12 @@ Mafft(file.name, file.path="", type="DNA",  print.curl=FALSE,
 	A list containing the job id and the job name is provided for jobs submitted.  If an error, then a message stating the error should also be reported.
 }
 \seealso{
-	\code{\link{SubmitJob}}
+	\code{\link{ListApps}, \link{Validate}, \link{UploadFile}}
 }
 \examples{
-\dontrun{Mafft("PROTEIN.fasta", type="PROTEIN", job.name="MafftFASTA")}
+\dontrun{data(DNA.fasta)}
+\dontrun{write.fasta(sequences = DNA.fasta, names = names(DNA.fasta), file.out = "DNA.fasta")}
+\dontrun{Validate("username","password")}
+\dontrun{UploadFile("DNA.fasta", filetype="FASTA-0")}
+\dontrun{Mafft("DNA.fasta", job.name="MafftFASTA")}
 }	
