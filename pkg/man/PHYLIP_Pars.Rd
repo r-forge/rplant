@@ -24,8 +24,22 @@ PHYLIP_Pars(file.name, file.path="", job.name=NULL, type="DNA",
 	PHYLIP Parsimony outputs trees in Newick format \url{http://en.wikipedia.org/wiki/Newick_format}.
 }
 \seealso{
-	\code{\link{SubmitJob}}
+	\code{\link{SubmitJob}, \link{Validate}, \link{UploadFile}}
 }
 \examples{
-\dontrun{PYLIP_Pars("phylip_interleaved.aln", job.name="Phylip")}
+\dontrun{data(DNA.fasta)}
+\dontrun{write.fasta(sequences = DNA.fasta, names = names(DNA.fasta), file.out = "DNA.fasta")}
+\dontrun{Validate("username","password")}
+\dontrun{UploadFile("DNA.fasta", filetype="FASTA-0")}
+\dontrun{myJobMuD <- Muscle("DNA.fasta", aln.filetype="PHYLIP_PARS", job.name="musclePHYdna")}
+\dontrun{minWait = 5 # seconds}
+\dontrun{maxWait = 1800 # 30 min in seconds}
+\dontrun{Wait(myJobMuD[[1]], minWait, maxWait)}
+\dontrun{myJobPhyD <- PHYLIP_Pars("phylip_pars.aln", file.path=paste("analyses/",myJobMuD[[2]], sep=""), job.name="phylipDNA")}
+\dontrun{Wait(myJobPhyD[[1]], minWait, maxWait)}
+\dontrun{RetrieveJob(myJobPhyD[[1]], c("outtree.nwk"))}
+
+\dontrun{require(ape)}
+\dontrun{read.tree(paste(getwd(), myJobPhyD[[2]], "outtree.nwk", sep="/")) -> Tree}
+\dontrun{plot(Tree)}
 }	
