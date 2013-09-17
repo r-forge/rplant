@@ -32,8 +32,12 @@ Muscle(file.name, file.path="", job.name=NULL, args=NULL,
 	A list containing the job id and the job name is provided for jobs submitted.  If an error, then a message stating the error should also be reported.
 }
 \seealso{
-	\code{\link{SubmitJob}}
+	\code{\link{SubmitJob}, \link{Validate}, \link{UploadFile}}
 }
 \examples{
-\dontrun{Muscle("DNA.fasta", job.name="muscleJob1")}
+\dontrun{data(PROTEIN.fasta)}
+\dontrun{write.fasta(sequences = PROTEIN.fasta, names = names(PROTEIN.fasta), file.out = "PROTEIN.fasta")}
+\dontrun{Validate("username","password")}
+\dontrun{UploadFile("PROTEIN.fasta", filetype="FASTA-0")}
+\dontrun{Muscle("PROTEIN.fasta", aln.filetype="FASTA", job.name="muscleAAfasta")}
 }	
