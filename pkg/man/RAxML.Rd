@@ -43,8 +43,22 @@ RAxML(file.name, file.path="", job.name=NULL, type="DNA",
 	A list containing the job id and the job name is provided for jobs submitted.  If an error, then a message stating the error should also be reported.
 }
 \seealso{
-	\code{\link{SubmitJob}}
+	\code{\link{SubmitJob}, \link{Validate}, \link{UploadFile}}
 }
 \examples{
-\dontrun{RAxML("phylip_interleaved.aln", print.curl=TRUE)}
+\dontrun{data(PROTEIN.fasta)}
+\dontrun{write.fasta(sequences = PROTEIN.fasta, names = names(PROTEIN.fasta), file.out = "PROTEIN.fasta")}
+\dontrun{Validate("username","password")}
+\dontrun{UploadFile("PROTEIN.fasta", filetype="FASTA-0")}
+\dontrun{myJobCWP <- ClustalW("PROTEIN.fasta", type="PROTEIN", job.name="clustalwAAphy")}
+\dontrun{minWait = 5 # seconds}
+\dontrun{maxWait = 1800 # 30 min in seconds}
+\dontrun{Wait(myJobCWP[[1]], minWait, maxWait)}
+\dontrun{myJobRaxP <- RAxML("clustalw2.fa", type="PROTEIN", file.path=paste("analyses/",myJobCWP[[2]], sep=""), job.name="raxmlAA")}
+\dontrun{Wait(myJobRaxP[[1]], minWait, maxWait)}
+\dontrun{RetrieveJob(myJobRaxP[[1]], c("RAxML_bestTree.nwk"))}
+
+\dontrun{require(ape)}
+\dontrun{read.tree(paste(getwd(), myJobRaxP[[2]], "RAxML_bestTree.nwk", sep="/")) -> Tree}
+\dontrun{plot(Tree)}
 }	
