@@ -22,7 +22,7 @@ PLINKConversion(file.list="", file.path="", output.type="--recode",
 	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.}
 }
 \details{
-	Not all of the inputs for this application will be used at the same time, in fact the inputs are to be used only in three very strict groups.  Group 1: inputTFAM, inputTPED, these are the PLINK transposed filesets.  Group 2: inputMAP, inputPED, these are the PLINK regular filesets.  Group 3: inputBED, inputBIM, inputFAM, these are the PLINK binary filesets.
+	The inputs for \code{file.list} are to be used only in three very strict groups.  Group 1: TFAM, TPED, these are the PLINK transposed filesets.  Group 2: MAP, PED, these are the PLINK regular filesets.  Group 3: BED, BIM, FAM, these are the PLINK binary filesets.
 
 	`output.type' gives the user a lot of flexibility by allowing you to type in the proper argument.  All possible arguments for `output.type' are outlined below, if a different argument is entered the application will fail.
 
@@ -48,8 +48,15 @@ See the PLINK website for more information. \url{http://pngu.mgh.harvard.edu/~pu
 	A list containing the job id and the job name is provided for jobs submitted.  If an error, then a message stating the error should also be reported.
 }
 \seealso{
-	\code{\link{SubmitJob}}
+	\code{\link{SubmitJob}, \link{Validate}, \link{UploadFile}}
 }
 \examples{
-\dontrun{PLINKConversion(file.list=list(geno_test.tfam, geno_test.tped), file.path="data/Syngenta")}
+\dontrun{data(geno_test.tfam)}
+\dontrun{data(geno_test.tped)}
+\dontrun{write.table(geno_test.tfam, file = "geno_test.tfam", row.names=FALSE, col.names=FALSE, quote=FALSE, sep="\t")}
+\dontrun{write.table(geno_test.tped, file = "geno_test.tped", row.names=FALSE, col.names=FALSE, quote=FALSE, sep="\t")}
+\dontrun{Validate("username","password")}
+\dontrun{UploadFile("geno_test.tfam")}
+\dontrun{UploadFile("geno_test.tped")}
+\dontrun{PLINKConversion(file.list=list(geno_test.tfam, geno_test.tped), output.type="--recode")}
 }	
