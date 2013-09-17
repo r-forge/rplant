@@ -2,7 +2,7 @@
 \alias{Validate}
 \title{Authentication functions}
 \description{
-	Authenticates users and provides tokens to be used in place of unencrypted passwords
+	This basic function simply authenticates users.  
 }
 \usage{
 Validate(user, pwd, api="iplant", print.curl=FALSE)
@@ -14,11 +14,11 @@ Validate(user, pwd, api="iplant", print.curl=FALSE)
 	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
 }
 \details{
-	The authentication function will verify that the provided username and password combination are a valid pair for iPlant.    
+	The authentication function will verify that the provided username and password combination are a valid pair for iPlant.  To get a valid pair of credentials go to \url{http://user.iplantcollaborative.org/} and register.
 }
 \value{
 	The function will print the error "Authentication failed" if the username/password combination is not valid. 
 }
 \examples{
-\dontrun{Validate(user, pwd)}
+\dontrun{Validate("username", "password")}
 }
