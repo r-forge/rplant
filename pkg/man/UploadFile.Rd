@@ -47,12 +47,11 @@ SupportFile(print.curl=FALSE)
 # Write .fasta file to home directory
 \dontrun{data(DNA.fasta)}
 \dontrun{write.fasta(sequences = DNA.fasta, names = names(DNA.fasta), file.out = "DNA.fasta")}
+\dontrun{UploadFile(local.file.name="DNA.fasta", local.file.path="path/to/dir", filetype="FASTA-0")}
          
 # Upload a file to the DE
-\dontrun{UploadFile(local.file.name="DNA.fasta", filetype="FASTA-0")}
-\dontrun{UploadFile(local.file.name="DNA.fasta", local.file.path="path/to/dir", filetype="FASTA-0")}
-\dontrun{UploadFile(local.file.name="simulation1.map")}
-\dontrun{UploadFile(local.file.name="simulation1.ped")}
+\dontrun{data(geno_test.tfam)}
+\dontrun{UploadFile(local.file.name="geno_test.tfam")}
 
 # Shares the file named "DNA.fasta" with the iPlant user "dude"
 \dontrun{ShareFile(file.name="DNA.fasta", shared.username="dude")}
