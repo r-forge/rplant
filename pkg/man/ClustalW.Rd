@@ -24,7 +24,7 @@ ClustalW(file.name, file.path="", type="DNA", job.name=NULL,
 	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.}
 }
 \seealso{
-	\code{\link{SubmitJob}}
+	\code{\link{SubmitJob}, \link{Validate}, \link{UploadFile}}
 }
 \details{
 	The supported input file format is the fasta format \url{http://en.wikipedia.org/wiki/FASTA_format}.
@@ -37,5 +37,9 @@ ClustalW(file.name, file.path="", type="DNA", job.name=NULL,
 	A list containing the job id and the job name is provided for jobs submitted.  If an error, then a message stating the error should also be reported.
 }
 \examples{
+\dontrun{data(DNA.fasta)}
+\dontrun{write.fasta(sequences = DNA.fasta, names = names(DNA.fasta), file.out = "DNA.fasta")}
+\dontrun{Validate("username","password")}
+\dontrun{UploadFile("DNA.fasta", filetype="FASTA-0")}
 \dontrun{ClustalW("DNA.fasta", job.name="ClustalWPHY", aln.filetype="PHYLIP_INT")}
 }	
