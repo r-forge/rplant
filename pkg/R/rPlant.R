@@ -53,6 +53,36 @@ Renew <- function(){
          envir=rplant.env)
 }
 
+Wait <- function(job.id, minWaitsec, maxWaitsec, print=FALSE){
+  currentStatus= ''
+  currentWait = minWaitsec
+  while (( currentStatus != 'FAILED' ) && (currentStatus != 'ARCHIVING_FINISHED')) {
+    # cache the status from previous inquiry
+    oldStatus = currentStatus
+    currentStatus = CheckJobStatus( job.id )
+
+    if (currentStatus == oldStatus) {# status hasn't changed from last time we asked so
+      currentWait = currentWait * 1.10 # wait 10% longer to poll in the future
+
+      if (currentWait > maxWaitsec) {
+        currentWait = maxWaitsec # but don't wait too long
+      }
+    } else {
+      currentWait = minWaitsec # status changed so reset wait counter to min value
+    }
+    
+#   if (print == TRUE) {
+#     print(paste("Wait Time:", currentWait, "Status:", currentStatus))
+#   }
+    
+    Sys.sleep(currentWait) # sit idle for proscribed time. If you are using an event-based programming model, you could just schedule the next check currentWait sec in the future 
+  }
+
+  if (print == TRUE) {
+    print(paste("Job number: '", job.id, "' has status: ", currentStatus, sep=""))
+  }
+}
+
 Validate <- function(user, pwd, api="iplant", print.curl=FALSE) {
   
   api <- match.arg(api, c("iplant", "cipres", "tnrs"))
@@ -1444,7 +1474,7 @@ RetrieveJob <- function(job.id, file.vec, print.curl=FALSE, verbose=FALSE) {
         dir.create(dir.path)
       }
 
-      fileList <- ListJobOutput(job.id, print.total=FALSE)
+      fileList <- ListJobOutput(job.id, print=FALSE)
       for (file in 1:length(file.vec)) {
         # if file exists in output then download
         if (file.vec[file] %in% fileList) {
@@ -1471,7 +1501,7 @@ RetrieveJob <- function(job.id, file.vec, print.curl=FALSE, verbose=FALSE) {
   }
 }
 
-ListJobOutput <- function(job.id, print.curl=FALSE, print.total=TRUE) {
+ListJobOutput <- function(job.id, print.curl=FALSE, print=TRUE) {
   web <- paste(rplant.env$webapps, "job", sep="")
 
   Renew()
@@ -1508,7 +1538,7 @@ ListJobOutput <- function(job.id, print.curl=FALSE, print.total=TRUE) {
                job.id,"'", sep=""))
       }
 
-      if (print.total == TRUE) {
+      if (print == TRUE) {
         print(paste("There are ", length(res$result), " output files for job '", 
               job.id,"'", sep=""))
       }
