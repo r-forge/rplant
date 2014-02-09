@@ -1,7 +1,7 @@
 Fasttree <- function(file.name, file.path="", job.name=NULL, args=NULL, 
                      type="DNA", model=NULL, gamma=FALSE, stat=FALSE,
                      print.curl=FALSE, version="fasttreeDispatcher-1.0.0u1", 
-                     shared.username=NULL, suppress.Warnings=FALSE) {
+                     shared.username=NULL, suppress.Warnings=FALSE, email=TRUE) {
 
   type <- match.arg(type, c("DNA", "PROTEIN"))
 
@@ -59,7 +59,7 @@ Fasttree <- function(file.name, file.path="", job.name=NULL, args=NULL,
   }
 
   myJob<-SubmitJob(application=version, job.name=job.name, nprocs=nprocs,
-                   file.list=list(file.name), file.path=file.path, 
+                   file.list=list(file.name), file.path=file.path, email=email,
                    input.list=input.list, suppress.Warnings=suppress.Warnings,
                    print.curl=print.curl, shared.username=shared.username,
                    args.list=args)
