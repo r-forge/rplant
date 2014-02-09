@@ -1,7 +1,7 @@
 PLINK <- function(file.list="", file.path="", job.name=NULL, out.basename=NULL,
                   association.method="--assoc", no.sex=TRUE, args=NULL,
                   print.curl=FALSE, multi.adjust=TRUE, version="plink-1.07u1", 
-                  shared.username=NULL, suppress.Warnings=FALSE) {
+                  shared.username=NULL, suppress.Warnings=FALSE, email=TRUE) {
 
   input.len <- length(file.list)
   input.list <- list()
@@ -90,7 +90,7 @@ PLINK <- function(file.list="", file.path="", job.name=NULL, out.basename=NULL,
 
   # Submit
   myJob<-SubmitJob(application=version, args.list=options, job.name=job.name,
-                   file.list=file.list, file.path=file.path, 
+                   file.list=file.list, file.path=file.path, email=email,
                    input.list=input.list, shared.username=shared.username,
                    print.curl=print.curl, suppress.Warnings=suppress.Warnings)
 
