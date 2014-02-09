@@ -1,7 +1,7 @@
 Mafft <- function(file.name, file.path="", type="DNA",  print.curl=FALSE,
                   version="mafftDispatcher-1.0.13100u1", args=NULL, 
                   job.name=NULL, aln.filetype="FASTA", shared.username=NULL,
-                  suppress.Warnings=FALSE) {
+                  suppress.Warnings=FALSE, email=TRUE) {
 
   type <- match.arg(type, c("DNA", "PROTEIN"))
 
@@ -33,7 +33,7 @@ Mafft <- function(file.name, file.path="", type="DNA",  print.curl=FALSE,
   }
 
   myJob<-SubmitJob(application=version, job.name=job.name, nprocs=nprocs,
-                   file.list=list(file.name), file.path=file.path, 
+                   file.list=list(file.name), file.path=file.path, email=email,
                    input.list=input.list, suppress.Warnings=suppress.Warnings,
                    print.curl=print.curl, shared.username=shared.username,
                    args.list=args)
