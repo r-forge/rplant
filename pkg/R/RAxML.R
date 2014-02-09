@@ -4,7 +4,7 @@ RAxML <- function(file.name, file.path="", job.name=NULL, type="DNA",
                   nprocs=12, version="raxml-lonestar-7.2.8u1",
                   print.curl=FALSE, shared.username=NULL, 
                   substitution_matrix=NULL, empirical.frequencies=FALSE,
-                  suppress.Warnings=FALSE) {
+                  suppress.Warnings=FALSE, email=TRUE) {
 
   type <- match.arg(type, c("DNA", "PROTEIN"))
 
@@ -102,6 +102,6 @@ RAxML <- function(file.name, file.path="", job.name=NULL, type="DNA",
                    file.list=list(file.name), file.path=file.path, 
                    input.list=input.list, suppress.Warnings=suppress.Warnings,
                    print.curl=print.curl, shared.username=shared.username,
-                   args.list=args)
+                   args.list=args, email=email)
   return(myJob)
 }
