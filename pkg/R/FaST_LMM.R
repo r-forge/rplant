@@ -2,7 +2,7 @@ FaST_LMM <- function(input.file.list="", ALL.file.path="", print.curl=FALSE,
                      sim.file.list=NULL, pheno.file.name=NULL, mpheno=1,
                      args=NULL, covar.file.name=NULL, job.name=NULL, 
                      version="FaST-LMM-1.09u1", shared.username=NULL,
-                     suppress.Warnings=FALSE, out.basename=NULL) {
+                     suppress.Warnings=FALSE, out.basename=NULL, email=TRUE) {
 
 
   input.len <- length(input.file.list)
@@ -79,7 +79,7 @@ FaST_LMM <- function(input.file.list="", ALL.file.path="", print.curl=FALSE,
   options <- append(options, list(c("arguments",args)))
   # Submit
   myJob<-SubmitJob(application=version, args.list=options, job.name=job.name,
-                   file.list=input.file.list, file.path=ALL.file.path, 
+                   file.list=input.file.list, file.path=ALL.file.path, email=email,
                    input.list=input.list, shared.username=shared.username,
                    print.curl=print.curl, suppress.Warnings=suppress.Warnings)
 
