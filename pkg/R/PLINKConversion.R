@@ -1,7 +1,7 @@
 PLINKConversion <- function(file.list="", file.path="", output.type="--recode",
                             job.name=NULL, shared.username=NULL, 
                             print.curl=FALSE, version="plink-1.07u1", 
-                            suppress.Warnings=FALSE, out.basename=NULL) {
+                            suppress.Warnings=FALSE, out.basename=NULL, email=TRUE) {
 
   input.len <- length(file.list)
   input.list <- list()
@@ -89,7 +89,7 @@ PLINKConversion <- function(file.list="", file.path="", output.type="--recode",
 
   # Submit
   myJob<-SubmitJob(application=version, args.list=options, job.name=job.name,
-                   file.list=file.list, file.path=file.path,   
+                   file.list=file.list, file.path=file.path, email=email,  
                    input.list=input.list, suppress.Warnings=suppress.Warnings,
                    shared.username=shared.username, print.curl=print.curl)
 
