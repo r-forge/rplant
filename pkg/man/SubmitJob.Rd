@@ -96,7 +96,7 @@ When it is finished it will read \code{ARCHIVING_FINISHED}, unless it failed.  U
 \dontrun{Wait(myJob[[1]], 5, 1800, print=TRUE)}
  
 # Download output files
-\dontrun{RetrieveJob(myJob[[1]], ListJobOutput(myJob[[1]], print=FALSE))}
+\dontrun{RetrieveJob(myJob[[1]], ListJobOutput(myJob[[1]], print.total=FALSE))}
      
 # View job history
 \dontrun{GetJobHistory()}
