@@ -15,9 +15,10 @@
 SubmitJob(application, file.path="", file.list=NULL, input.list, 
           args.list=NULL, job.name, nprocs=1, private.APP=FALSE, 
           suppress.Warnings=FALSE,  shared.username=NULL,
-          print.curl=FALSE)
+          print.curl=FALSE, email=TRUE)
 Wait(job.id, minWaitsec, maxWaitsec, print=FALSE)
 CheckJobStatus(job.id, print.curl=FALSE)
+KillJob(job.id, print.curl=FALSE)
 ListJobOutput(job.id, print.curl=FALSE, print=TRUE)
 RetrieveJob(job.id, file.vec, print.curl=FALSE, verbose=FALSE)
 GetJobHistory(return.json=FALSE, print.curl=FALSE)
@@ -42,6 +43,7 @@ DeleteJob(job.id, print.curl=FALSE, ALL=FALSE)
 	\item{verbose}{For the \code{RetrieveJob} function this option will print the names of the files as they are downloaded.}
 	\item{shared.username}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.}
 	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.  If the application you are running is a private application have suppress.Warnings=TRUE}
+	\item{email}{This option is only on the \code{SubmitJob} function.  By default an email will be sent to the user when the job finishes.}
 	\item{ALL}{This option is only on the \code{DeleteJob} function.  If ALL=TRUE then all jobs in the job history will be deleted.}
 }
 \details{
@@ -67,7 +69,7 @@ DeleteJob(job.id, print.curl=FALSE, ALL=FALSE)
 	\code{ARCHIVING_FAILED}  
 }
 
-When it is finished it will read \code{ARCHIVING_FINISHED}, unless it failed.  Use the \code{Wait} function to wait until job is finished.  BE CAREFUL though, the \code{Wait} function will lock up the workspace until the job is finished, that means only use the \code{Wait} function if you are confident the job will finish.  When the job is finished then use the \code{ListJobOutput} function to see all of the files in your job.  The number of output files varies by \code{application}.  The \code{RetrieveJob} function takes the \code{job.id} and the \code{file.vec} as input, it will then download the specified files in the \code{file.vec}.  The files will be downloaded to your working directory (\code{getwd()}).  As said before the \code{file.vec} contains the file names that you want to download.  This vector is a subset of the output from \code{ListJobOutput}.  The \code{DeleteJob} function then deletes the job and the correponding output folder that was generated from running the job.  Using the option \code{DeleteJob(ALL=TRUE)} will delete all jobs in the job history.  The \code{GetJobHistory} function displays all jobs in your history that have not been deleted.
+When it is finished it will read either \code{ARCHIVING_FINISHED} or \code{FINISHED}, unless it failed.  Use the \code{KillJob} function to stop a job from running.  Use the \code{Wait} function to wait until job is finished.  BE CAREFUL though, the \code{Wait} function will lock up the workspace until the job is finished, that means only use the \code{Wait} function if you are confident the job will finish.  When the job is finished then use the \code{ListJobOutput} function to see all of the files in your job.  The number of output files varies by \code{application}.  The \code{RetrieveJob} function takes the \code{job.id} and the \code{file.vec} as input, it will then download the specified files in the \code{file.vec}.  The files will be downloaded to your working directory (\code{getwd()}).  As said before the \code{file.vec} contains the file names that you want to download.  This vector is a subset of the output from \code{ListJobOutput}.  The \code{DeleteJob} function then deletes the job and the correponding output folder that was generated from running the job.  Using the option \code{DeleteJob(ALL=TRUE)} will delete all jobs in the job history.  The \code{GetJobHistory} function displays all jobs in your history that have not been deleted.
 
 	For the \code{SubmitJob} function the \code{application} must match an application name that is in the output from the \code{ListApps} function.  For the \code{input.list} use the \code{GetAppInfo} function, the `kind' column verifies if "input" or "output".  What goes in the \code{input.list} is only the name in the 'id' column when the 'kind' column is "input".  For example, when the application is "muscle-lonestar-3.8.31u2", from the \code{GetAppInfo(user.name, token, "muscle-lonestar-3.8.31u2")[[2]]}, we get the \code{input.list=list("stdin")}.  For the application "velveth-1.2.07u1", again using \code{GetAppInfo(user.name, token, "velveth-1.2.07u1")[[2]]}, the \code{input.list=list("reads1", "reads2", "reads3", "reads4", "reads5", "reads6")}.  A couple notes, the \code{input.list} can be shorter than the the number of inputs, for example, using the "velveth-1.2.07u1" application, the input list could be \code{input.list=list("reads1", "reads2", "reads3")}.  Also, the \code{file.list} is the same length as \code{input.list}, and in this example, lets say \code{file.list=list("filer", "filea", "filez")}, then "filer" corresponds with the "read1" input.  Also for \code{args.list} use \code{GetAppInfo} function, when the 'kind' column is 'parameters', those are the inputs for \code{args.list}.  For \code{velveth-1.2.07u1} the \code{args.list} is as follows, \code{list(c("format1", value), c("kmer", value), c("Output", value))}.  The list can be as long as the number of options.
 }
