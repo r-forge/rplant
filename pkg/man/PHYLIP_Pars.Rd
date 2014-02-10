@@ -7,7 +7,7 @@ PHYLIP is a free package of programs for inferring phylogenies. It is distribute
 \usage{
 PHYLIP_Pars(file.name, file.path="", job.name=NULL, type="DNA",
             print.curl=FALSE, shared.username=NULL, 
-            suppress.Warnings=FALSE)
+            suppress.Warnings=FALSE, email=TRUE)
 }
 \arguments{
 	\item{file.name}{Name of file to be evaluated on the Discovery Environment (DE).}
@@ -17,6 +17,7 @@ PHYLIP_Pars(file.name, file.path="", job.name=NULL, type="DNA",
 	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
 	\item{shared.username}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.}
 	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.}
+	\item{email}{By default an email will be sent to the user when the job finishes.}
 }
 \details{
 	The input file format that is supported is the interleaved phylip format \url{http://www.bioperl.org/wiki/PHYLIP_multiple_alignment_format}.
