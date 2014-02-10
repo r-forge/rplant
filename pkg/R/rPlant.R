@@ -238,6 +238,7 @@ Wait <- function(job.id, minWaitsec, maxWaitsec, print=FALSE){
     print(paste("Job number: '", job.id, "' has status: ", currentStatus, sep=""))
   }
 }
+
 # -- END -- #
 
 
@@ -1427,7 +1428,7 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
     web_email <- paste(rplant.foundation.env$webprofiles, "search/username/", rplant.env$user, sep="")
     web_test <- paste(rplant.foundation.env$webapps, "apps/name/", sep="")
     tmp_string <- "tmp$result[[len]]"
-    eml_string <- "res$result[[1]]$email"
+    eml_string <- "callbackUrl="
     first_string <- paste("curl -sku '", rplant.foundation.env$user, "'", sep="")
     curl.call <- rplant.foundation.env$curl.call
     content[1] <- paste("jobName=", job.name, sep="")
@@ -1440,7 +1441,7 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
     web_email <- paste(rplant.agave.env$webprofiles, "search/username/", rplant.env$user, sep="")
     web_test <- rplant.agave.env$webapps
     tmp_string <- "tmp$result"
-    eml_string <- "res$result$email"
+    eml_string <- "callbackURL="
     first_string <- paste("curl -sk -H '", Renew(TRUE), "'", sep="")
     curl.call <- rplant.agave.env$curl.call
     content[1] <- paste("name=", job.name, sep="")
@@ -1594,7 +1595,7 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
   if (email==TRUE){
     Renew()
     tryCatch(res <- fromJSON(getURLContent(web_email, curl=curl.call)), error=function(x){return(res <- data.frame(status=paste(x)))})
-    content[7] <- paste("callbackURL=", eval(parse(text=eml_string)), sep=""); x <- 7;
+    content[7] <- paste(eml_string, res$result[[1]]$email, sep=""); x <- 7;
   }
 
   if (!is.null(n)){
@@ -1627,7 +1628,7 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
   }
 
   if (print.curl) {
-    curl.string <- paste(first_string," '", paste(content, collapse = "&"), "' ", web, sep="")
+    curl.string <- paste(first_string," -X POST -d '", paste(content, collapse = "&"), "' ", web, sep="")
     print(curl.string)
   }
 
