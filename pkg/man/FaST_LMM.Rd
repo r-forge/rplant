@@ -9,7 +9,7 @@ FaST_LMM(input.file.list="", ALL.file.path="", print.curl=FALSE,
          sim.file.list=NULL, pheno.file.name=NULL, mpheno=1,
          args=NULL, covar.file.name=NULL, job.name=NULL, 
          version="FaST-LMM-1.09u1", shared.username=NULL,
-         suppress.Warnings=FALSE, out.basename=NULL) 
+         suppress.Warnings=FALSE, out.basename=NULL, email=TRUE) 
 }
 \arguments{
 	\item{input.file.list}{(required) Names of files, in a list format, to be evaluated on the iPlant servers.  There are only three possible input groups for file.list, regular fileset (.map/.ped),  transposed fileset (.tfam/.tped), and binary fileset (.bed/.bim/.fam).}
@@ -25,6 +25,7 @@ FaST_LMM(input.file.list="", ALL.file.path="", print.curl=FALSE,
 	\item{version}{FaST-LMM version, options include \code{FaST-LMM-1.09u1}}
 	\item{shared.username}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.}
 	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.}
+	\item{email}{By default an email will be sent to the user when the job finishes.}
 }
 \details{
 	The inputs for \code{input.file.list} are to be used only in three very strict groups.  Group 1: TFAM, TPED, these are the PLINK transposed filesets.  Group 2: MAP, PED, these are the PLINK regular filesets.  Group 3: BED, BIM, FAM, these are the PLINK binary filesets.
