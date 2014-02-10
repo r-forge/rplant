@@ -12,7 +12,7 @@
 \usage{
 UploadFile(local.file.name, local.file.path="", filetype=NULL,
            print.curl=FALSE, suppress.Warnings=FALSE)
-ShareFile(file.name, file.path="", shared.username, read=TRUE, execute=TRUE, print.curl=FALSE, suppress.Warnings=FALSE)
+ShareFile(file.name, file.path="", shared.username, read=TRUE, execute=TRUE, write=TRUE, print.curl=FALSE, suppress.Warnings=FALSE)
 RenameFile(file.name, new.file.name, file.path="", print.curl=FALSE,
            suppress.Warnings=FALSE)
 MoveFile(file.name, file.path="", end.path="", print.curl=FALSE,
@@ -29,6 +29,7 @@ SupportFile(print.curl=FALSE)
 	\item{file.path}{optional path to a sub directory where file on the iPlant server is located; default path is empty which leads to a users home directory}
 	\item{end.path}{Path to destination sub directory where file on DE is moved to; default path is empty which leads to a users home directory}
 	\item{read}{Gives read permissions for shared file}
+	\item{write}{Gives write permissions for shared file}
 	\item{execute}{Gives execute permissions for shared file}
 	\item{shared.username}{With iPlant you have the ability to share files with other users, their username is the value for the shared.username}
 	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
