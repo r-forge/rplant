@@ -9,7 +9,7 @@
 ClustalW(file.name, file.path="", type="DNA", job.name=NULL, 
          version="ClustalW2-2.1u1", print.curl=FALSE, args=NULL,
          aln.filetype="PHYLIP_INT", shared.username=NULL,
-         suppress.Warnings=FALSE)
+         suppress.Warnings=FALSE, email=TRUE)
 }
 \arguments{
 	\item{file.name}{Name of file to be evaluated on the Discovery Environment (DE), see details for supported input formats.}
@@ -22,6 +22,7 @@ ClustalW(file.name, file.path="", type="DNA", job.name=NULL,
 	\item{aln.filetype}{ClustalW does alignment of sequences, this option selects the file type of that result file.  There are six options \code{CLUSTALW}, \code{PHYLIP_INT}, \code{NEXUS}, \code{GCG}, \code{GDE},  and \code{PIR}.  Note: the result file is ALWAYS `clustalw2.fa'}
 	\item{shared.username}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.}
 	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.}
+	\item{email}{By default an email will be sent to the user when the job finishes.}
 }
 \seealso{
 	\code{\link{SubmitJob}, \link{Validate}, \link{UploadFile}}
