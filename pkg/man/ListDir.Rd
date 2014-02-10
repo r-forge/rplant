@@ -11,7 +11,7 @@
 }
 \usage{
 ListDir(dir.name, dir.path="", print.curl=FALSE, shared.username=NULL, suppress.Warnings=FALSE)
-ShareDir(dir.name, dir.path="", shared.username, read=TRUE, execute=TRUE, print.curl=FALSE, suppress.Warnings=FALSE)
+ShareDir(dir.name, dir.path="", shared.username, read=TRUE, execute=TRUE, write=TRUE, print.curl=FALSE, suppress.Warnings=FALSE) 
 RenameDir(dir.name, new.dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE)
 MoveDir(dir.name, dir.path="", end.path="", print.curl=FALSE, suppress.Warnings=FALSE)
 MakeDir(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE)
