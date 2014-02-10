@@ -15,7 +15,7 @@ utils::globalVariables(c("rplant.env"))
 #################
 
 ################# Maybe add time AND number of uses to the Validate function #################
-Validate <- function(user, pwd, client_key=NULL, client_secret=NULL, api="foundation", print.curl=FALSE) {
+Validate <- function(user, pwd, consumer_key=NULL, consumer_secret=NULL, api="foundation", print.curl=FALSE) {
   
   api <- match.arg(api, c("agave", "foundation"))
 
@@ -36,7 +36,7 @@ Validate <- function(user, pwd, client_key=NULL, client_secret=NULL, api="founda
       assign("webprofiles", paste(web_BASE, "profile-v1/profile/", sep=""), envir=rplant.foundation.env)
       assign("user", user, envir=rplant.foundation.env)
       assign("pwd", pwd, envir=rplant.foundation.env) 
-
+      assign("curl.call", getCurlHandle(userpwd=paste(get("user", envir=rplant.foundation.env), get("pwd", envir=rplant.foundation.env), sep=":"), httpauth=1L, ssl.verifypeer=FALSE), envir=rplant.foundation.env)
       curl.string <- paste("curl -sku '", rplant.foundation.env$user, "' ", rplant.foundation.env$webauth, sep="")
 
     } else {
@@ -56,10 +56,11 @@ Validate <- function(user, pwd, client_key=NULL, client_secret=NULL, api="founda
 
     web <- paste(web_BASE, "token", sep="")
 
-    curl.string <- paste("curl -sku '", client_key, ":", client_secret,"' -X POST -d '", string, "' ", web, sep="")
+    curl.string <- paste("curl -sku '", consumer_key, ":", consumer_secret,"' -X POST -d '", string, "' ", web, sep="")
 
-    curl.call <- getCurlHandle(userpwd=paste(client_key, client_secret, sep=":"), httpauth=1L, ssl.verifypeer=FALSE)
-
+    curl.call <- getCurlHandle(userpwd=paste(consumer_key, consumer_secret, sep=":"), httpauth=1L, ssl.verifypeer=FALSE)
+    expire <- as.POSIXlt(format(Sys.time(),"%Y-%m-%d %k:%M:%OS"))
+    expire$hour=expire$hour+4
     tryCatch(res <- fromJSON(getURLContent(web, curl=curl.call, infilesize=length(val), readfunction=val, upload=TRUE, customrequest="POST")), error=function(x){return(res <- data.frame(status=paste(x)))})
 
     if (length(res) == 4){
@@ -67,8 +68,8 @@ Validate <- function(user, pwd, client_key=NULL, client_secret=NULL, api="founda
       assign("rplant.env", new.env(hash = TRUE), envir = .GlobalEnv)
       assign("api", "a", envir=rplant.env)
       assign("user", user, envir=rplant.env)
-      assign("client_key", client_key, envir=rplant.agave.env)
-      assign("client_secret", client_secret, envir=rplant.agave.env)
+      assign("consumer_key", consumer_key, envir=rplant.agave.env)
+      assign("consumer_secret", consumer_secret, envir=rplant.agave.env)
       assign("webio", paste(web_BASE, "files/2.0/", sep=""), envir=rplant.agave.env)
       assign("webapps", paste(web_BASE, "apps/2.0/", sep=""), envir=rplant.agave.env)
       assign("webjobs", paste(web_BASE, "jobs/2.0/", sep=""), envir=rplant.agave.env)
@@ -76,8 +77,10 @@ Validate <- function(user, pwd, client_key=NULL, client_secret=NULL, api="founda
       assign("webprofiles", paste(web_BASE, "profiles/2.0/", sep=""), envir=rplant.agave.env)
       assign("user", user, envir=rplant.agave.env)
       assign("pwd", pwd, envir=rplant.agave.env) 
+      assign("expire", expire, envir=rplant.agave.env) 
       assign("access_token", res$access_token, envir=rplant.agave.env)
-      assign("refresh_token", res$refresh_token, envir=rplant.agave.env) 
+      assign("refresh_token", res$refresh_token, envir=rplant.agave.env)
+      assign("curl.call", getCurlHandle(httpheader=c(paste("Authorization: Bearer ", get("access_token", envir=rplant.agave.env), sep="")), httpauth=1L, ssl.verifypeer=FALSE), envir=rplant.agave.env)
     } else {
       sub <- substring(res$status,1,5)
       if (sub == "Error"){
@@ -111,7 +114,7 @@ RenewToken <- function(print.curl=FALSE) {
   web <- rplant.agave.env$webauth
   val <- charToRaw(string)
 
-  curl.call <- getCurlHandle(userpwd=paste(client_key, client_secret, sep=":"), httpauth=1L, ssl.verifypeer=FALSE)
+  curl.call <- getCurlHandle(userpwd=paste(consumer_key, consumer_secret, sep=":"), httpauth=1L, ssl.verifypeer=FALSE)
 
   tryCatch(res <- fromJSON(getURLContent(web, curl=curl.call, infilesize=length(val), readfunction=val, upload=TRUE, customrequest="POST")), error=function(x){return(res <- data.frame(status=paste(x)))})
 
@@ -130,7 +133,7 @@ RenewToken <- function(print.curl=FALSE) {
   }
 
   if (print.curl){
-    curl.string <- paste("curl -sku ", rplant.agave.env$client_key, ":", rplant.agave.env$client_secret," -X POST -d '", string, "' ", web, sep="")
+    curl.string <- paste("curl -sku ", rplant.agave.env$consumer_key, ":", rplant.agave.env$consumer_secret," -X POST -d '", string, "' ", web, sep="")
     print(curl.string)
   }
 }
@@ -157,7 +160,21 @@ Renew <- function(ret=FALSE){
   }
 }
 
+Time <- function(){
+  if (rplant.env$api != "f"){
+    compare <- as.POSIXlt(format(Sys.time(),"%Y-%m-%d %k:%M:%OS"))
+    if (compare > rplant.agave.env$expire){
+      expire <- as.POSIXlt(format(Sys.time(),"%Y-%m-%d %k:%M:%OS"))
+      expire$hour=expire$hour+4
+      assign("expire", expire, envir=rplant.agave.env)
+      RenewToken()
+    }
+  }
+}
+
 TestApp <- function(APP){
+
+  Renew()
   if (rplant.env$api == "f"){
     web <- paste(rplant.foundation.env$webapps, "apps/name/", sep="")
     curl.call <- rplant.foundation.env$curl.call
@@ -176,10 +193,9 @@ TestApp <- function(APP){
     priv.APP <- APP
   }
 
-  Renew()
   res <- fromJSON(getForm(paste(web, priv.APP, sep=""), .checkparams=FALSE, curl=curl.call))
   len <- length(res$result)
-# if ((res$result[[len]]$public == FALSE) || (length(res) == 0)){
+
   if (length(res) == 0){
     return(list(NULL))
   } else {
@@ -261,6 +277,8 @@ UploadFile <- function(local.file.name, local.file.path="", filetype=NULL,
     file.path = paste(local.file.path, local.file.name, sep="/")
   }
 
+  Time()
+  Renew()
   if (rplant.env$api == "f") {
     web <- paste(rplant.foundation.env$webio, "io/", rplant.foundation.env$user, sep="")
     web_check <- paste(rplant.foundation.env$webio, "io/list/", rplant.foundation.env$user, "/", local.file.name, sep="")
@@ -276,14 +294,13 @@ UploadFile <- function(local.file.name, local.file.path="", filetype=NULL,
   }
 
   if (suppress.Warnings == FALSE){
-    Renew()
+    
     file.exist <- fromJSON(getURL(web_check, curl=curl.call)) 
     if (length(file.exist$result) != 0){
       return(paste("Error: file `", local.file.name, "' already exists in iPlant directory", sep=""))
     }
   }
 
-  Renew()
   if (!is.null(filetype)){
     tryCatch(res <- fromJSON(postForm(web, style="httppost", fileToUpload=fileUpload(file.path), fileType=filetype, .opts=options)), error=function(x){return(res <- data.frame(status=paste(x)))})
     curl.string <- paste(first_string," -F 'fileToUpload=@", file.path, "' -F 'fileType=", filetype, "' ", web, sep="")
@@ -316,6 +333,8 @@ UploadFile <- function(local.file.name, local.file.path="", filetype=NULL,
 
 ShareFile <- function(file.name, file.path="", shared.username, read=TRUE, execute=TRUE, write=TRUE, print.curl=FALSE, suppress.Warnings=FALSE) {
 
+  Time()
+  Renew()
   content <- c()
   if (rplant.env$api == "f") {
     web <- paste(rplant.foundation.env$webio, "io/share/", rplant.foundation.env$user, "/", sep="")
@@ -385,8 +404,6 @@ ShareFile <- function(file.name, file.path="", shared.username, read=TRUE, execu
   }
 
   if (suppress.Warnings == FALSE){
-
-    Renew()
     dir.exist <- fromJSON(getURL(paste(web_check, file.path, sep=""), curl=curl.call)) 
     if (length(dir.exist$result) != 0){
       if (file.path==""){
@@ -424,7 +441,6 @@ ShareFile <- function(file.name, file.path="", shared.username, read=TRUE, execu
 
   val <- charToRaw(paste(content, collapse = "&"))
 
-  Renew()
   tryCatch(res <- fromJSON(getURLContent(web, curl=curl.call,  infilesize=length(val), readfunction=val, upload=TRUE, customrequest="POST")), error=function(x){return(res <- data.frame(status=paste(x)))})
 
   if (res$status != "success") {
@@ -447,6 +463,8 @@ ShareFile <- function(file.name, file.path="", shared.username, read=TRUE, execu
 
 RenameFile <- function(file.name, new.file.name, file.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
 
+  Time()
+  Renew()
   content <- c()
   if (rplant.env$api == "f") {
     web <- paste(rplant.foundation.env$webio, "io/", rplant.foundation.env$user, "/", sep="")
@@ -469,10 +487,7 @@ RenameFile <- function(file.name, new.file.name, file.path="", print.curl=FALSE,
   }
 
   if (suppress.Warnings == FALSE){
-    Renew()
-
     dir.exist <- fromJSON(getURL(paste(web_check, file.path, sep=""), curl=curl.call)) 
-
     if (length(dir.exist$result) != 0){
       if (file.path==""){
         file.exist <- fromJSON(getURL(paste(web_check, file.name, sep=""), curl=curl.call))
@@ -513,8 +528,6 @@ RenameFile <- function(file.name, new.file.name, file.path="", print.curl=FALSE,
     print(curl.string)
   }
 
-  Renew()
-
   val <- charToRaw(paste(content, collapse = "&"))
 
   tryCatch(res <- fromJSON(httpPUT(web, content=val, curl=curl.call)), error=function(x){return(res <- data.frame(status=paste(x)))})
@@ -529,6 +542,8 @@ RenameFile <- function(file.name, new.file.name, file.path="", print.curl=FALSE,
 
 MoveFile <- function(file.name, file.path="", end.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
 
+  Time()
+  Renew()
   if (rplant.env$api == "f") {
     web <- paste(rplant.foundation.env$webio, "io/", rplant.foundation.env$user, "/", sep="")
     web_check <- paste(rplant.foundation.env$webio, "io/list/", rplant.foundation.env$user, "/", sep="")
@@ -544,7 +559,6 @@ MoveFile <- function(file.name, file.path="", end.path="", print.curl=FALSE, sup
   }
 
   if (suppress.Warnings == FALSE){
-    Renew()
     dir.exist <- fromJSON(getURL(paste(web_check, file.path, sep=""), curl=curl.call)) 
     if (length(dir.exist$result) != 0){
       if (file.path==""){
@@ -585,8 +599,6 @@ MoveFile <- function(file.name, file.path="", end.path="", print.curl=FALSE, sup
     }
   }
 
-  Renew()
-
   content <- c()
   if (end.path == ""){
     content[1] <- paste(path, rplant.env$user, "/", file.name, sep="")
@@ -619,6 +631,8 @@ MoveFile <- function(file.name, file.path="", end.path="", print.curl=FALSE, sup
 
 DeleteFile <- function(file.name, file.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
 
+  Time()
+  Renew()
   if (rplant.env$api == "f") {
     web <- paste(rplant.foundation.env$webio, "io/", rplant.foundation.env$user, "/", sep="")
     web_check <- paste(rplant.foundation.env$webio, "io/list/", rplant.foundation.env$user, "/", sep="")
@@ -632,7 +646,6 @@ DeleteFile <- function(file.name, file.path="", print.curl=FALSE, suppress.Warni
   }
 
   if (suppress.Warnings == FALSE){
-    Renew()
     dir.exist <- fromJSON(getURL(paste(web_check, file.path, sep=""), curl=curl.call)) 
     if (length(dir.exist$result) != 0){
       if (file.path==""){
@@ -667,8 +680,6 @@ DeleteFile <- function(file.name, file.path="", print.curl=FALSE, suppress.Warni
     curl.string <- paste(first_string, " -X DELETE ", web, sep="")
     print(curl.string)
   }
-
-  Renew()
 
   tryCatch(res <- fromJSON(httpDELETE(web, curl = curl.call)), error=function(x){return(res <- data.frame(status=paste(x)))})
 }
@@ -730,6 +741,8 @@ SupportFile <- function(print.curl=FALSE) {
 
 ListDir <- function(dir.name, dir.path="", print.curl=FALSE, shared.username=NULL, suppress.Warnings=FALSE) {
 
+  Time()
+  Renew()
   if (rplant.env$api == "f") {
     web <- paste(rplant.foundation.env$webio, "io/list/", sep="")
     first_string <- paste("curl -sku '", rplant.foundation.env$user, "'", sep="")
@@ -753,7 +766,6 @@ ListDir <- function(dir.name, dir.path="", print.curl=FALSE, shared.username=NUL
   }
 
   if (suppress.Warnings == FALSE){
-    Renew()
     dir.exist <- fromJSON(getURL(web, curl=curl.call))
     if (length(dir.exist$result) == 0){
       if (dir.exist$status == "error"){
@@ -767,8 +779,6 @@ ListDir <- function(dir.name, dir.path="", print.curl=FALSE, shared.username=NUL
       }
     }
   }
-
-  Renew()
 
   if (print.curl){
     curl.string <- paste(first_string, " ", web, sep="")
@@ -795,6 +805,8 @@ ListDir <- function(dir.name, dir.path="", print.curl=FALSE, shared.username=NUL
 
 ShareDir <- function(dir.name, dir.path="", shared.username, read=TRUE, execute=TRUE, write=TRUE, print.curl=FALSE, suppress.Warnings=FALSE) {
 
+  Time()
+  Renew()
   content <- c()
   if (rplant.env$api == "f") {
     web <- paste(rplant.foundation.env$webio, "io/share/", rplant.foundation.env$user, "/", sep="")
@@ -872,8 +884,6 @@ ShareDir <- function(dir.name, dir.path="", shared.username, read=TRUE, execute=
   }
 
   if (suppress.Warnings == FALSE){
-
-    Renew()
     if (dir.path == ""){
       dir.exist <- fromJSON(getURL(paste(web_check, dir.name, sep=""), curl=curl.call))
     } else {
@@ -906,7 +916,6 @@ ShareDir <- function(dir.name, dir.path="", shared.username, read=TRUE, execute=
 
   val <- charToRaw(paste(content, collapse = "&"))
 
-  Renew()
   tryCatch(res <- fromJSON(getURLContent(web, curl=curl.call,  infilesize=length(val), readfunction=val, upload=TRUE, customrequest="POST")), error=function(x){return(res <- data.frame(status=paste(x)))})
 
   if (res$status != "success") {
@@ -929,6 +938,8 @@ ShareDir <- function(dir.name, dir.path="", shared.username, read=TRUE, execute=
 
 RenameDir <- function(dir.name, new.dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
 
+  Time()
+  Renew()
   content <- c()
   if (rplant.env$api == "f") {
     web <- paste(rplant.foundation.env$webio, "io/", rplant.foundation.env$user, "/", sep="")
@@ -952,10 +963,7 @@ RenameDir <- function(dir.name, new.dir.name, dir.path="", print.curl=FALSE, sup
   }
 
   if (suppress.Warnings == FALSE){
-    Renew()
-
     dir.exist <- fromJSON(getURL(paste(web_check, dir.path, sep=""), curl=curl.call)) 
-
     if (length(dir.exist$result) != 0){
       if (dir.path==""){
         file.exist <- fromJSON(getURL(paste(web_check, dir.name, sep=""), curl=curl.call))
@@ -996,8 +1004,6 @@ RenameDir <- function(dir.name, new.dir.name, dir.path="", print.curl=FALSE, sup
     print(curl.string)
   }
 
-  Renew()
-
   val <- charToRaw(paste(content, collapse = "&"))
 
   tryCatch(res <- fromJSON(httpPUT(web, content=val, curl=curl.call)), error=function(x){return(res <- data.frame(status=paste(x)))})
@@ -1011,6 +1017,8 @@ RenameDir <- function(dir.name, new.dir.name, dir.path="", print.curl=FALSE, sup
 
 MoveDir <- function(dir.name, dir.path="", end.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
 
+  Time()
+  Renew()
   if (rplant.env$api == "f") {
     web <- paste(rplant.foundation.env$webio, "io/", rplant.foundation.env$user, "/", sep="")
     web_check <- paste(rplant.foundation.env$webio, "io/list/", rplant.foundation.env$user, "/", sep="")
@@ -1026,7 +1034,6 @@ MoveDir <- function(dir.name, dir.path="", end.path="", print.curl=FALSE, suppre
   }
 
   if (suppress.Warnings == FALSE){
-    Renew()
     dir.exist <- fromJSON(getURL(paste(web_check, dir.path, sep=""), curl=curl.call)) 
     if (length(dir.exist$result) != 0){
       if (dir.path==""){
@@ -1067,8 +1074,6 @@ MoveDir <- function(dir.name, dir.path="", end.path="", print.curl=FALSE, suppre
     }
   }
 
-  Renew()
-
   content <- c()
   if (end.path == ""){
     content[1] <- paste(path, rplant.env$user, "/", dir.name, sep="")
@@ -1101,6 +1106,8 @@ MoveDir <- function(dir.name, dir.path="", end.path="", print.curl=FALSE, suppre
 
 MakeDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
 
+  Time()
+  Renew()
   content <- c()
   if (rplant.env$api == "f") {
     web_check <- paste(rplant.foundation.env$webio, "io/list/", rplant.foundation.env$user, "/", sep="")
@@ -1125,7 +1132,6 @@ MakeDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=F
   }
 
   if (suppress.Warnings == FALSE){
-    Renew()
     dir.exist <- fromJSON(getURL(paste(web_check, dir.path, sep=""), curl=curl.call)) 
     if (length(dir.exist$result) != 0){
       if (dir.path==""){
@@ -1158,7 +1164,7 @@ MakeDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=F
   }
 
   val <- charToRaw(paste(content, collapse = "&"))
-  Renew()
+
   tryCatch(res <- fromJSON(httpPUT(paste(web, dir.path, sep=""), content=val, curl=curl.call)), error=function(x){return(res <- data.frame(status=paste(x)))})
 }
 
@@ -1170,6 +1176,8 @@ MakeDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=F
 
 DeleteDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
 
+  Time()
+  Renew()
   if (rplant.env$api == "f") {
     web <- paste(rplant.foundation.env$webio, "io/", rplant.foundation.env$user, "/", sep="")
     web_check <- paste(rplant.foundation.env$webio, "io/list/", rplant.foundation.env$user, "/", sep="")
@@ -1183,9 +1191,7 @@ DeleteDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings
   }
 
   if (suppress.Warnings == FALSE){
-    Renew()
     dir.exist <- fromJSON(getURL(paste(web_check, dir.path, sep=""), curl=curl.call)) 
-
     if (length(dir.exist$result) != 0){
 
       if (dir.path==""){
@@ -1220,8 +1226,6 @@ DeleteDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings
     print(curl.string)
   }
 
-  Renew()
-
   tryCatch(res <- fromJSON(httpDELETE(web, curl = curl.call)), error=function(x){return(res <- data.frame(status=paste(x)))})
 }
 
@@ -1241,6 +1245,8 @@ DeleteDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings
 ListApps<- function (description=FALSE, print.curl=FALSE) 
 {
 
+  Time()
+  Renew()
   if (rplant.env$api == "f") {
     web <- paste(rplant.foundation.env$webapps, "apps/list/", sep="")
     first_string <- paste("curl -sku '", rplant.foundation.env$user, "'", sep="")
@@ -1250,8 +1256,6 @@ ListApps<- function (description=FALSE, print.curl=FALSE)
     first_string <- paste("curl -sk -H '", Renew(TRUE), "'", sep="")
     curl.call <- rplant.agave.env$curl.call
   }
-
-  Renew()
 
   tryCatch(tmp <- fromJSON(getForm(web, .checkparams=FALSE, curl=curl.call)), 
            error=function(x){return(tmp <- data.frame(status=paste(x)))})
@@ -1307,6 +1311,8 @@ ListApps<- function (description=FALSE, print.curl=FALSE)
 
 GetAppInfo <- function(application, return.json=FALSE, print.curl=FALSE) {
 
+  Time()
+  Renew()
   if (rplant.env$api == "f"){
     web <- paste(rplant.foundation.env$webapps, "apps/name/", sep="")
     curl.call <- rplant.foundation.env$curl.call
@@ -1332,7 +1338,6 @@ GetAppInfo <- function(application, return.json=FALSE, print.curl=FALSE) {
     text <- "Private App"
   }
 
-  Renew()
   tryCatch(tmp <- fromJSON(getForm(paste(web, priv.APP, sep=""), .checkparams=FALSE, curl=curl.call)), error=function(x){return(tmp <- data.frame(status=paste(x)))})
 
   if (tmp$status != "success") {
@@ -1420,6 +1425,8 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
   job.name <- paste(unlist(strsplit(paste(job.name, "_", format(Sys.time(), 
                     "%Y-%m-%d_%k-%M-%OS3"), sep=""), " ")), collapse="")
 
+  Time()
+  Renew()
   content <- c()
 
   if (rplant.env$api == "f") {
@@ -1457,9 +1464,7 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
   }
 
   if (suppress.Warnings == FALSE){
-    Renew()
     dir.exist <- fromJSON(getURL(paste(web_check, file.path, sep=""), curl=curl.call)) 
-
     if (length(dir.exist$result) != 0){
       file.exist <- list()
       for (i in 1:length(file.list)){
@@ -1498,8 +1503,6 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
         priv.APP <- application
       }
     }
-
-    Renew()
 
     tmp <- fromJSON(getForm(paste(web_test, priv.APP, sep=""), .checkparams=FALSE, curl=curl.call))
 
@@ -1546,7 +1549,6 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
       priv.APP <- application
     }
 
-    Renew()
     tmp <- fromJSON(getForm(paste(web_test, priv.APP, sep=""), .checkparams=FALSE, curl=curl.call))
 
   }
@@ -1593,7 +1595,6 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
   content[6] <- paste("archivePath=/", rplant.env$user, "/analyses/", job.name, sep=""); x <- 6;
 
   if (email==TRUE){
-    Renew()
     tryCatch(res <- fromJSON(getURLContent(web_email, curl=curl.call)), error=function(x){return(res <- data.frame(status=paste(x)))})
     content[7] <- paste(eml_string, res$result[[1]]$email, sep=""); x <- 7;
   }
@@ -1634,7 +1635,6 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
 
   val <- charToRaw(paste(content, collapse = "&"))
 
-  Renew()
   tryCatch(res <- fromJSON(getURLContent(web, curl=curl.call,  infilesize=length(val), readfunction=val, upload=TRUE, customrequest="POST")), error=function(x){return(res <- data.frame(status=paste(x)))})
 
   if (res$status != "success") {
@@ -1661,6 +1661,8 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
 
 CheckJobStatus <- function(job.id, details=FALSE, print.curl=FALSE) {
 
+  Time()
+  Renew()
   if (rplant.env$api == "f") {
     web <- paste(rplant.foundation.env$webapps, "job/", job.id, sep="")
     first_string <- paste("curl -sku '", rplant.foundation.env$user, "'", sep="")
@@ -1674,8 +1676,6 @@ CheckJobStatus <- function(job.id, details=FALSE, print.curl=FALSE) {
   if (!(((rplant.env$api == "f") && (details == TRUE)) || (details == FALSE))){
      web <- paste(web, "history", sep="")
   }
-
-  Renew()
 
   tryCatch(res <- fromJSON(getForm(web, .checkparams=FALSE, curl=curl.call)),  error=function(x){return(res <- data.frame(status=paste(x)))})
 
@@ -1716,6 +1716,8 @@ CheckJobStatus <- function(job.id, details=FALSE, print.curl=FALSE) {
 
 KillJob <- function(job.id, print.curl=FALSE) {
 
+  Time()
+  Renew()
   if (rplant.env$api == "f") {
     web <- paste(rplant.foundation.env$webapps, "job/", job.id, sep="")
     first_string <- paste("curl -sku '", rplant.foundation.env$user, "'", sep="")
@@ -1731,7 +1733,6 @@ KillJob <- function(job.id, print.curl=FALSE) {
 
   val <- charToRaw(paste(content, collapse = "&"))
 
-  Renew()
   tryCatch(res <- fromJSON(getURLContent(web, curl=curl.call,  infilesize=length(val), readfunction=val, upload=TRUE, customrequest="POST")), error=function(x){return(res <- data.frame(status=paste(x)))})
 
   if (print.curl) {
@@ -1759,6 +1760,8 @@ KillJob <- function(job.id, print.curl=FALSE) {
 
 DeleteALL <- function() {
 
+  Time()
+  Renew()
   if (rplant.env$api == "f") {
     web <- paste(rplant.foundation.env$webapps, "job/list", job.id, sep="")
     web_check <- paste(rplant.foundation.env$webio, "io/list/", rplant.foundation.env$user, "/", sep="")
@@ -1773,7 +1776,6 @@ DeleteALL <- function() {
     curl.call <- rplant.agave.env$curl.call
   }
 
-  Renew()
   tryCatch(res <- fromJSON(getForm(web, .checkparams=FALSE, curl=curl.call)), error=function(x){return(res <- data.frame(status=paste(x)))})
 
   if (res$status != "success") {
@@ -1790,7 +1792,7 @@ DeleteALL <- function() {
   } else {
     for (i in 1:length(res$result)){
       if ((res$result[[i]]$status == "STOPPED") || (res$result[[i]]$status == "FINISHED") || (res$result[[i]]$status == "ARCHIVING_FINISHED") || (res$result[[i]]$status == "FAILED")){
-        Renew()
+
         tryCatch(JS <- fromJSON(getForm(paste(web, res$result[[i]]$id, sep=""),
                  .checkparams=FALSE, curl=curl.call)), 
                  error=function(x){return(JS <- data.frame(status=paste(x)))})
@@ -1799,14 +1801,11 @@ DeleteALL <- function() {
 
         dir.path <- substr(JS$result$archivePath, nchar(rplant.env$user) + 3, nchar(JS$result$archivePath)-nchar(dir.name)-1)
         
-        Renew()
         dir.exist <- fromJSON(getURL(paste(web_check, dir.path, "/", dir.name, sep=""), curl=curl.call))
 
         if (length(dir.exist$result) != 0){
-          Renew()
           tmp <- fromJSON(httpDELETE(paste(web_del, dir.path, "/", dir.name, sep=""), curl=curl.call))
         }
-        Renew()
         tmp <- fromJSON(httpDELETE(paste(web, res$result[[i]]$id, sep=""), curl = curl.call))
       }
     }
@@ -1821,6 +1820,8 @@ DeleteALL <- function() {
 
 DeleteOne <- function(job.id, print.curl=FALSE) {
 
+  Time()
+  Renew()
   if (rplant.env$api == "f") {
     web <- paste(rplant.foundation.env$webapps, "job/", job.id, sep="")
     web_check <- paste(rplant.foundation.env$webio, "io/list/", rplant.foundation.env$user, "/", sep="")
@@ -1835,7 +1836,6 @@ DeleteOne <- function(job.id, print.curl=FALSE) {
     curl.call <- rplant.agave.env$curl.call
   }
 
-  Renew()
   tryCatch(JS <- fromJSON(getForm(web, .checkparams=FALSE, curl=curl.call)), 
            error=function(x){return(JS <- data.frame(status=paste(x)))})
 
@@ -1855,14 +1855,11 @@ DeleteOne <- function(job.id, print.curl=FALSE) {
 
     dir.path <- substr(JS$result$archivePath, nchar(rplant.env$user) + 3, nchar(JS$result$archivePath)-nchar(dir.name)-1)
 
-    Renew()
     dir.exist <- fromJSON(getURL(paste(web_check, dir.path, "/", dir.name, sep=""), curl=curl.call))
 
     if (length(dir.exist$result) != 0){
-      Renew()
         tmp <- fromJSON(httpDELETE(paste(web_del, dir.path, "/", dir.name, sep=""), curl=curl.call))
       }
-      Renew()
       tmp <- fromJSON(httpDELETE(web, curl = curl.call))
   
   if (print.curl) {
@@ -1883,6 +1880,8 @@ DeleteOne <- function(job.id, print.curl=FALSE) {
 
 DeleteJob <- function(job.id, print.curl=FALSE, ALL=FALSE) {
 
+  Time()
+  Renew()
   if (rplant.env$api == "f") {
     web <- paste(rplant.foundation.env$webapps, "job/", job.id, sep="")
     curl.call <- rplant.foundation.env$curl.call
@@ -1897,7 +1896,6 @@ DeleteJob <- function(job.id, print.curl=FALSE, ALL=FALSE) {
       print("No curl statement to print")
     }
   } else {
-    Renew()
     tryCatch(JS <- fromJSON(getForm(web, .checkparams=FALSE, curl=curl.call)), 
              error=function(x){return(JS <- data.frame(status=paste(x)))})
     
@@ -1923,6 +1921,8 @@ DeleteJob <- function(job.id, print.curl=FALSE, ALL=FALSE) {
 
 RetrieveOne <- function(file, archive.path, file.path, print.curl) {  
 
+  Time()
+  Renew()
   if (rplant.env$api == "f") {
     web <- paste(rplant.foundation.env$webio, "io", archive.path, "/", file, sep="")
     first_string <- paste("curl -sku '", rplant.foundation.env$user, "'", sep="")
@@ -1933,7 +1933,6 @@ RetrieveOne <- function(file, archive.path, file.path, print.curl) {
     curl.call <- rplant.agave.env$curl.call
   }
 
-  Renew()
   curlPerform(url=web, curl=curl.call, writedata = CFILE(file.path(file.path,file), mode="wrb")@ref)
   gc()
 
@@ -1951,6 +1950,8 @@ RetrieveOne <- function(file, archive.path, file.path, print.curl) {
 
 RetrieveJob <- function(job.id, file.vec, print.curl=FALSE, verbose=FALSE) {  
 
+  Time()
+  Renew()
   if (rplant.env$api == "f") {
     web <- paste(rplant.foundation.env$webapps, "job/", job.id, sep="")
     first_string <- paste("curl -sku '", rplant.foundation.env$user, "'", sep="")
@@ -1961,7 +1962,6 @@ RetrieveJob <- function(job.id, file.vec, print.curl=FALSE, verbose=FALSE) {
     curl.call <- rplant.agave.env$curl.call
   }
 
-  Renew()
   tryCatch(JS <- fromJSON(getForm(web, .checkparams=FALSE, curl=curl.call)), 
            error=function(x){return(JS <- data.frame(status=paste(x)))})
 
@@ -2014,6 +2014,8 @@ RetrieveJob <- function(job.id, file.vec, print.curl=FALSE, verbose=FALSE) {
 
 ListJobOutput <- function(job.id, print.curl=FALSE, print.total=TRUE) {
 
+  Time()
+  Renew()
   if (rplant.env$api == "f") {
     web_check <- paste(rplant.foundation.env$webapps, "job/", job.id, sep="")
     web <- paste(rplant.foundation.env$webio, "io/list", sep="")
@@ -2025,8 +2027,6 @@ ListJobOutput <- function(job.id, print.curl=FALSE, print.total=TRUE) {
     first_string <- paste("curl -sk -H '", Renew(TRUE), "'", sep="")
     curl.call <- rplant.agave.env$curl.call
   }
-
-  Renew()
  
   tryCatch(JS <- fromJSON(getForm(web_check, .checkparams=FALSE, curl=curl.call)), 
            error=function(x){return(JS <- data.frame(status=paste(x)))})
@@ -2045,7 +2045,6 @@ ListJobOutput <- function(job.id, print.curl=FALSE, print.total=TRUE) {
     if ((JS$res$status == "FINISHED") || (JS$res$status == "ARCHIVING_FINISHED")) {
 
       web <- paste(web, JS$re$archivePath, sep="")
-      Renew()
       res <- fromJSON(getURLContent(web, curl=curl.call))
 
       if (print.curl) {
@@ -2079,6 +2078,8 @@ ListJobOutput <- function(job.id, print.curl=FALSE, print.total=TRUE) {
 
 GetJobHistory <- function(return.json=FALSE, print.curl=FALSE) {
 
+  Time()
+  Renew()
   if (rplant.env$api == "f") {
     web <- paste(rplant.foundation.env$webapps, "jobs/list", sep="")
     first_string <- paste("curl -sku '", rplant.foundation.env$user, "'", sep="")
@@ -2093,7 +2094,6 @@ GetJobHistory <- function(return.json=FALSE, print.curl=FALSE) {
 
   jobList <- c()
 
-  Renew()
   tryCatch(res <- fromJSON(getForm(web, .checkparams=FALSE, curl=curl.call)), 
            error=function(x){return(res <- data.frame(status=paste(x)))})
 
