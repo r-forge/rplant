@@ -8,7 +8,7 @@
 Fasttree(file.name, file.path="", job.name=NULL, args=NULL, 
          type="DNA", model=NULL, gamma=FALSE, stat=FALSE,
          print.curl=FALSE, version="fasttreeDispatcher-1.0.0u1", 
-         shared.username=NULL, suppress.Warnings=FALSE)
+         shared.username=NULL, suppress.Warnings=FALSE, email=TRUE)
 }
 \arguments{
 	\item{file.name}{name of file to be evaluated on the Discovery Environment (DE), see details for supported input formats.}
@@ -22,6 +22,7 @@ Fasttree(file.name, file.path="", job.name=NULL, args=NULL,
 	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
 	\item{shared.username}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.}
 	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.}
+	\item{email}{By default an email will be sent to the user when the job finishes.}
 	\item{args}{Optional for arguments (i.e. flags).  The Fasttree model has much additional functionality that is not fit into this wrapper function (\url{http://meta.microbesonline.org/fasttree/#Usage}), see details.  This option allows users to add anything that is not included, see details.}
 }
 \details{
