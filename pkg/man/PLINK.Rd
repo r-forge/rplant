@@ -8,7 +8,7 @@
 PLINK(file.list="", file.path="", job.name=NULL, out.basename=NULL,
       association.method="--assoc", no.sex=TRUE, args=NULL,
       print.curl=FALSE, multi.adjust=TRUE, version="plink-1.07u1", 
-      shared.username=NULL, suppress.Warnings=FALSE)
+      shared.username=NULL, suppress.Warnings=FALSE, email=TRUE)
 }
 \arguments{
 	\item{file.list}{Names of files, in a list format, to be evaluated on the Discovery Environment (DE).  There are only three possible input groups for file.list, regular fileset (.map/.ped),  transposed fileset (.tfam/.tped), and binary fileset (.bed/.bim/.fam).}
@@ -23,6 +23,7 @@ PLINK(file.list="", file.path="", job.name=NULL, out.basename=NULL,
 	\item{version}{PLINK version, options include \code{plink-1.07u1}}
 	\item{shared.username}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.}
 	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.}
+	\item{email}{By default an email will be sent to the user when the job finishes.}
 }
 \details{
 	The inputs for \code{file.list} are to be used only in three very strict groups.  Group 1: TFAM, TPED, these are the PLINK transposed filesets.  Group 2: MAP, PED, these are the PLINK regular filesets.  Group 3: BED, BIM, FAM, these are the PLINK binary filesets.
