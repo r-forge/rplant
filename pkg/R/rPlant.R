@@ -2,7 +2,7 @@
 # rPlant directly interacts with iplant's command-line API for the 
 # Discovery Environment (DE)
 
-# First get the front consolidated, then put the functions together, RenameDir and RenameFile do the exact same thing just one is on a file the other on a directory.  Then consolodate further by creating a function at the end . . .
+# Maybe add a CopyFile and a CopyDir function?
 
 # -- AUTHENTICATION FUNCTIONS -- #
 
@@ -128,23 +128,14 @@ RenewToken <- function(print.curl=FALSE) {
 
     curl.call <- getCurlHandle(userpwd=paste(get("consumer_key", envir=rplant.env), get("consumer_secret", envir=rplant.env), sep=":"), httpauth=1L, ssl.verifypeer=FALSE)
 
-    tryCatch(res <- fromJSON(getURLContent(rplant.env$webauth, curl=curl.call, infilesize=length(val), readfunction=val, upload=TRUE, customrequest="POST")), error=function(x){return(res <- data.frame(status=paste(x)))})
+    res <- tryCatch(fromJSON(getURLContent(rplant.env$webauth, curl=curl.call, infilesize=length(val), readfunction=val, upload=TRUE, customrequest="POST")), error = function(err) {return(paste(err))})
+    Error(res)
 
     if (length(res) == 4){
       assign("access_token", res$access_token, envir=rplant.env)
       assign("refresh_token", res$refresh_token, envir=rplant.env) 
       assign("first", paste("curl -sk -H 'Authorization: Bearer ", res$access_token, "'", sep=""), envir=rplant.env)
       assign("curl.call", getCurlHandle(httpheader=c(paste("Authorization: Bearer ", get("access_token", envir=rplant.env), sep="")), httpauth=1L, ssl.verifypeer=FALSE), envir=rplant.env)
-
-    } else {
-      sub <- substring(res$status,1,5)
-      if (sub == "Error"){
-        return("Error: Shared username is not valid")
-      } else if (sub == "error"){
-        return(res$message)
-      } else {
-        return(paste(res$status))
-      }
     }
 
     if (print.curl){
@@ -217,15 +208,174 @@ TestApp <- function(APP){
 }
 
 Error <- function(ERR){
-  sub1 <- substring(ERR,8,8)
-  if (sub1 == "B"){
-    return("Error: Bad Request")
-  } else if (sub1 == "U"){
-    return("Error: Invalid username/password combination")
-  } else if ((sub1 == "F") || (sub1 == "N")){
-    return("Error: file (or directory, or job id) does not exist")
+  if (length(ERR) == 1){
+    sub1 <- substring(ERR,8,8)
+    if (sub1 == "B"){
+      return(stop("Bad Request", call. = FALSE))
+    } else if (sub1 == "U"){
+      return(stop("Invalid username/password combination", call. = FALSE))
+    } else if ((sub1 == "F") || (sub1 == "N")){
+      return(stop("file or directory or job id does not exist", call. = FALSE))
+    } else {
+      len <- nchar(ERR)
+      return(stop(substring(ERR,8,len-3), call. = FALSE))
+    }
   } else {
-    return(ERR)
+    if (ERR$status == "error"){
+      return(stop(ERR$message, call. = FALSE))
+    }
+  }
+}
+
+appINFO <- function(application, dep=FALSE, input=FALSE){
+  Time()
+  Renew()
+  if (rplant.env$api == "f") {
+    tmp_string <- "tmp$result[[len]]"
+  } else {
+    tmp_string <- "tmp$result"
+  }
+  if (substring(application,nchar(application)-1,nchar(application)-1) == "u"){
+    priv.APP <- substring(application,1,nchar(application)-2)
+    version <- as.numeric(substring(application,nchar(application),nchar(application)))
+    text <- "Public App"
+  } else if (substring(application,nchar(application)-2,nchar(application)-2) == "u"){
+    priv.APP <- substring(application,1,nchar(application)-3)
+    version <- as.numeric(paste(substring(application,nchar(application)-1,nchar(application)-1),substring(application,nchar(application),nchar(application)),sep=""))
+    text <- "Public App"
+  } else {
+    priv.APP <- application
+    text <- "Private App"
+  }
+
+  tmp <- tryCatch(fromJSON(getForm(paste(rplant.env$webappsname, priv.APP, sep="/"), .checkparams=FALSE, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+  Error(tmp)
+
+  len <- length(tmp$result)
+  if (eval(parse(text=paste(tmp_string, "$public", sep=""))) == FALSE) {
+    text <- "Private App"
+  } else if (length(tmp) == 0) {
+    return(stop("No information on application: not valid", call. = FALSE))
+  }
+
+  if (text == "Public App"){
+    APP <- eval(parse(text=paste(tmp_string, "$id", sep="")))
+    if (substring(APP,nchar(APP)-1,nchar(APP)-1) == "u"){
+      priv.APP <- substring(APP,1,nchar(APP)-2)
+      version.APP <- as.numeric(substring(APP,nchar(APP),nchar(APP)))
+    } else if (substring(APP,nchar(APP)-2,nchar(APP)-2) == "u"){
+      priv.APP <- substring(APP,1,nchar(APP)-3)
+      version.APP <- as.numeric(paste(substring(APP,nchar(APP)-1,nchar(APP)-1),substring(APP,nchar(APP),nchar(APP)),sep=""))
+    }
+    if (version.APP > version){
+      v.text <- paste("Deprecated, the newest version is:", APP)
+    } else {
+      v.text <- "Newest Version"
+    }
+    if (dep){
+      if (substring(v.text, 1, 1) == "D"){
+        return(stop(paste("Application deprecated, should be:", APP), call. = FALSE))
+      }
+    }
+  }
+
+  set <- eval(parse(text=paste(tmp_string, "$parallelism", sep="")))
+
+  if (!input){
+    if (text == "Private App"){
+      return(list("Private App", priv.APP, tmp, set))
+    } else {
+      return(list("Public App", priv.APP, v.text, APP, tmp, set))
+    }
+  } else {
+    app.info<-c()
+    for (input in sequence(length(eval(parse(text=paste(tmp_string, "$inputs", sep="")))))) {
+      app.info <- rbind(app.info, eval(parse(text=paste(tmp_string, "$inputs[[input]]$id", sep=""))))
+    }
+    if (text == "Private App"){
+      return(list("Private App", priv.APP, tmp, app.info, set))
+    } else {
+      return(list("Public App", priv.APP, v.text, APP, tmp, app.info, set))
+    }
+  }
+}
+
+Check <- function(name, path="", suppress.Warnings=FALSE, shared.username=NULL, check=FALSE, dir=FALSE){
+  if (suppress.Warnings == FALSE){
+    Time()
+    Renew()
+    if (!dir){
+      dir.exist <- fromJSON(getURL(paste(rplant.env$webcheck, path, sep="/"), curl=rplant.env$curl.call)) 
+      if (length(dir.exist$result) != 0){
+        if (path==""){
+          file.exist <- fromJSON(getURL(paste(rplant.env$webcheck, name, sep="/"), curl=rplant.env$curl.call))
+        } else {
+          file.exist <- fromJSON(getURL(paste(rplant.env$webcheck, path, name, sep="/"), curl=rplant.env$curl.call))
+        }
+      } else {
+        if (dir.exist$status == "error"){
+          if ((dir.exist$message == "File does not exist") || (dir.exist$message == "File/folder does not exist")){
+            return(stop(paste("file.path '", path, "' not proper directory", sep=""), call. = FALSE))
+          } else {
+            return(stop("improper username/password combination", call. = FALSE))
+          }
+        } else {
+          return(stop(paste("file.path '", path, "' not proper directory", sep=""), call. = FALSE))
+        }
+      }
+      if (check){
+        if (length(file.exist$result) != 0){
+          return(stop(paste("file '", name, "' already exists in '", path, "' directory", sep=""), call. = FALSE))
+        }
+      } else {
+        if (length(file.exist$result) == 0){
+          return(stop(paste("file '", name, "' doesn't exist in '", path, "' directory", sep=""), call. = FALSE))
+        }
+      }
+    } else {
+      if (is.null(shared.username)){
+        web <- paste(rplant.env$weblist, rplant.env$user, sep="/")
+      } else {
+        web <- paste(rplant.env$weblist, shared.username, sep="/")
+      }
+
+      main.exist <- fromJSON(getURL(paste(web, path, sep="/"), curl=rplant.env$curl.call)) 
+      if (length(main.exist$result) != 0){
+        if (path==""){
+          dir.exist <- fromJSON(getURL(paste(web, name, sep="/"), curl=rplant.env$curl.call))
+        } else {
+          dir.exist <- fromJSON(getURL(paste(web, path, name, sep="/"), curl=rplant.env$curl.call))
+        }
+      } else {
+        if (dir.exist$status == "error"){
+          if ((dir.exist$message == "File does not exist") || (dir.exist$message == "File/folder does not exist")){
+            return(stop(paste("dir.path '", path, "' not proper directory", sep=""), call. = FALSE))
+          } else {
+            return(stop("improper username/password combination", call. = FALSE))
+          }
+        } else {
+          return(stop(paste("dir.path '", path, "' not proper directory", sep=""), call. = FALSE))
+        }
+      }
+
+      if (check){
+        if (length(dir.exist$result) != 0){
+          return(stop(paste("directory '", name, "' already exists in '", path, "' directory", sep=""), call. = FALSE))
+        }
+      } else {
+        if (length(dir.exist$result) == 0){
+          if (dir.exist$status == "error"){
+            if ((dir.exist$message == "File does not exist") || (dir.exist$message == "File/folder does not exist")){
+              return(stop(paste("directory '", name, "' doesn't exist in '", path, "' directory", sep=""), call. = FALSE))
+            } else {
+              return(stop("improper username/password combination", call. = FALSE))
+            }
+          } else {
+            return(stop(paste("directory '", name, "' doesn't exist in '", path, "' directory", sep=""), call. = FALSE))
+          }
+        }
+      }
+    }
   }
 }
 
@@ -264,6 +414,171 @@ Wait <- function(job.id, minWaitsec, maxWaitsec, print=FALSE){
 
 
 
+# -- MAIN FUNCTIONS -- #
+
+#################
+#################
+#### Rename #####
+#################
+#################
+
+Rename <- function(name, new.name, path="", print.curl=FALSE, suppress.Warnings=FALSE) {
+
+  content <- c()
+  if (rplant.env$api == "f") {
+    content[1] <- "action=rename"
+    content[2] <- paste("newName=", new.name, sep="")
+  } else {
+    if (path == ""){
+      content[1] <- paste("path=", rplant.env$user, new.name, sep="/")
+    } else {
+      content[1] <- paste("path=", rplant.env$user, path, new.name, sep="/")
+    }
+    content[2] <- "action=move"
+  }
+
+  if (path == ""){
+    web <- paste(rplant.env$webio, name, sep="/")
+  } else {
+    web <- paste(rplant.env$webio, path, name, sep="/")
+  }
+
+  if (print.curl){
+    curl.string <- paste(rplant.env$first, " -X PUT -d '", paste(content, collapse = "&"), "' ", web, sep="")
+    print(curl.string)
+  }
+
+  val <- charToRaw(paste(content, collapse = "&"))
+  Renew()
+  res <- tryCatch(fromJSON(httpPUT(web, content=val, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+  if (!suppress.Warnings){Error(res)}
+}
+
+
+#################
+#################
+##### Move ######
+#################
+#################
+
+Move <- function(name, org.path="", end.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
+
+  if (rplant.env$api == "f") {
+    path <- "newPath="
+  } else {
+    path <- "path="
+  }
+
+  content <- c()
+  if (end.path == ""){
+    content[1] <- paste(path, rplant.env$user, name, sep="/")
+  } else {
+    content[1] <- paste(path, rplant.env$user, end.path, name, sep="/")
+  }
+  content[2] <- "action=move"
+
+  if (org.path == ""){
+    web <- paste(rplant.env$webio, name, sep="/")
+  } else {
+    web <- paste(rplant.env$webio, org.path, name, sep="/")
+  }
+
+  if (print.curl){
+    curl.string <- paste(rplant.env$first, " -X PUT -d '", paste(content, collapse = "&"), "' ", rplant.env$webio, sep="")
+    print(curl.string)
+  }
+
+  val <- charToRaw(paste(content, collapse = "&"))
+  Renew()
+  res <- tryCatch(fromJSON(httpPUT(web, content=val, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+  if (!suppress.Warnings){Error(res)}
+}
+
+#################
+#################
+#### Delete #####
+#################
+#################
+
+Delete <- function(name, path="", print.curl=FALSE, suppress.Warnings=FALSE) {
+
+  if (path == "") {
+    web <- paste(rplant.env$webio, name, sep="/")
+  } else {
+    web <- paste(rplant.env$webio, path, name, sep="/")
+  }
+
+  if (print.curl) {
+    curl.string <- paste(rplant.env$first, " -X DELETE ", web, sep="")
+    print(curl.string)
+  }
+  Renew()
+  res <- tryCatch(fromJSON(httpDELETE(web, curl = rplant.env$curl.call)), error = function(err) {return(paste(err))})
+  if (!suppress.Warnings){Error(res)}
+}
+
+#################
+#################
+##### Share #####
+#################
+#################
+
+Share <- function(name, path="", shared.username, read=TRUE, execute=TRUE, write=TRUE, print.curl=FALSE, suppress.Warnings=FALSE, D=FALSE) {
+
+  content <- c()
+  if (rplant.env$api == "f") {
+    if (read == TRUE) {content <- append(content, "can_read=true")} 
+    if (execute == TRUE) {content <- append(content, "can_execute=true")}
+    if (write == TRUE) {content <- append(content, "can_write=true")}
+    if ((read == FALSE) && (execute == FALSE) && (write == FALSE)) {
+      return(stop("Must select some permissions", call. = FALSE))
+    }
+  } else {
+    if ((read == TRUE) && (execute == TRUE) && (write == TRUE)) {
+      content[1] <- "permission=all"
+    } else if ((read == TRUE) && (execute == TRUE) && (write == FALSE)) {
+      content[1] <- "permission=read_execute"
+    } else if ((read == TRUE) && (execute == FALSE) && (write == TRUE)) {
+      content[1] <- "permission=read_write"
+    } else if ((read == TRUE) && (execute == FALSE) && (write == FALSE)) {
+      content[1] <- "permission=read"
+    } else if ((read == FALSE) && (execute == TRUE) && (write == TRUE)) {
+      content[1] <- "permission=write_execute"
+    } else if ((read == FALSE) && (execute == TRUE) && (write == FALSE)) {
+      content[1] <- "permission=execute"
+    } else if ((read == FALSE) && (execute == FALSE) && (write == TRUE)) {
+      content[1] <- "permission=write"
+    } else {
+      return(stop("Must select some permissions", call. = FALSE))
+    }
+  }
+
+  content <- append(content,paste("username=", shared.username, sep=""))
+
+  if(D){content <- append(content,"recursive=true")}
+
+  if (path == "") {
+    web <- paste(rplant.env$webshare, name, sep="/")
+  } else {
+    web <- paste(rplant.env$webshare, path, name, sep="/")
+  }
+
+  if (print.curl){
+    curl.string <- paste(rplant.env$first," -X POST -d '", paste(content, collapse = "&"), "' ", web, sep="")
+    print(curl.string)
+  }
+
+  val <- charToRaw(paste(content, collapse = "&"))
+  Renew()
+  res <- tryCatch(fromJSON(getURLContent(web, curl=rplant.env$curl.call,  infilesize=length(val), readfunction=val, upload=TRUE, customrequest="POST")), error = function(err) {return(paste(err))})
+  if (!suppress.Warnings){Error(res)}
+}
+
+# -- END -- #
+
+
+
+
 # -- FILE FUNCTIONS -- #
 
 #################
@@ -281,42 +596,26 @@ UploadFile <- function(local.file.name, local.file.path="", filetype=NULL,
     file.path = paste(local.file.path, local.file.name, sep="/")
   }
 
-  Time()
-  Renew()
   if (rplant.env$api == "f") {
     options <- list(userpwd=paste(rplant.env$user, rplant.env$pwd, sep=":"), ssl.verifypeer=FALSE, httpauth=AUTH_BASIC, useragent="R", followlocation=TRUE)
   } else {
     options <- list(httpheader=c(paste("Authorization: Bearer ", rplant.env$access_token, sep="")), ssl.verifypeer=FALSE, httpauth=AUTH_BASIC, useragent="R", followlocation=TRUE)
   }
 
-  if (suppress.Warnings == FALSE){
-    file.exist <- fromJSON(getURL(paste(rplant.env$webcheck, local.file.name, sep="/"), curl=rplant.env$curl.call)) 
-    if (length(file.exist$result) != 0){
-      return(paste("Error: file `", local.file.name, "' already exists in iPlant directory", sep=""))
-    }
-  }
+  Check(local.file.name, suppress.Warnings=suppress.Warnings, check=TRUE)
 
   if (!is.null(filetype)){
-    tryCatch(res <- fromJSON(postForm(rplant.env$webio, style="httppost", fileToUpload=fileUpload(file.path), fileType=filetype, .opts=options)), error=function(x){return(res <- data.frame(status=paste(x)))})
+    res <- tryCatch(fromJSON(postForm(rplant.env$webio, style="httppost", fileToUpload=fileUpload(file.path), fileType=filetype, .opts=options)), error = function(err) {return(paste(err))})
+    if (!suppress.Warnings){Error(res)}
     curl.string <- paste(rplant.env$first, " -F 'fileToUpload=@", file.path, "' -F 'fileType=", filetype, "' ", rplant.env$webio, sep="")
   } else {
-    tryCatch(res <- fromJSON(postForm(rplant.env$webio, style="httppost", fileToUpload=fileUpload(file.path), .opts=options)), error=function(x){return(res <- data.frame(status=paste(x)))})
+    res <- tryCatch(fromJSON(postForm(rplant.env$webio, style="httppost", fileToUpload=fileUpload(file.path), .opts=options)), error = function(err) {return(paste(err))})
+    if (!suppress.Warnings){Error(res)}
     curl.string <- paste(rplant.env$first," -F 'fileToUpload=@", file.path, "' ", rplant.env$webio, sep="")
   }
 
   if (print.curl==TRUE){
     print(curl.string)
-  }
-
-  if (res$status != "success") {
-    sub <- substring(res$status,1,5)
-    if (sub == "Error"){
-      return(Error(paste(res$status)))
-    } else if (sub == "error"){
-      return(res$message)
-    } else {
-      return(paste(res$status))
-    }
   }
 }
 
@@ -327,117 +626,10 @@ UploadFile <- function(local.file.name, local.file.path="", filetype=NULL,
 #################
 
 ShareFile <- function(file.name, file.path="", shared.username, read=TRUE, execute=TRUE, write=TRUE, print.curl=FALSE, suppress.Warnings=FALSE) {
+ 
+  Check(file.name, file.path, suppress.Warnings)
 
-  Time()
-  Renew()
-  content <- c()
-  if (rplant.env$api == "f") {
-    if ((read == TRUE) && (execute == TRUE) && (write == TRUE)) {
-      content[1] <- "can_execute=true"
-      content[2] <- "can_read=true"
-      content[3] <- "can_write=true"
-      content[4] <- paste("username=", shared.username, sep="")
-    } else if ((read == TRUE) && (execute == TRUE) && (write == FALSE)) {
-      content[1] <- "can_execute=true"
-      content[2] <- "can_read=true"
-      content[3] <- paste("username=", shared.username, sep="")
-    } else if ((read == TRUE) && (execute == FALSE) && (write == TRUE)) {
-      content[1] <- "can_read=true"
-      content[2] <- "can_write=true"
-      content[3] <- paste("username=", shared.username, sep="")
-    } else if ((read == TRUE) && (execute == FALSE) && (write == FALSE)) {
-      content[1] <- "can_read=true"
-      content[2] <- paste("username=", shared.username, sep="")
-    } else if ((read == FALSE) && (execute == TRUE) && (write == TRUE)) {
-      content[1] <- "can_execute=true"
-      content[2] <- "can_write=true"
-      content[3] <- paste("username=", shared.username, sep="")
-    } else if ((read == FALSE) && (execute == TRUE) && (write == FALSE)) {
-      content[1] <- "can_execute=true"
-      content[2] <- paste("username=", shared.username, sep="")
-    } else if ((read == FALSE) && (execute == FALSE) && (write == TRUE)) {
-      content[1] <- "can_write=true"
-      content[2] <- paste("username=", shared.username, sep="")
-    } else {
-      return("Error: Must select some permissions")
-    }
-  } else {
-    if ((read == TRUE) && (execute == TRUE) && (write == TRUE)) {
-      content[1] <- "permission=all"
-      content[2] <- paste("username=", shared.username, sep="")
-    } else if ((read == TRUE) && (execute == TRUE) && (write == FALSE)) {
-      content[1] <- "permission=read_execute"
-      content[2] <- paste("username=", shared.username, sep="")
-    } else if ((read == TRUE) && (execute == FALSE) && (write == TRUE)) {
-      content[1] <- "permission=read_write"
-      content[2] <- paste("username=", shared.username, sep="")
-    } else if ((read == TRUE) && (execute == FALSE) && (write == FALSE)) {
-      content[1] <- "permission=read"
-      content[2] <- paste("username=", shared.username, sep="")
-    } else if ((read == FALSE) && (execute == TRUE) && (write == TRUE)) {
-      content[1] <- "permission=write_execute"
-      content[2] <- paste("username=", shared.username, sep="")
-    } else if ((read == FALSE) && (execute == TRUE) && (write == FALSE)) {
-      content[1] <- "permission=execute"
-      content[2] <- paste("username=", shared.username, sep="")
-    } else if ((read == FALSE) && (execute == FALSE) && (write == TRUE)) {
-      content[1] <- "permission=write"
-      content[2] <- paste("username=", shared.username, sep="")
-    } else {
-      return("Error: Must select some permissions")
-    }
-  }
-
-  if (suppress.Warnings == FALSE){
-    dir.exist <- fromJSON(getURL(paste(rplant.env$webcheck, file.path, sep="/"), curl=rplant.env$curl.call)) 
-    if (length(dir.exist$result) != 0){
-      if (file.path==""){
-        file.exist <- fromJSON(getURL(paste(rplant.env$webcheck, file.name, sep="/"), curl=rplant.env$curl.call))
-      } else {
-        file.exist <- fromJSON(getURL(paste(rplant.env$webcheck, file.path, file.name, sep="/"), curl=rplant.env$curl.call))
-      }
-    } else {
-      if (dir.exist$status == "error"){
-        if (dir.exist$message == "File does not exist"){
-          return("Error: `file.path' not proper directory")
-        } else {
-          return("Error: improper username/password combination")
-        }
-      } else {
-        return("Error: `file.path' not proper directory")
-      }
-    }
-
-    if (length(file.exist$result) == 0){
-      return(paste("Error: Invalid `file.name', no `", file.name, "' in the directory `", file.path, "'", sep=""))
-    }
-  }
-
-  if (file.path == "") {
-    web <- paste(rplant.env$webshare,file.name, sep="/")
-  } else {
-    web <- paste(rplant.env$webshare, file.path, file.name, sep="/")
-  }
-
-  if (print.curl){
-    curl.string <- paste(rplant.env$first," -X POST -d '", paste(content, collapse = "&"), "' ", web, sep="")
-    print(curl.string)
-  }
-
-  val <- charToRaw(paste(content, collapse = "&"))
-  Renew()
-  tryCatch(res <- fromJSON(getURLContent(web, curl=rplant.env$curl.call,  infilesize=length(val), readfunction=val, upload=TRUE, customrequest="POST")), error=function(x){return(res <- data.frame(status=paste(x)))})
-
-  if (res$status != "success") {
-    sub <- substring(res$status,1,5)
-    if (sub == "Error"){
-      return("Error: Shared username is not valid")
-    } else if (sub == "error"){
-      return(res$message)
-    } else {
-      return(paste(res$status))
-    }
-  }
+  Share(file.name, file.path, shared.username, read, execute, write, print.curl)
 }
 
 #################
@@ -448,67 +640,11 @@ ShareFile <- function(file.name, file.path="", shared.username, read=TRUE, execu
 
 RenameFile <- function(file.name, new.file.name, file.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
 
-  Time()
-  Renew()
-  content <- c()
-  if (rplant.env$api == "f") {
-    content[1] <- "action=rename"
-    content[2] <- paste("newName=", new.file.name, sep="")
-  } else {
-    if (file.path == ""){
-      content[1] <- paste("path=", rplant.env$user, new.file.name, sep="/")
-    } else {
-      content[1] <- paste("path=", rplant.env$user, file.path, new.file.name, sep="/")
-    }
-    content[2] <- "action=move"
-  }
+  Check(file.name, file.path, suppress.Warnings)
 
-  if (suppress.Warnings == FALSE){
-    dir.exist <- fromJSON(getURL(paste(rplant.env$webcheck, file.path, sep="/"), curl=rplant.env$curl.call)) 
-    if (length(dir.exist$result) != 0){
-      if (file.path==""){
-        file.exist <- fromJSON(getURL(paste(rplant.env$webcheck, file.name, sep="/"), curl=rplant.env$curl.call))
-        new.file.exist <- fromJSON(getURL(paste(rplant.env$webcheck, new.file.name, sep="/"), curl=rplant.env$curl.call))    
-      } else {
-        file.exist <- fromJSON(getURL(paste(rplant.env$webcheck, file.path, file.name, sep="/"), curl=rplant.env$curl.call))
-        new.file.exist <- fromJSON(getURL(paste(rplant.env$webcheck, file.path, new.file.name, sep="/"), curl=rplant.env$curl.call)) 
-      }
-    } else {
-      if (dir.exist$status == "error"){
-        if (dir.exist$message == "File does not exist"){
-          return("Error: `file.path' not proper directory")
-        } else {
-          return("Error: improper username/password combination")
-        }
-      } else {
-        return("Error: `file.path' not proper directory")
-      }
-    }
+  Check(new.file.name, file.path, suppress.Warnings, check=TRUE)
 
-    if (length(file.exist$result) == 0){
-      return(paste("Error: Invalid `file.name', no `", file.name, "' in the directory `", file.path, "'", sep=""))
-    }
-
-    if (length(new.file.exist$result) != 0){
-      return(paste("Error: Invalid `new.file.name', already file name `", new.file.name, "' in the directory", sep=""))
-    }
-  }
-
-  if (file.path == ""){
-    web <- paste(rplant.env$webio, file.name, sep="/")
-  } else {
-    web <- paste(rplant.env$webio, file.path, file.name, sep="/")
-  }
-
-  if (print.curl){
-    curl.string <- paste(rplant.env$first, " -X PUT -d '", paste(content, collapse = "&"), "' ", web, sep="")
-    print(curl.string)
-  }
-
-  val <- charToRaw(paste(content, collapse = "&"))
-  Renew()
-  tryCatch(res <- fromJSON(httpPUT(web, content=val, curl=rplant.env$curl.call)), error=function(x){return(res <- data.frame(status=paste(x)))})
-
+  Rename(file.name, new.file.name, file.path, print.curl) 
 }
 
 #################
@@ -519,77 +655,11 @@ RenameFile <- function(file.name, new.file.name, file.path="", print.curl=FALSE,
 
 MoveFile <- function(file.name, file.path="", end.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
 
-  Time()
-  Renew()
-  if (rplant.env$api == "f") {
-    path <- "newPath="
-  } else {
-    path <- "path="
-  }
+  Check(file.name, file.path, suppress.Warnings)
 
-  if (suppress.Warnings == FALSE){
-    dir.exist <- fromJSON(getURL(paste(rplant.env$webcheck, file.path, sep="/"), curl=rplant.env$curl.call)) 
-    if (length(dir.exist$result) != 0){
-      if (file.path==""){
-        file.exist <- fromJSON(getURL(paste(rplant.env$webcheck, file.name, sep="/"), curl=rplant.env$curl.call)) 
-      } else {
-        file.exist <- fromJSON(getURL(paste(rplant.env$webcheck, file.path, file.name, sep="/"), curl=rplant.env$curl.call))
-      }
-    } else {
-      if (dir.exist$status == "error"){
-        if (dir.exist$message == "File does not exist"){
-          return("Error: `file.path' not proper directory")
-        } else {
-          return("Error: improper username/password combination")
-        }
-      } else {
-        return("Error: `file.path' not proper directory")
-      }
-    }
+  Check(file.name, end.path, suppress.Warnings, check=TRUE)
 
-    if (length(file.exist$result) == 0){
-      return(paste("Error: Invalid `file.name', no `", file.name, "' in the directory `", file.path, "'", sep=""))
-    }
-
-    dir2.exist <- fromJSON(getURL(paste(rplant.env$webcheck, end.path, sep="/"), curl=rplant.env$curl.call)) 
-
-    if (length(dir2.exist$result) != 0){
-      if (end.path==""){
-        file2.exist <- fromJSON(getURL(paste(rplant.env$webcheck, file.name, sep="/"), curl=rplant.env$curl.call)) 
-      } else {
-        file2.exist <- fromJSON(getURL(paste(rplant.env$webcheck, end.path, file.name, sep="/"), curl=rplant.env$curl.call))
-      }
-    } else {
-      return("Error: `end.path' not proper directory")
-    }
-
-    if (length(file2.exist$result) != 0){
-      return(paste("Error: Cannot move file because `", file.name,"' is already in the directory `", end.path, "'", sep=""))
-    }
-  }
-
-  content <- c()
-  if (end.path == ""){
-    content[1] <- paste(path, rplant.env$user, "/", file.name, sep="")
-  } else {
-    content[1] <- paste(path, rplant.env$user, "/", end.path, "/", file.name, sep="")
-  }
-  content[2] <- "action=move"
-
-  if (file.path == ""){
-    web <- paste(rplant.env$webio, file.name, sep="/")
-  } else {
-    web <- paste(rplant.env$webio, file.path, file.name, sep="/")
-  }
-
-  if (print.curl){
-    curl.string <- paste(rplant.env$first, " -X PUT -d '", paste(content, collapse = "&"), "' ", rplant.env$webio, sep="")
-    print(curl.string)
-  }
-
-  val <- charToRaw(paste(content, collapse = "&"))
-  Renew()
-  tryCatch(res <- fromJSON(httpPUT(web, content=val, curl=rplant.env$curl.call)), error=function(x){return(res <- data.frame(status=paste(x)))})
+  Move(file.name, file.path, end.path, print.curl)
 }
 
 #################
@@ -600,45 +670,9 @@ MoveFile <- function(file.name, file.path="", end.path="", print.curl=FALSE, sup
 
 DeleteFile <- function(file.name, file.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
 
-  Time()
-  Renew()
-  if (suppress.Warnings == FALSE){
-    dir.exist <- fromJSON(getURL(paste(rplant.env$webcheck, file.path, sep="/"), curl=rplant.env$curl.call)) 
-    if (length(dir.exist$result) != 0){
-      if (file.path==""){
-        file.exist <- fromJSON(getURL(paste(rplant.env$webcheck, file.name, sep="/"), curl=rplant.env$curl.call)) 
-      } else {
-        file.exist <- fromJSON(getURL(paste(rplant.env$webcheck, file.path, file.name, sep="/"), curl=rplant.env$curl.call))
-      }
-    } else {
-      if (dir.exist$status == "error"){
-        if (dir.exist$message == "File does not exist"){
-          return("Error: `file.path' not proper directory")
-        } else {
-          return("Error: improper username/password combination")
-        }
-      } else {
-        return("Error: `file.path' not proper directory")
-      }
-    }
+  Check(file.name, file.path, suppress.Warnings)
 
-    if (length(file.exist$result) == 0){
-      return(paste("Error: Invalid `file.name', no `", file.name, "' in the directory `", file.path, "'", sep=""))
-    }
-  }
-
-  if (file.path == "") {
-    web <- paste(rplant.env$webio, file.name, sep="/")
-  } else {
-    web <- paste(rplant.env$webio, file.path, file.name, sep="/")
-  }
-
-  if (print.curl) {
-    curl.string <- paste(rplant.env$first, " -X DELETE ", web, sep="")
-    print(curl.string)
-  }
-  Renew()
-  tryCatch(res <- fromJSON(httpDELETE(web, curl = rplant.env$curl.call)), error=function(x){return(res <- data.frame(status=paste(x)))})
+  Delete(file.name, file.path, print.curl)
 }
 
 #################
@@ -647,33 +681,23 @@ DeleteFile <- function(file.name, file.path="", print.curl=FALSE, suppress.Warni
 #################
 #################
 
-SupportFile <- function(print.curl=FALSE) {  
+SupportFile <- function(print.curl=FALSE, suppress.Warnings=FALSE) {  
 
   Time()
   Renew()
-  tryCatch(res <- fromJSON(getForm(rplant.env$webtransforms, .checkparams=FALSE, curl=rplant.env$curl.call)), error=function(x){return(res <- data.frame(status=paste(x)))})
+  res <- tryCatch(fromJSON(getForm(rplant.env$webtransforms, .checkparams=FALSE, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+  if (!suppress.Warnings){Error(res)}
 
   if (print.curl) {
     curl.string <- paste(rplant.env$first, "-X GET", rplant.env$webtransforms)
     print(curl.string)
   }
 
-  if (res$status != "success") {
-    sub <- substring(res$status,1,5)
-    if (sub == "Error"){
-      return(Error(paste(res$status)))
-    } else if (sub == "error"){
-      return(res$message)
-    } else {
-      return(paste(res$status))
-    }
-  } else {
-    file.types <- c()
-    for(i in 1:length(res$result)) {
-      file.types <- c(file.types, res$result[[i]]$name)
-    }
-    return(file.types)
+  file.types <- c()
+  for(i in 1:length(res$result)) {
+    file.types <- c(file.types, res$result[[i]]$name)
   }
+  return(file.types)
 }
 
 # -- END -- #
@@ -691,9 +715,6 @@ SupportFile <- function(print.curl=FALSE) {
 
 ListDir <- function(dir.name, dir.path="", print.curl=FALSE, shared.username=NULL, suppress.Warnings=FALSE) {
 
-  Time()
-  Renew()
-
   if (is.null(shared.username)){
     web <- paste(rplant.env$weblist, rplant.env$user, sep="/")
   } else {
@@ -706,28 +727,15 @@ ListDir <- function(dir.name, dir.path="", print.curl=FALSE, shared.username=NUL
     web <- paste(web, dir.path, dir.name, sep="/")
   }
 
-  if (suppress.Warnings == FALSE){
-    dir.exist <- fromJSON(getURL(web, curl=rplant.env$curl.call))
-    if (length(dir.exist$result) == 0){
-      if (dir.exist$status == "error"){
-        if (dir.exist$message == "File does not exist"){
-          return(paste("Error: `dir.path': `", dir.path,"' not proper directory", sep=""))
-        } else {
-          return("Error: improper username/password combination")
-        }
-      } else {
-        return(paste("Error: `dir.path': `", dir.path,"' not proper directory", sep=""))
-      }
-    }
-  }
+  Check(dir.name, dir.path, suppress.Warnings, shared.username, dir=TRUE) 
 
   if (print.curl){
     curl.string <- paste(rplant.env$first, " ", web, sep="")
     print(curl.string)
   }
   Renew()
-  tryCatch(tmp <- fromJSON(getURL(web, curl=rplant.env$curl.call)), 
-           error=function(x){return(tmp <- data.frame(status=paste(x)))})
+  tmp <- tryCatch(fromJSON(getURL(web, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+  if (!suppress.Warnings){Error(tmp)}
 
   res <- matrix(, length(tmp$result), 2)
   colnames(res) <- c("name", "type")
@@ -746,119 +754,9 @@ ListDir <- function(dir.name, dir.path="", print.curl=FALSE, shared.username=NUL
 
 ShareDir <- function(dir.name, dir.path="", shared.username, read=TRUE, execute=TRUE, write=TRUE, print.curl=FALSE, suppress.Warnings=FALSE) {
 
-  Time()
-  Renew()
-  content <- c()
-  if (rplant.env$api == "f") {
-    if ((read == TRUE) && (execute == TRUE) && (write == TRUE)) {
-      content[1] <- "can_execute=true"
-      content[2] <- "can_read=true"
-      content[3] <- "can_write=true"
-      content[4] <- "recursive=true"
-      content[5] <- paste("username=", shared.username, sep="")
-    } else if ((read == TRUE) && (execute == TRUE) && (write == FALSE)) {
-      content[1] <- "can_execute=true"
-      content[2] <- "can_read=true"
-      content[3] <- "recursive=true"
-      content[4] <- paste("username=", shared.username, sep="")
-    } else if ((read == TRUE) && (execute == FALSE) && (write == TRUE)) {
-      content[1] <- "can_read=true"
-      content[2] <- "can_write=true"
-      content[3] <- "recursive=true"
-      content[4] <- paste("username=", shared.username, sep="")
-    } else if ((read == TRUE) && (execute == FALSE) && (write == FALSE)) {
-      content[1] <- "can_read=true"
-      content[2] <- "recursive=true"
-      content[3] <- paste("username=", shared.username, sep="")
-    } else if ((read == FALSE) && (execute == TRUE) && (write == TRUE)) {
-      content[1] <- "can_execute=true"
-      content[2] <- "can_write=true"
-      content[3] <- "recursive=true"
-      content[4] <- paste("username=", shared.username, sep="")
-    } else if ((read == FALSE) && (execute == TRUE) && (write == FALSE)) {
-      content[1] <- "can_execute=true"
-      content[2] <- "recursive=true"
-      content[3] <- paste("username=", shared.username, sep="")
-    } else if ((read == FALSE) && (execute == FALSE) && (write == TRUE)) {
-      content[1] <- "can_write=true"
-      content[2] <- "recursive=true"
-      content[3] <- paste("username=", shared.username, sep="")
-    } else {
-      return("Error: Must select some permissions")
-    }
-  } else {
-    if ((read == TRUE) && (execute == TRUE) && (write == TRUE)) {
-      content[1] <- "permission=all"
-      content[2] <- paste("username=", shared.username, sep="")
-    } else if ((read == TRUE) && (execute == TRUE) && (write == FALSE)) {
-      content[1] <- "permission=read_execute"
-      content[2] <- paste("username=", shared.username, sep="")
-    } else if ((read == TRUE) && (execute == FALSE) && (write == TRUE)) {
-      content[1] <- "permission=read_write"
-      content[2] <- paste("username=", shared.username, sep="")
-    } else if ((read == TRUE) && (execute == FALSE) && (write == FALSE)) {
-      content[1] <- "permission=read"
-      content[2] <- paste("username=", shared.username, sep="")
-    } else if ((read == FALSE) && (execute == TRUE) && (write == TRUE)) {
-      content[1] <- "permission=write_execute"
-      content[2] <- paste("username=", shared.username, sep="")
-    } else if ((read == FALSE) && (execute == TRUE) && (write == FALSE)) {
-      content[1] <- "permission=execute"
-      content[2] <- paste("username=", shared.username, sep="")
-    } else if ((read == FALSE) && (execute == FALSE) && (write == TRUE)) {
-      content[1] <- "permission=write"
-      content[2] <- paste("username=", shared.username, sep="")
-    } else {
-      return("Error: Must select some permissions")
-    }
-    content[3] <- "recursive=true"
-  }
+  Check(dir.name, dir.path, suppress.Warnings, dir=TRUE)
 
-  if (suppress.Warnings == FALSE){
-    if (dir.path == ""){
-      dir.exist <- fromJSON(getURL(paste(rplant.env$webcheck, dir.name, sep="/"), curl=rplant.env$curl.call))
-    } else {
-      dir.exist <- fromJSON(getURL(paste(rplant.env$webcheck, dir.path, dir.name, sep="/"), curl=rplant.env$curl.call))
-    }
-
-    if (length(dir.exist$result) == 0){
-      if (dir.exist$status == "error"){
-        if (dir.exist$message == "File does not exist"){
-          return("Error: `dir.path' not proper directory")
-        } else {
-          return("Error: improper username/password combination")
-        }
-      } else {
-        return("Error: `dir.path' not proper directory")
-      }
-    }
-  }
-
-  if (dir.path == "") {
-    web <- paste(rplant.env$webshare, dir.name, sep="/")
-  } else {
-    web <- paste(rplant.env$webshare, dir.path, dir.name, sep="/")
-  }
-
-  if (print.curl){
-    curl.string <- paste(rplant.env$first," -X POST -d '", paste(content, collapse = "&"), "' ", web, sep="")
-    print(curl.string)
-  }
-
-  val <- charToRaw(paste(content, collapse = "&"))
-
-  tryCatch(res <- fromJSON(getURLContent(web, curl=rplant.env$curl.call,  infilesize=length(val), readfunction=val, upload=TRUE, customrequest="POST")), error=function(x){return(res <- data.frame(status=paste(x)))})
-
-  if (res$status != "success") {
-    sub <- substring(res$status,1,5)
-    if (sub == "Error"){
-      return("Error: Shared username is not valid")
-    } else if (sub == "error"){
-      return(res$message)
-    } else {
-      return(paste(res$status))
-    }
-  }
+  Share(dir.name, dir.path, shared.username, read, execute, write, print.curl, TRUE)
 }
 
 #################
@@ -868,67 +766,11 @@ ShareDir <- function(dir.name, dir.path="", shared.username, read=TRUE, execute=
 #################
 
 RenameDir <- function(dir.name, new.dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
+  Check(dir.name, dir.path, suppress.Warnings, dir=TRUE)
 
-  Time()
-  Renew()
-  content <- c()
-  if (rplant.env$api == "f") {
-    content[1] <- "action=rename"
-    content[2] <- paste("newName=", new.dir.name, sep="")
-  } else {
-    if (dir.path == ""){
-      content[1] <- paste("path=", rplant.env$user, new.dir.name, sep="/")
-    } else {
-      content[1] <- paste("path=", rplant.env$user, dir.path, new.dir.name, sep="/")
-    }
-    content[2] <- "action=move"
-  }
+  Check(new.dir.name, dir.path, suppress.Warnings, check=TRUE, dir=TRUE)
 
-  if (suppress.Warnings == FALSE){
-    dir.exist <- fromJSON(getURL(paste(rplant.env$webcheck, dir.path, sep="/"), curl=rplant.env$curl.call)) 
-    if (length(dir.exist$result) != 0){
-      if (dir.path==""){
-        file.exist <- fromJSON(getURL(paste(rplant.env$webcheck, dir.name, sep="/"), curl=rplant.env$curl.call))
-        new.file.exist <- fromJSON(getURL(paste(rplant.env$webcheck, new.dir.name, sep="/"), curl=rplant.env$curl.call))    
-      } else {
-        file.exist <- fromJSON(getURL(paste(rplant.env$webcheck, dir.path, dir.name, sep="/"), curl=rplant.env$curl.call))
-        new.file.exist <- fromJSON(getURL(paste(rplant.env$webcheck, dir.path, new.dir.name, sep="/"), curl=rplant.env$curl.call)) 
-      }
-    } else {
-      if (dir.exist$status == "error"){
-        if (dir.exist$message == "Directory does not exist"){
-          return("Error: `dir.path' not proper directory")
-        } else {
-          return("Error: improper username/password combination")
-        }
-      } else {
-        return("Error: `dir.path' not proper directory")
-      }
-    }
-
-    if (length(file.exist$result) == 0){
-      return(paste("Error: Invalid `dir.name', no `", dir.name, "' in the directory `", dir.path, "'", sep=""))
-    }
-
-    if (length(new.file.exist$result) != 0){
-      return(paste("Error: Invalid `new.dir.name', already directory named `", new.dir.name, "' in the directory", sep=""))
-    }
-  }
-
-  if (dir.path == ""){
-    web <- paste(rplant.env$webio, dir.name, sep="/")
-  } else {
-    web <- paste(rplant.env$webio, dir.path, dir.name, sep="/")
-  }
-
-  if (print.curl){
-    curl.string <- paste(rplant.env$first, " -X PUT -d '", paste(content, collapse = "&"), "' ", web, sep="")
-    print(curl.string)
-  }
-
-  val <- charToRaw(paste(content, collapse = "&"))
-  Renew()
-  tryCatch(res <- fromJSON(httpPUT(web, content=val, curl=rplant.env$curl.call)), error=function(x){return(res <- data.frame(status=paste(x)))})
+  Rename(dir.name, new.dir.name, dir.path, print.curl) 
 }
 
 #################
@@ -939,77 +781,24 @@ RenameDir <- function(dir.name, new.dir.name, dir.path="", print.curl=FALSE, sup
 
 MoveDir <- function(dir.name, dir.path="", end.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
 
-  Time()
-  Renew()
-  if (rplant.env$api == "f") {
-    path <- "newPath="
-  } else {
-    path <- "path="
-  }
+  Check(dir.name, dir.path, suppress.Warnings, dir=TRUE)
 
-  if (suppress.Warnings == FALSE){
-    dir.exist <- fromJSON(getURL(paste(rplant.env$webcheck, dir.path, sep="/"), curl=rplant.env$curl.call)) 
-    if (length(dir.exist$result) != 0){
-      if (dir.path==""){
-        file.exist <- fromJSON(getURL(paste(rplant.env$webcheck, dir.name, sep="/"), curl=rplant.env$curl.call)) 
-      } else {
-        file.exist <- fromJSON(getURL(paste(rplant.env$webcheck, dir.path, dir.name, sep="/"), curl=rplant.env$curl.call))
-      }
-    } else {
-      if (dir.exist$status == "error"){
-        if (dir.exist$message == "File does not exist"){
-          return("Error: `dir.path' not proper directory")
-        } else {
-          return("Error: improper username/password combination")
-        }
-      } else {
-        return("Error: `dir.path' not proper directory")
-      }
-    }
+  Check(dir.name, end.path, suppress.Warnings, check=TRUE, dir=TRUE)
 
-    if (length(file.exist$result) == 0){
-      return(paste("Error: Invalid `dir.name', no `", dir.name, "' in the directory `", dir.path, "'", sep=""))
-    }
+  Move(dir.name, dir.path, end.path, print.curl)
+}
 
-    dir2.exist <- fromJSON(getURL(paste(rplant.env$webcheck, end.path, sep="/"), curl=rplant.env$curl.call)) 
+#################
+#################
+### DeleteDir ###
+#################
+#################
 
-    if (length(dir2.exist$result) != 0){
-      if (end.path==""){
-        file2.exist <- fromJSON(getURL(paste(rplant.env$webcheck, dir.name, sep="/"), curl=rplant.env$curl.call)) 
-      } else {
-        file2.exist <- fromJSON(getURL(paste(rplant.env$webcheck, end.path, dir.name, sep="/"), curl=rplant.env$curl.call))
-      }
-    } else {
-      return("Error: `end.path' not proper directory")
-    }
+DeleteDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
 
-    if (length(file2.exist$result) != 0){
-      return(paste("Error: Cannot move file because `", dir.name,"' is already in the directory `", end.path, "'", sep=""))
-    }
-  }
+  Check(dir.name, dir.path, suppress.Warnings, dir=TRUE)
 
-  content <- c()
-  if (end.path == ""){
-    content[1] <- paste(path, rplant.env$user, "/", dir.name, sep="")
-  } else {
-    content[1] <- paste(path, rplant.env$user, "/", end.path, "/", dir.name, sep="")
-  }
-  content[2] <- "action=move"
-
-  if (dir.path == ""){
-    web <- paste(rplant.env$webio, dir.name, sep="/")
-  } else {
-    web <- paste(rplant.env$webio, dir.path, dir.name, sep="/")
-  }
-
-  if (print.curl){
-    curl.string <- paste(rplant.env$first, " -X PUT -d '", paste(content, collapse = "&"), "' ", web, sep="")
-    print(curl.string)
-  }
-
-  val <- charToRaw(paste(content, collapse = "&"))
-  Renew()
-  tryCatch(res <- fromJSON(httpPUT(web, content=val, curl=rplant.env$curl.call)), error=function(x){return(res <- data.frame(status=paste(x)))})
+  Delete(dir.name, dir.path, print.curl)
 }
 
 #################
@@ -1020,8 +809,6 @@ MoveDir <- function(dir.name, dir.path="", end.path="", print.curl=FALSE, suppre
 
 MakeDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
 
-  Time()
-  Renew()
   content <- c()
   if (rplant.env$api == "f") {
     content[1] <- paste("dirName=", dir.name, sep="")
@@ -1039,30 +826,7 @@ MakeDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=F
     }
   }
 
-  if (suppress.Warnings == FALSE){
-    dir.exist <- fromJSON(getURL(paste(rplant.env$webcheck, dir.path, sep="/"), curl=rplant.env$curl.call)) 
-    if (length(dir.exist$result) != 0){
-      if (dir.path==""){
-        dir2.exist <- fromJSON(getURL(paste(rplant.env$webcheck, dir.name, sep="/"), curl=rplant.env$curl.call)) 
-      } else {
-        dir2.exist <- fromJSON(getURL(paste(rplant.env$webcheck, dir.path, dir.name, sep="/"), curl=rplant.env$curl.call))
-      }
-    } else {
-      if (dir.exist$status == "error"){
-        if (dir.exist$message == "File does not exist"){
-          return(paste("Error: `dir.path': `", dir.path,"' not proper directory", sep=""))
-        } else {
-          return("Error: improper username/password combination")
-        }
-      } else {
-        return(paste("Error: `dir.path': `", dir.path,"' not proper directory", sep=""))
-      }
-    }
-
-    if (length(dir2.exist$result) != 0){
-      return(paste("Error: Cannot make directory because `", dir.name,"' already exists in the directory `", dir.path, "'", sep=""))
-    }
-  }
+  Check(dir.name, dir.path, suppress.Warnings, check=TRUE, dir=TRUE)
 
   content[2] <- "action=mkdir"
 
@@ -1073,56 +837,8 @@ MakeDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=F
 
   val <- charToRaw(paste(content, collapse = "&"))
   Renew()
-  tryCatch(res <- fromJSON(httpPUT(web, content=val, curl=rplant.env$curl.call)), error=function(x){return(res <- data.frame(status=paste(x)))})
-}
-
-#################
-#################
-### DeleteDir ###
-#################
-#################
-
-DeleteDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
-
-  Time()
-  Renew()
-  if (suppress.Warnings == FALSE){
-    dir.exist <- fromJSON(getURL(paste(rplant.env$webcheck, dir.path, sep="/"), curl=rplant.env$curl.call)) 
-    if (length(dir.exist$result) != 0){
-
-      if (dir.path==""){
-        dir2.exist <- fromJSON(getURL(paste(rplant.env$webcheck, dir.name, sep="/"), curl=rplant.env$curl.call)) 
-      } else {
-        dir2.exist <- fromJSON(getURL(paste(rplant.env$webcheck, dir.path, dir.name, sep="/"), curl=rplant.env$curl.call))
-      }
-    } else {
-      if (dir.exist$status == "error"){
-        if (dir.exist$message == "File does not exist"){
-          return(paste("Error: `dir.path': `", dir.path,"' not proper directory", sep=""))
-        } else {
-          return("Error: improper username/password combination")
-        }
-      } else {
-        return(paste("Error: `dir.path': `", dir.path,"' not proper directory", sep=""))
-      }
-    }
-
-    if (length(dir2.exist$result) == 0){
-      return(paste("Error: `", dir.name,"' does not exist in `", dir.path, "'", sep=""))
-    }
-  }
-  if (dir.path == "") {
-    web <- paste(rplant.env$webio, dir.name, sep="/")
-  } else {
-    web <- paste(rplant.env$webio, dir.path, dir.name, sep="/")
-  }
-
-  if (print.curl) {
-    curl.string <- paste(rplant.env$first, "-X DELETE", web)
-    print(curl.string)
-  }
-  Renew()
-  tryCatch(res <- fromJSON(httpDELETE(web, curl = rplant.env$curl.call)), error=function(x){return(res <- data.frame(status=paste(x)))})
+  res <- tryCatch(fromJSON(httpPUT(web, content=val, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+  if (!suppress.Warnings){Error(res)}
 }
 
 # -- END -- #
@@ -1138,54 +854,44 @@ DeleteDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings
 #################
 #################
 
-ListApps<- function (description=FALSE, print.curl=FALSE) 
+ListApps<- function (description=FALSE, print.curl=FALSE, suppress.Warnings=FALSE) 
 {
 
   Time()
   Renew()
-  tryCatch(tmp <- fromJSON(getForm(rplant.env$webappslist, .checkparams=FALSE, curl=rplant.env$curl.call)), error=function(x){return(tmp <- data.frame(status=paste(x)))})
+  tmp <- tryCatch(fromJSON(getForm(rplant.env$webappslist, .checkparams=FALSE, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+  if (!suppress.Warnings){Error(tmp)}
 
   if (print.curl) {
     curl.string <- paste(rplant.env$first, "-X GET", rplant.env$webappslist)
     print(curl.string)
   }
 
-  if (tmp$status != "success") {
-    sub <- substring(tmp$status,1,5)
-    if (sub == "Error"){
-      Error(paste(tmp$status))
-    } else if (sub == "error"){
-      return(tmp$message)
-    } else {
-      return(paste(tmp$status))
-    }
-  } else {
-    Apps <- list()
-    for (j in 1:length(tmp$result)){
-      ans <- TestApp(tmp$result[[j]]$id)
-      if ((j != 1) & (!is.null(ans[[1]]))){
-        for (k in 1:length(Apps)){
-          if (ans[[1]] == Apps[[k]][1]){
-            ans <- list(NULL, NULL)
-            break
-          }
+  Apps <- list()
+  for (j in 1:length(tmp$result)){
+    ans <- TestApp(tmp$result[[j]]$id)
+    if ((j != 1) & (!is.null(ans[[1]]))){
+      for (k in 1:length(Apps)){
+        if (ans[[1]] == Apps[[k]][1]){
+          ans <- list(NULL, NULL)
+          break
         }
       }
-      if (!is.null(ans[[1]])){
-        Apps <- append(Apps,list(c(ans)))
-      }
     }
-    if (description == TRUE){
-      res <- matrix(, length(Apps))
-      colnames(res) <- "Application"
-      for (i in 1:length(Apps)) res[i, 1] <- paste(Apps[[i]], collapse=" - ")
-    } else {
-      res <- matrix(, length(Apps))
-      colnames(res) <- "Application"
-      for (i in 1:length(Apps)) res[i, 1] <- Apps[[i]][1]
+    if (!is.null(ans[[1]])){
+      Apps <- append(Apps,list(c(ans)))
     }
-    return(sort(res))
   }
+  if (description == TRUE){
+    res <- matrix(, length(Apps))
+    colnames(res) <- "Application"
+    for (i in 1:length(Apps)) res[i, 1] <- paste(Apps[[i]], collapse=" - ")
+  } else {
+    res <- matrix(, length(Apps))
+    colnames(res) <- "Application"
+    for (i in 1:length(Apps)) res[i, 1] <- Apps[[i]][1]
+  }
+  return(sort(res))
 }
 
 #################
@@ -1196,100 +902,59 @@ ListApps<- function (description=FALSE, print.curl=FALSE)
 
 GetAppInfo <- function(application, return.json=FALSE, print.curl=FALSE) {
 
-  Time()
-  Renew()
-
   if (rplant.env$api == "f"){
     tmp_string <- "tmp$result[[len]]"
   } else {
     tmp_string <- "tmp$result"
   }
 
-  if (substring(application,nchar(application)-1,nchar(application)-1) == "u"){
-    priv.APP <- substring(application,1,nchar(application)-2)
-    version <- as.numeric(substring(application,nchar(application),nchar(application)))
-    text <- "Public App"
-  } else if (substring(application,nchar(application)-2,nchar(application)-2) == "u"){
-    priv.APP <- substring(application,1,nchar(application)-3)
-    version <- as.numeric(paste(substring(application,nchar(application)-1,nchar(application)-1),substring(application,nchar(application),nchar(application)),sep=""))
-    text <- "Public App"
+  result <- appINFO(application)
+  text <- result[[1]]
+  priv.APP <- result[[2]]
+
+  if (text == "Public App"){
+    v.text <- result[[3]]
+    APP <- result[[4]]
+    tmp <- result[[5]]
   } else {
-    priv.APP <- application
-    text <- "Private App"
+    tmp <- result[[3]]
   }
 
-  tryCatch(tmp <- fromJSON(getForm(paste(rplant.env$webappsname, priv.APP, sep="/"), .checkparams=FALSE, curl=rplant.env$curl.call)), error=function(x){return(tmp <- data.frame(status=paste(x)))})
-
-  if (tmp$status != "success") {
-    sub <- substring(tmp$status,1,5)
-    if (sub == "Error"){
-      return(Error(paste(tmp$status)))
-    } else if (sub == "error"){
-      return(tmp$message)
-    } else {
-      return(paste(tmp$status))
-    }
-  } else {
-    len <- length(tmp$result)
-
-    if (eval(parse(text=paste(tmp_string, "$public", sep=""))) == FALSE) {
-      text <- "Private App"
-    }  else if (length(tmp) == 0) {
-      return("No information on application")
-    }
-
-    if (text == "Public App"){
-      APP <- tmp$result[[len]]$id
-      if (substring(APP,nchar(APP)-1,nchar(APP)-1) == "u"){
-        priv.APP <- substring(APP,1,nchar(APP)-2)
-        version.APP <- as.numeric(substring(APP,nchar(APP),nchar(APP)))
-      } else if (substring(APP,nchar(APP)-2,nchar(APP)-2) == "u"){
-        priv.APP <- substring(APP,1,nchar(APP)-3)
-        version.APP <- as.numeric(paste(substring(APP,nchar(APP)-1,nchar(APP)-1),substring(APP,nchar(APP),nchar(APP)),sep=""))
-      }
-      if (version.APP > version){
-        v.text <- paste("Deprecated, the newest version is:", APP)
-      } else {
-        v.text <- "Newest Version"
-      }
-    }
-
-    if (print.curl) {
-      curl.string <- paste(rplant.env$first, " -X GET ", rplant.env$webappsname, "/", priv.APP, sep="")
-      print(curl.string)
-    }
+  if (print.curl) {
+    curl.string <- paste(rplant.env$first, " -X GET ", rplant.env$webappsname, "/", priv.APP, sep="")
+    print(curl.string)
+  }
   
-    if (return.json) {
-      return(tmp)
+  if (return.json) {
+    return(tmp)
+  } else {
+    app.info<-c()
+    len <- length(tmp$result)
+    for (input in sequence(length(eval(parse(text=paste(tmp_string, "$inputs", sep="")))))) {
+      app.info <- rbind(app.info, c("input", eval(parse(text=paste(tmp_string, "$inputs[[input]]$id", sep=""))), eval(parse(text=paste(tmp_string, "$inputs[[input]]$semantics$fileTypes[1]", sep=""))), eval(parse(text=paste(tmp_string, "$inputs[[input]]$details$label", sep="")))))
+    }
+
+    for (output in sequence(length(eval(parse(text=paste(tmp_string, "$outputs", sep="")))))) {
+      app.info <- rbind(app.info, c("output", eval(parse(text=paste(tmp_string, "$outputs[[output]]$id", sep=""))), eval(parse(text=paste(tmp_string, "$outputs[[output]]$semantics$fileTypes[1]", sep=""))), eval(parse(text=paste(tmp_string, "$outputs[[output]]$details$label", sep=""))))) 
+    }
+
+    for (parameter in sequence(length(eval(parse(text=paste(tmp_string, "$parameters", sep="")))))) {
+      app.info <- rbind(app.info, c("output", eval(parse(text=paste(tmp_string, "$parameters[[parameter]]$id", sep=""))), eval(parse(text=paste(tmp_string, "$parameters[[parameter]]$value$type", sep=""))), eval(parse(text=paste(tmp_string, "$parameters[[parameter]]$details$label", sep=""))))) 
+    }
+    shortd <- eval(parse(text=paste(tmp_string, "$shortDescription", sep="")))
+    shortn <- nchar(shortd)
+    longd <- eval(parse(text=paste(tmp_string, "$longDescription", sep="")))
+    if (is.null(longd)) {longn = 0} else {longn <- nchar(longd)}
+    if (longn >= shortn) {
+      description <- longd
     } else {
-      app.info<-c()
-
-      for (input in sequence(length(eval(parse(text=paste(tmp_string, "$inputs", sep="")))))) {
-        app.info <- rbind(app.info, c("input", eval(parse(text=paste(tmp_string, "$inputs[[input]]$id", sep=""))), eval(parse(text=paste(tmp_string, "$inputs[[input]]$semantics$fileTypes[1]", sep=""))), eval(parse(text=paste(tmp_string, "$inputs[[input]]$details$label", sep="")))))
-      }
-
-      for (output in sequence(length(eval(parse(text=paste(tmp_string, "$outputs", sep="")))))) {
-        app.info <- rbind(app.info, c("output", eval(parse(text=paste(tmp_string, "$outputs[[output]]$id", sep=""))), eval(parse(text=paste(tmp_string, "$outputs[[output]]$semantics$fileTypes[1]", sep=""))), eval(parse(text=paste(tmp_string, "$outputs[[output]]$details$label", sep=""))))) 
-      }
-
-      for (parameter in sequence(length(eval(parse(text=paste(tmp_string, "$parameters", sep="")))))) {
-        app.info <- rbind(app.info, c("output", eval(parse(text=paste(tmp_string, "$parameters[[parameter]]$id", sep=""))), eval(parse(text=paste(tmp_string, "$parameters[[parameter]]$value$type", sep=""))), eval(parse(text=paste(tmp_string, "$parameters[[parameter]]$details$label", sep=""))))) 
-      }
-      shortd <- eval(parse(text=paste(tmp_string, "$shortDescription", sep="")))
-      shortn <- nchar(shortd)
-      longd <- eval(parse(text=paste(tmp_string, "$longDescription", sep="")))
-      if (is.null(longd)) {longn = 0} else {longn <- nchar(longd)}
-      if (longn >= shortn) {
-        description <- longd
-      } else {
-        description <- shortd
-      }
-      colnames(app.info)<-c("kind", "id", "fileType/value", "details")
-      if (text == "Private App"){
-        return(list(Description=description, Application=c(application, text), Information=app.info))
-      } else {
-        return(list(Description=description, Application=c(application, text, v.text), Information=app.info))
-      }
+      description <- shortd
+    }
+    colnames(app.info)<-c("kind", "id", "fileType/value", "details")
+    if (text == "Private App"){
+      return(list(Description=description, Application=c(application, text), Information=app.info))
+    } else {
+      return(list(Description=description, Application=c(application, text, v.text), Information=app.info))
     }
   }
 }
@@ -1333,104 +998,51 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
     content[4] <- "maxRunTime=24:00:00"
   }
 
-  if (is.null(shared.username)){
-    web_check <- paste(rplant.env$weblist, rplant.env$user, sep="/");
-  } else {
-    web_check <- paste(rplant.env$weblist, shared.username, sep="/")
+  for (i in 1:length(file.list)){
+    Check(file.list[[i]], file.path, suppress.Warnings, shared.username)
   }
 
   if (suppress.Warnings == FALSE){
-    dir.exist <- fromJSON(getURL(paste(web_check, file.path, sep="/"), curl=rplant.env$curl.call)) 
-    if (length(dir.exist$result) != 0){
-      file.exist <- list()
-      for (i in 1:length(file.list)){
-        if (file.path==""){
-          file.exist[[i]] <- fromJSON(getURL(paste(web_check, file.list[[i]], sep="/"), curl=rplant.env$curl.call)) 
-        } else {
-          file.exist[[i]] <- fromJSON(getURL(paste(web_check, file.path, file.list[[i]], sep="/"), curl=rplant.env$curl.call)) 
-        }
-      }
+
+    result <- appINFO(application, TRUE, TRUE)
+
+    if (result[[1]] == "Public App"){
+      input <- result[[6]]
+      set <- result[[7]]
     } else {
-      if (dir.exist$status == "error"){
-        if (dir.exist$message == "File does not exist"){
-          return("Error: `file.path' not proper directory")
-        } else {
-          return("Error: improper username/password combination")
-        }
-      } else {
-        return("Error: `file.path' not proper directory")
-      }
-    }
-
-    for (i in 1:length(file.list)){
-      if (length(file.exist[[i]]$result) == 0){
-        return("Error: At least one of the input files in `file.list' does not exist")
-      }
-    }
-
-    if (substring(application,nchar(application)-1,nchar(application)-1) == "u"){
-      priv.APP <- substring(application,1,nchar(application)-2)
-    } else if (substring(application,nchar(application)-2,nchar(application)-2) == "u"){
-      priv.APP <- substring(application,1,nchar(application)-3)
-    } else {
-      if (private.APP==FALSE){
-        return("Private application, not valid for SubmitJob.  If it is your own private application use private.APP=TRUE")
-      } else {
-        priv.APP <- application
-      }
-    }
-    Renew()
-    tmp <- fromJSON(getForm(paste(rplant.env$webappsname, priv.APP, sep="/"), .checkparams=FALSE, curl=rplant.env$curl.call))
-
-    len <- length(tmp$result)
-    if (private.APP==FALSE) {
-      if (eval(parse(text=paste(tmp_string, "$public", sep=""))) == FALSE) {
-        return("Not a valid application: it's private, must be public.  Check ListApps function")
-      }
-    }
-    if (length(tmp) == 0) {
-      return("No information on application: not valid")
-    } else if (eval(parse(text=paste(tmp_string, "$id", sep=""))) != application){
-      return(paste("Application deprecated, should be:",tmp$result[[len]]$id))
-    }
-
-    app.info<-c()
-    for (input in sequence(length(eval(parse(text=paste(tmp_string, "$inputs", sep="")))))) {
-      app.info <- rbind(app.info, c("input", eval(parse(text=paste(tmp_string, "$inputs[[input]]$id", sep="")))))
+      input <- result[[4]]
+      set <- result[[5]]
     }
 
     test.input <- rep(0, length(input.list))
     for (j in 1:length(input.list)){
-      for (i in 1:length(app.info[,2])){
-        if (input.list[[j]] == app.info[,2][i]){
+      for (i in 1:length(input)){
+        if (input.list[[j]] != input[i]){
           test.input[j] <- 1
           break;
         }
       }
     }
 
-    for (i in 1:length(test.input)){
-      if (test.input[i] == 0 ){
-        return("At least one of the inputs in `input.list' is incorrect, check GetAppInfo function for proper inputs")
-      }
+    if (sum(test.input) > 0 ){
+      return(stop("At least one of the inputs in 'input.list' is incorrect, check GetAppInfo function for proper inputs", call. = FALSE))
     }
   }
 
   if (suppress.Warnings==TRUE){
-    if (substring(application,nchar(application)-1,nchar(application)-1) == "u"){
-      priv.APP <- substring(application,1,nchar(application)-2)
-    } else if (substring(application,nchar(application)-2,nchar(application)-2) == "u"){
-      priv.APP <- substring(application,1,nchar(application)-3)
+    result <- appINFO(application)
+    if (result[[1]] == "Public App"){
+      set <- result[[6]]
     } else {
-      priv.APP <- application
+      set <- result[[4]]
     }
-
-    tmp <- fromJSON(getForm(paste(rplant.env$webappsname, priv.APP, sep="/"), .checkparams=FALSE, curl=rplant.env$curl.call))
-
   }
 
-  len <- length(tmp$result)
-  set <- eval(parse(text=paste(tmp_string, "$parallelism", sep="")))
+  if (private.APP==FALSE){
+    if (result[[1]] == "Private App"){
+      return(stop("Private application, not valid for SubmitJob.  If it is your own private application use private.APP=TRUE", call. = FALSE))
+    }
+  }
 
   if (set == "PARALLEL"){
     if (nprocs < 2){
@@ -1444,32 +1056,24 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
     }
   }
 
-  if(!is.null(args.list)){
-    m <- length(args.list)
-  } else {
-    m <- NULL
-  }
-  if(!is.null(file.list)){
-    n <- length(file.list)
-    n1 <- length(file.list)
-  } else {
-    n <- NULL
-    n1 <- 0
-  }
+  if(!is.null(args.list)){m <- length(args.list)} else {m <- 0}
+
+  if(!is.null(file.list)){n <- length(file.list)} else {n <- 0}
 
   # Automatically make analyses directory; will not overwrite if already present
   MakeDir("analyses", suppress.Warnings=TRUE)
 
   content[5] <- "archive=1"
-  content[6] <- paste("archivePath=/", rplant.env$user, "/analyses/", job.name, sep=""); x <- 6;
+  content[6] <- paste("archivePath=", rplant.env$user, "analyses", job.name, sep="/"); x <- 6;
 
   if (email==TRUE){
     Renew()
-    tryCatch(res <- fromJSON(getURLContent(rplant.env$webprofiles, curl=rplant.env$curl.call)), error=function(x){return(res <- data.frame(status=paste(x)))})
+    res <- tryCatch(fromJSON(getURLContent(rplant.env$webprofiles, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+    Error(res)
     content[7] <- paste(eml_string, res$result[[1]]$email, sep=""); x <- 7;
   }
 
-  if (!is.null(n)){
+  if (n > 0){
     for (i in c(1:n)){
       if (file.path=="") {
         if (is.null(shared.username)){
@@ -1491,9 +1095,9 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
     }
   }
 
-  if (!is.null(m)){
+  if (m > 0){
     for (i in c(1:m)){
-      content[x+n1+i] <- paste(args.list[[i]][1],"=", 
+      content[x+n+i] <- paste(args.list[[i]][1],"=", 
                                args.list[[i]][2], sep="")
     }
   }
@@ -1505,22 +1109,12 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
 
   val <- charToRaw(paste(content, collapse = "&"))
   Renew()
-  tryCatch(res <- fromJSON(getURLContent(rplant.env$webjob, curl=rplant.env$curl.call,  infilesize=length(val), readfunction=val, upload=TRUE, customrequest="POST")), error=function(x){return(res <- data.frame(status=paste(x)))})
+  res <- tryCatch(fromJSON(getURLContent(rplant.env$webjob, curl=rplant.env$curl.call,  infilesize=length(val), readfunction=val, upload=TRUE, customrequest="POST")), error = function(err) {return(paste(err))})
+  if (!suppress.Warnings){Error(res)}
 
-  if (res$status != "success") {
-    sub <- substring(res$status,1,5)
-    if (sub == "Error"){
-      return(Error(paste(res$status)))
-    } else if (sub == "error"){
-      return(res$message)
-    } else {
-      return(paste(res$status))
-    }
-  } else {
-    cat(paste("Job submitted. You can check your job using CheckJobStatus(", 
-        res$result$id, ")", sep=""), "\n")
-    return(list(res$result$id, job.name))
-  }
+  cat(paste("Job submitted. You can check your job using CheckJobStatus(", 
+      res$result$id, ")", sep=""), "\n")
+  return(list(res$result$id, job.name))
 }
 
 ####################
@@ -1529,45 +1123,29 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
 ####################
 ####################
 
-CheckJobStatus <- function(job.id, details=FALSE, print.curl=FALSE) {
+CheckJobStatus <- function(job.id, history=FALSE, print.curl=FALSE) {
 
   Time()
   Renew()
 
   web <- paste(rplant.env$webjob, job.id, sep="/")
 
-  if (!(((rplant.env$api == "f") && (details == TRUE)) || (details == FALSE))){
+  if (!(((rplant.env$api == "f") && (history == TRUE)) || (history == FALSE))){
      web <- paste(web, "history", sep="")
   }
 
-  tryCatch(res <- fromJSON(getForm(web, .checkparams=FALSE, curl=rplant.env$curl.call)),  error=function(x){return(res <- data.frame(status=paste(x)))})
+  res <- tryCatch(fromJSON(getForm(web, .checkparams=FALSE, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+  Error(res)
 
   if (print.curl) {
     curl.string <- paste(rplant.env$first, web)
     print(curl.string)
   }
 
-  if ((res$status != "success") || (length(res$result) == 0)) {
-    sub <- substring(res$status,1,5)
-    if (sub == "Error"){
-      sub1 <- substring(res$status,8,8)
-      if (sub1 == "U"){
-        return("Error: Invalid username/password combination")
-      }
-    }
-    return(paste("Error: job: `",job.id,"' does not exist", sep=""))
-  } else {
-
-    if (!(((rplant.env$api == "f") && (details == TRUE)) || (details == FALSE))){
-      len <- length(res$result)
-      strt_str <- strsplit(res$result[[1]]$created,"T")
-      strt_time <- as.POSIXct(strsplit(strt_str[[1]][2],"-")[[1]][1],format="%H:%M:%S")
-      end_str <- strsplit(res$result[[len]]$created,"T")
-      end_time <- as.POSIXct(strsplit(end_str[[1]][2],"-")[[1]][1],format="%H:%M:%S")
-      return(paste(res$result[[len]]$description, ", Time:", round(end_time - strt_time,2), " mins", sep=""))
-    } else { 
-      return(res$result$status)
-    }
+  if (!(((rplant.env$api == "f") && (history == TRUE)) || (history == FALSE))){
+    return(res$result)
+  } else { 
+    return(res$result$status)
   }
 }
 
@@ -1589,22 +1167,12 @@ KillJob <- function(job.id, print.curl=FALSE) {
 
   val <- charToRaw(paste(content, collapse = "&"))
 
-  tryCatch(res <- fromJSON(getURLContent(web, curl=rplant.env$curl.call,  infilesize=length(val), readfunction=val, upload=TRUE, customrequest="POST")), error=function(x){return(res <- data.frame(status=paste(x)))})
+  res <- tryCatch(fromJSON(getURLContent(web, curl=rplant.env$curl.call,  infilesize=length(val), readfunction=val, upload=TRUE, customrequest="POST")), error = function(err) {return(paste(err))})
+  Error(res)
 
   if (print.curl) {
     curl.string <- paste(rplant.env$first, " -X POST -d '", paste(content, collapse = "&"), "' ",  web, sep="")
     print(curl.string)
-  }
-
-  if (res$status != "success") {
-    sub <- substring(res$status,1,5)
-    if (sub == "Error"){
-      sub1 <- substring(res$status,8,8)
-      if (sub1 == "U"){
-        return("Error: Invalid username/password combination")
-      }
-    }
-    return(paste("Error: job: `",job.id,"' does not exist", sep=""))
   }
 }
 
@@ -1619,18 +1187,10 @@ DeleteALL <- function() {
   Time()
   Renew()
 
-  tryCatch(res <- fromJSON(getForm(rplant.env$webjoblist, .checkparams=FALSE, curl=rplant.env$curl.call)), error=function(x){return(res <- data.frame(status=paste(x)))})
+  res <- tryCatch(fromJSON(getForm(rplant.env$webjoblist, .checkparams=FALSE, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+  Error(res)
 
-  if (res$status != "success") {
-    sub <- substring(res$status,1,5)
-    if (sub == "Error"){
-      sub1 <- substring(res$status,8,8)
-      if (sub1 == "U"){
-        return("Error: Invalid username/password combination")
-      }
-    }
-    return(res$status)
-  } else if (length(res$result) == 0) {
+  if (length(res$result) == 0) {
     return("No jobs in job history")
   } else {
     for (i in 1:length(res$result)){
@@ -1638,19 +1198,21 @@ DeleteALL <- function() {
       if ((res$result[[i]]$status == "STOPPED") || (res$result[[i]]$status == "FINISHED") || (res$result[[i]]$status == "ARCHIVING_FINISHED") || (res$result[[i]]$status == "ARCHIVING") || (res$result[[i]]$status == "FAILED")){
 
         web <- paste(rplant.env$webjob, res$result[[i]]$id, sep="/")
-        tryCatch(JS <- fromJSON(getForm(web, .checkparams=FALSE, curl=rplant.env$curl.call)), error=function(x){return(JS <- data.frame(status=paste(x)))})
+        JS <- tryCatch(fromJSON(getForm(web, .checkparams=FALSE, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+        Error(JS)
+
         if (length(JS$result$archivePath) !=0){ 
           dir.name <- unlist(strsplit(JS$result$archivePath, "/"))[length(unlist(strsplit(JS$result$archivePath, "/")))]
 
           dir.path <- substr(JS$result$archivePath, nchar(rplant.env$user) + 3, nchar(JS$result$archivePath)-nchar(dir.name)-1)
 
-          dir.exist <- fromJSON(getURL(paste(rplant.env$webcheck, dir.path, dir.name, sep="/"), curl=rplant.env$curl.call))
+          Check(dir.name, dir.path, dir=TRUE)
 
-          if (length(dir.exist$result) != 0){
-            tmp <- fromJSON(httpDELETE(paste(rplant.env$webio, dir.path, dir.name, sep="/"), curl=rplant.env$curl.call))
-          }
+          tmp <- tryCatch(fromJSON(httpDELETE(paste(rplant.env$webio, dir.path, dir.name, sep="/"), curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+          Error(tmp)
         }
-        tmp <- fromJSON(httpDELETE(web, curl = rplant.env$curl.call))
+        tmp <- tryCatch(fromJSON(httpDELETE(web, curl = rplant.env$curl.call)), error = function(err) {return(paste(err))})
+        Error(tmp)
       }
     }
   }
@@ -1669,39 +1231,29 @@ DeleteOne <- function(job.id, print.curl=FALSE) {
 
   web <- paste(rplant.env$webjob, job.id, sep="/")
 
-  tryCatch(JS <- fromJSON(getForm(web, .checkparams=FALSE, curl=rplant.env$curl.call)), 
-           error=function(x){return(JS <- data.frame(status=paste(x)))})
-
-  if (JS$status != "success"){
-    sub <- substring(JS$status,1,5)
-    if (sub == "Error"){
-      sub1 <- substring(JS$status,8,8)
-      if (sub1 == "U"){
-        return("Error: Invalid username/password combination")
-      }
-    }
-    return(paste("Error: job: `",job.id,"' does not exist", sep=""))
-  }
+  JS <- tryCatch(fromJSON(getForm(web, .checkparams=FALSE, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+  Error(JS)
 
   if ((JS$result$status == "FINISHED") || (JS$result$status == "STOPPED") || (JS$result$status == "ARCHIVING_FINISHED") || (JS$result$status == "FAILED")){
     dir.name <- unlist(strsplit(JS$result$archivePath, "/"))[length(unlist(strsplit(JS$result$archivePath, "/")))]
 
     dir.path <- substr(JS$result$archivePath, nchar(rplant.env$user) + 3, nchar(JS$result$archivePath)-nchar(dir.name)-1)
 
-    dir.exist <- fromJSON(getURL(paste(rplant.env$webcheck, dir.path, dir.name, sep="/"), curl=rplant.env$curl.call))
+    Check(dir.name, dir.path, dir=TRUE)
 
-    if (length(dir.exist$result) != 0){
-        tmp <- fromJSON(httpDELETE(paste(rplant.env$webio, dir.path, dir.name, sep="/"), curl=rplant.env$curl.call))
-      }
-      tmp <- fromJSON(httpDELETE(web, curl = rplant.env$curl.call))
+    tmp <- tryCatch(fromJSON(httpDELETE(paste(rplant.env$webio, dir.path, dir.name, sep="/"), curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+    Error(tmp)
+
+    tmp <- tryCatch(fromJSON(httpDELETE(web, curl = rplant.env$curl.call)), error = function(err) {return(paste(err))})
+    Error(tmp)
   
-  if (print.curl) {
-    curl.string <- paste(rplant.env$first, "-X DELETE", web)
-    print(curl.string)
-  }
+    if (print.curl) {
+      curl.string <- paste(rplant.env$first, "-X DELETE", web)
+      print(curl.string)
+    }
 
   } else {
-    return(paste("Error: Could not delete, job status:", JS$result$status))
+    return(stop(paste("Error: Could not delete, job status:", JS$result$status), call. = FALSE))
   }
 }
 
@@ -1758,47 +1310,35 @@ RetrieveJob <- function(job.id, file.vec, print.curl=FALSE, verbose=FALSE) {
 
   web <- paste(rplant.env$webjob, job.id, sep="/")
 
-  tryCatch(JS <- fromJSON(getForm(web, .checkparams=FALSE, curl=rplant.env$curl.call)), 
-           error=function(x){return(JS <- data.frame(status=paste(x)))})
+  JS <- tryCatch(fromJSON(getForm(web, .checkparams=FALSE, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+  Error(JS)
 
-  if ((JS$status != "success") || (length(JS$result) == 0)) {
-    sub <- substring(JS$status,1,5)
-    if (sub == "Error"){
-      sub1 <- sub1 <- substring(JS$status,8,8)
-      if (sub1 == "U"){
-        return("Error: Invalid username/password combination")
-      }
-    }
-    return(paste("Error: job: `",job.id,"' does not exist", sep=""))
-  } else {
+  if ((JS$res$status == "ARCHIVING_FINISHED") || (JS$res$status == "FINISHED")) {
 
-    if ((JS$res$status == "ARCHIVING_FINISHED") || (JS$res$status == "FINISHED")) {
+    dir.path <- file.path(getwd(), JS$result[[2]])
 
-      dir.path <- file.path(getwd(), JS$result[[2]])
-
-      if (.Platform$OS.type=="windows") {
-        invisible(shell(paste("mkdir ", JS$result[[2]], sep="")))
-      } else {
-        dir.create(dir.path)
-      }
-
-      fileList <- ListJobOutput(job.id, print.total=FALSE)
-      for (file in 1:length(file.vec)) {
-        # if file exists in output then download
-        if (file.vec[file] %in% fileList) {
-
-          RetrieveOne(file.vec[file], JS$result$archivePath, dir.path, print.curl)
-
-          if (verbose==TRUE) {
-            print(paste("Downloaded", file.vec[file], "to", getwd(), "directory"))
-          }
-        } else {
-          return(paste("`",file.vec[file], "' is not found within `", job.id,"'", sep=""))
-        }
-      }
+    if (.Platform$OS.type=="windows") {
+      invisible(shell(paste("mkdir ", JS$result[[2]], sep="")))
     } else {
-      warning("Job is ", JS$res$status)
+      dir.create(dir.path)
     }
+
+    fileList <- ListJobOutput(job.id, print.total=FALSE)
+    for (file in 1:length(file.vec)) {
+      # if file exists in output then download
+      if (file.vec[file] %in% fileList) {
+
+        RetrieveOne(file.vec[file], JS$result$archivePath, dir.path, print.curl)
+
+        if (verbose==TRUE) {
+          print(paste("Downloaded", file.vec[file], "to", getwd(), "directory"))
+        }
+      } else {
+        return(stop(paste("`",file.vec[file], "' is not found within `", job.id,"'", sep=""), call. = FALSE))
+      }
+    }
+  } else {
+    return(stop(paste("Job is", JS$res$status), call. = FALSE))
   }
 }
 
@@ -1813,46 +1353,35 @@ ListJobOutput <- function(job.id, print.curl=FALSE, print.total=TRUE) {
   Time()
   Renew()
 
-  tryCatch(JS <- fromJSON(getForm(paste(rplant.env$webjob, job.id, sep="/"), .checkparams=FALSE, curl=rplant.env$curl.call)), 
-           error=function(x){return(JS <- data.frame(status=paste(x)))})
+  JS <- tryCatch(fromJSON(getForm(paste(rplant.env$webjob, job.id, sep="/"), .checkparams=FALSE, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+  Error(JS)
 
-  if ((JS$status != "success") || (length(JS$result) == 0)) {
-    sub <- substring(JS$status,1,5)
-    if (sub == "Error"){
-      sub1 <- sub1 <- substring(JS$status,8,8)
-      if (sub1 == "U"){
-        return("Error: Invalid username/password combination")
-      }
+  file.vec <- c()
+  if ((JS$res$status == "FINISHED") || (JS$res$status == "ARCHIVING_FINISHED")) {
+
+    web <- paste(rplant.env$weblist, JS$result$archivePath, sep="")
+    res <- fromJSON(getURLContent(web, curl=rplant.env$curl.call))
+
+    if (print.curl) {
+      curl.string <- paste(rplant.env$first, "-X GET", web)
+      print(curl.string)
     }
-    return(paste("Error: job: `",job.id,"' does not exist", sep=""))
+
+    len <- length(res$result)
+    if (len == 0){
+      return(paste("There are ", len, " output files for job '", job.id,"'", sep=""))
+    }
+
+    if (print.total == TRUE) {
+      print(paste("There are ", len-1, " output files for job '", job.id,"'", sep=""))
+    }
+    for (i in 2:length(res$result)) {
+      file.vec <- append(file.vec, res$result[[i]]$name)
+    }
+    return(file.vec)
   } else {
-    file.vec <- c()
-    if ((JS$res$status == "FINISHED") || (JS$res$status == "ARCHIVING_FINISHED")) {
-
-      web <- paste(rplant.env$weblist, JS$result$archivePath, sep="")
-      res <- fromJSON(getURLContent(web, curl=rplant.env$curl.call))
-
-      if (print.curl) {
-        curl.string <- paste(rplant.env$first, "-X GET", web)
-        print(curl.string)
-      }
-
-      len <- length(res$result)
-      if (len == 0){
-        return(paste("There are ", len, " output files for job '", job.id,"'", sep=""))
-      }
-
-      if (print.total == TRUE) {
-        print(paste("There are ", len-1, " output files for job '", job.id,"'", sep=""))
-      }
-      for (i in 2:length(res$result)) {
-        file.vec <- append(file.vec, res$result[[i]]$name)
-      }
-      return(file.vec)
-    } else {
-      warning("Job is ", JS$res$status)
-    }
-  } 
+    return(stop(paste("Job is", JS$res$status), call. = FALSE))
+  }
 }
 
 ####################
@@ -1873,32 +1402,27 @@ GetJobHistory <- function(return.json=FALSE, print.curl=FALSE) {
 
   jobList <- c()
 
-  tryCatch(res <- fromJSON(getForm(rplant.env$webjoblist, .checkparams=FALSE, curl=rplant.env$curl.call)), 
-           error=function(x){return(res <- data.frame(status=paste(x)))})
+  res <- tryCatch(fromJSON(getForm(rplant.env$webjoblist, .checkparams=FALSE, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+  Error(res)
 
   if (print.curl) {
     curl.string <- paste(rplant.env$first, "-X GET", rplant.env$webjoblist)
     print(curl.string)
   }
 
-  if (res$status != "success") {
-    return("Error: Invalid username/password combination")
-  } else if (length(res$result) == 0){
+  if (length(res$result) == 0){
     return("No jobs in history")
   } else {
     if (return.json) 
       return(res)
-    if (length(res$result) != 0) {
-      for (i in 1: length(res$result)) {
-        job <- c(res$result[[i]]$id, res$result[[i]]$name, 
-                 eval(parse(text=tmp_string)), res$result[[i]]$status) 
-        jobList <- rbind(jobList, job)
-        colnames(jobList) <- c("job.id", "job.name", "application", "status")
-      } 
-      return(jobList)
-    } else {
-      return("No jobs in job history")
-    }
+
+    for (i in 1: length(res$result)) {
+      job <- c(res$result[[i]]$id, res$result[[i]]$name, 
+               eval(parse(text=tmp_string)), res$result[[i]]$status) 
+      jobList <- rbind(jobList, job)
+      colnames(jobList) <- c("job.id", "job.name", "application", "status")
+    } 
+    return(jobList)
   }
 }
 
