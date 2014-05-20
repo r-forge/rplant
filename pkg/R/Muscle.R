@@ -1,7 +1,8 @@
 Muscle <- function(file.name, file.path="", job.name=NULL, args=NULL,
-                   version="Muscle-3.8.32u4", print.curl=FALSE,
                    aln.filetype="PHYLIP_INT", shared.username=NULL,
-                   suppress.Warnings=FALSE, email=TRUE) {
+                   suppress.Warnings=FALSE, email=TRUE, print.curl=FALSE) {
+
+  version="Muscle-3.8.32u4"
 
   aln.filetype <- match.arg(aln.filetype, c("PHYLIP_INT", "PHYLIP_SEQ", "PHYLIP_PARS", "FASTA", "CLUSTALW", "MSF"))
 
