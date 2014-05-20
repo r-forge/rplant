@@ -6,15 +6,13 @@
 }
 \usage{
 Muscle(file.name, file.path="", job.name=NULL, args=NULL,
-       version="Muscle-3.8.32u4", print.curl=FALSE,
        aln.filetype="PHYLIP_INT", shared.username=NULL,
-       suppress.Warnings=FALSE, email=TRUE)
+       suppress.Warnings=FALSE, email=TRUE, print.curl=FALSE)
 }
 \arguments{
 	\item{file.name}{name of file to be evaluated on the Discovery Environment (DE), see details for supported input formats.}
 	\item{file.path}{optional path to a user's subdirectory on the DE; default path is empty, which leads to the home directory}
 	\item{job.name}{the name to give the job being submitted}
-	\item{version}{Muscle version \code{Muscle-3.8.32u4}, do not use any other muscle versions.}
 	\item{aln.filetype}{Muscle does alignment of sequences, this option selects the file type of that result file.  There are five options \code{PHYLIP_INT}, \code{PHYLIP_SEQ}, \code{PHYLIP_PARS}, \code{FASTA}, \code{CLUSTALW}, \code{MSF}, see details}
 	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
 	\item{shared.username}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.}
