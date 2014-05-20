@@ -15,7 +15,14 @@ utils::globalVariables(c("rplant.env"))
 #################
 
 ################# Maybe add time AND number of uses to the Validate function #################
-Validate <- function(user, pwd, consumer_key=NULL, consumer_secret=NULL, api="foundation", print.curl=FALSE) {
+Create_Keys <- function(user, pwd) {
+  web <- "https://agave.iplantc.org/clients/v2"
+  curl.call <- getCurlHandle(userpwd=paste(user,pwd, sep=":"), httpauth=1L, ssl.verifypeer=FALSE)
+  tryCatch(res <- fromJSON(postForm(web, clientName = "rPlant", tier = "Unlimited", description = "", callbackUrl = "", style = "POST", curl = curl.call)), error=function(x){return(res <- data.frame(status=paste(x)))})
+  return(list(res$result$consumerKey, res$result$consumerSecret))
+}
+
+Validate <- function(user, pwd, api="foundation", print.curl=FALSE) {
   
   api <- match.arg(api, c("agave", "foundation"))
 
@@ -49,7 +56,8 @@ Validate <- function(user, pwd, consumer_key=NULL, consumer_secret=NULL, api="fo
       return(res$message)
     }
   } else {
-
+    keys <- list()
+    keys <- Create_Keys(user,pwd)
     web_BASE <- "https://agave.iplantc.org/"
     content <- c()
     content[1] <- "grant_type=client_credentials"
@@ -62,9 +70,9 @@ Validate <- function(user, pwd, consumer_key=NULL, consumer_secret=NULL, api="fo
 
     web <- paste(web_BASE, "token", sep="")
 
-    curl.string <- paste("curl -sku '", consumer_key, ":", consumer_secret,"' -X POST -d '", string, "' ", web, sep="")
+    curl.string <- paste("curl -sku '", keys[[1]], ":", keys[[2]],"' -X POST -d '", string, "' ", web, sep="")
 
-    curl.call <- getCurlHandle(userpwd=paste(consumer_key, consumer_secret, sep=":"), httpauth=1L, ssl.verifypeer=FALSE)
+    curl.call <- getCurlHandle(userpwd=paste(keys[[1]], keys[[2]], sep=":"), httpauth=1L, ssl.verifypeer=FALSE)
     expire <- as.POSIXlt(format(Sys.time(),"%Y-%m-%d %k:%M:%OS"))
     expire$hour=expire$hour+4
     tryCatch(res <- fromJSON(getURLContent(web, curl=curl.call, infilesize=length(val), readfunction=val, upload=TRUE, customrequest="POST")), error=function(x){return(res <- data.frame(status=paste(x)))})
@@ -72,19 +80,19 @@ Validate <- function(user, pwd, consumer_key=NULL, consumer_secret=NULL, api="fo
     if (length(res) == 4){
       assign("rplant.env", new.env(hash = TRUE), envir = .GlobalEnv)
       assign("api", "a", envir=rplant.env)
-      assign("consumer_key", consumer_key, envir=rplant.env)
-      assign("consumer_secret", consumer_secret, envir=rplant.env)
-      assign("webio", paste(web_BASE, "files/2.0/media/", user, sep=""), envir=rplant.env)
-      assign("webio1", paste(web_BASE, "files/2.0/media/", sep=""), envir=rplant.env)
-      assign("webcheck", paste(web_BASE, "files/2.0/listings/", user, sep=""), envir=rplant.env)
-      assign("weblist", paste(web_BASE, "files/2.0/listings", sep=""), envir=rplant.env)
-      assign("webshare", paste(web_BASE, "files/2.0/pems/", user, sep=""), envir=rplant.env)
-      assign("webtransforms", paste(web_BASE, "transforms/2.0/", sep=""), envir=rplant.env)
-      assign("webappslist", paste(web_BASE, "apps/2.0", sep=""), envir=rplant.env)
-      assign("webappsname", paste(web_BASE, "apps/2.0", sep=""), envir=rplant.env)
-      assign("webjob", paste(web_BASE, "jobs/2.0", sep=""), envir=rplant.env)
-      assign("webjoblist", paste(web_BASE, "jobs/2.0", sep=""), envir=rplant.env)
-      assign("webprofiles", paste(web_BASE, "profiles/2.0/search/username/", user, sep=""), envir=rplant.env)
+      assign("consumer_key", keys[[1]], envir=rplant.env)
+      assign("consumer_secret", keys[[2]], envir=rplant.env)
+      assign("webio", paste(web_BASE, "files/v2/media/", user, sep=""), envir=rplant.env)
+      assign("webio1", paste(web_BASE, "files/v2/media/", sep=""), envir=rplant.env)
+      assign("webcheck", paste(web_BASE, "files/v2/listings/", user, sep=""), envir=rplant.env)
+      assign("weblist", paste(web_BASE, "files/v2/listings", sep=""), envir=rplant.env)
+      assign("webshare", paste(web_BASE, "files/v2/pems/", user, sep=""), envir=rplant.env)
+      assign("webtransforms", paste(web_BASE, "transforms/v2/", sep=""), envir=rplant.env)
+      assign("webappslist", paste(web_BASE, "apps/v2", sep=""), envir=rplant.env)
+      assign("webappsname", paste(web_BASE, "apps/v2", sep=""), envir=rplant.env)
+      assign("webjob", paste(web_BASE, "jobs/v2", sep=""), envir=rplant.env)
+      assign("webjoblist", paste(web_BASE, "jobs/v2", sep=""), envir=rplant.env)
+      assign("webprofiles", paste(web_BASE, "profiles/v2/search/username/", user, sep=""), envir=rplant.env)
       assign("webauth", paste(web_BASE, "token", sep=""), envir=rplant.env)
       assign("first", paste("curl -sk -H 'Authorization: Bearer ", res$access_token, "'", sep=""), envir=rplant.env)
       assign("user", user, envir=rplant.env)
@@ -175,15 +183,15 @@ TestApp <- function(APP){
 
   if (rplant.env$api == "f"){
     first_string <- "res$result[[len]]"
+      if (substring(APP,nchar(APP)-1,nchar(APP)-1) == "u"){
+      priv.APP <- substring(APP,1,nchar(APP)-2)
+    } else if (substring(APP,nchar(APP)-2,nchar(APP)-2) == "u"){
+      priv.APP <- substring(APP,1,nchar(APP)-3)
+    } else {
+      priv.APP <- APP
+    }
   } else {
     first_string <- "res$result"
-  }
-
-  if (substring(APP,nchar(APP)-1,nchar(APP)-1) == "u"){
-    priv.APP <- substring(APP,1,nchar(APP)-2)
-  } else if (substring(APP,nchar(APP)-2,nchar(APP)-2) == "u"){
-    priv.APP <- substring(APP,1,nchar(APP)-3)
-  } else {
     priv.APP <- APP
   }
 
@@ -230,21 +238,30 @@ Error <- function(ERR){
 appINFO <- function(application, dep=FALSE, input=FALSE){
   Time()
   Renew()
-  if (rplant.env$api == "f") {
+
+  if (rplant.env$api == "f"){
     tmp_string <- "tmp$result[[len]]"
+    tmp_str <- "$public"
+    if (substring(application,nchar(application)-1,nchar(application)-1) == "u"){
+      priv.APP <- substring(application,1,nchar(application)-2)
+    } else if (substring(application,nchar(application)-2,nchar(application)-2) == "u"){
+      priv.APP <- substring(application,1,nchar(application)-3)
+    } else {
+      priv.APP <- application
+    }
   } else {
     tmp_string <- "tmp$result"
+    tmp_str <- "$isPublic"
+    priv.APP <- application
   }
+  
   if (substring(application,nchar(application)-1,nchar(application)-1) == "u"){
-    priv.APP <- substring(application,1,nchar(application)-2)
     version <- as.numeric(substring(application,nchar(application),nchar(application)))
     text <- "Public App"
   } else if (substring(application,nchar(application)-2,nchar(application)-2) == "u"){
-    priv.APP <- substring(application,1,nchar(application)-3)
     version <- as.numeric(paste(substring(application,nchar(application)-1,nchar(application)-1),substring(application,nchar(application),nchar(application)),sep=""))
     text <- "Public App"
   } else {
-    priv.APP <- application
     text <- "Private App"
   }
 
@@ -252,7 +269,7 @@ appINFO <- function(application, dep=FALSE, input=FALSE){
   Error(tmp)
 
   len <- length(tmp$result)
-  if (eval(parse(text=paste(tmp_string, "$public", sep=""))) == FALSE) {
+  if (eval(parse(text=paste(tmp_string, tmp_str, sep=""))) == FALSE) {
     text <- "Private App"
   } else if (length(tmp) == 0) {
     return(stop("No information on application: not valid", call. = FALSE))
@@ -1004,7 +1021,7 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
 
   if (suppress.Warnings == FALSE){
 
-    result <- appINFO(application, TRUE, TRUE)
+    result <- appINFO(application, FALSE, TRUE)
 
     if (result[[1]] == "Public App"){
       input <- result[[6]]
