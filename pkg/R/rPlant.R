@@ -419,7 +419,7 @@ Check <- function(name, path="", suppress.Warnings=FALSE, shared.username=NULL, 
 Wait <- function(job.id, minWaitsec, maxWaitsec, print=FALSE){
   currentStatus= ''
   currentWait = minWaitsec
-  while (( currentStatus != 'FAILED' ) && (currentStatus != 'ARCHIVING_FINISHED')) {
+  while (( currentStatus != 'FAILED' ) && (currentStatus != 'ARCHIVING_FINISHED') && (currentStatus != 'FINISHED')) {
     # cache the status from previous inquiry
     oldStatus = currentStatus
     currentStatus = CheckJobStatus( job.id )
