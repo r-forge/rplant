@@ -18,7 +18,8 @@ utils::globalVariables(c("rplant.env"))
 Create_Keys <- function(user, pwd) {
   web <- "https://agave.iplantc.org/clients/v2"
   curl.call <- getCurlHandle(userpwd=paste(user,pwd, sep=":"), httpauth=1L, ssl.verifypeer=FALSE)
-  tryCatch(res <- fromJSON(postForm(web, clientName = "rPlant", tier = "Unlimited", description = "", callbackUrl = "", style = "POST", curl = curl.call)), error=function(x){return(res <- data.frame(status=paste(x)))})
+  res <- tryCatch(fromJSON(postForm(web, clientName = "rPlant", tier = "Unlimited", description = "", callbackUrl = "", style = "POST", curl = curl.call)), error=function(err){return(paste(err))})
+  Error(res)
   return(list(res$result$consumerKey, res$result$consumerSecret))
 }
 
@@ -74,7 +75,7 @@ Validate <- function(user, pwd, api="foundation", print.curl=FALSE) {
 
     curl.call <- getCurlHandle(userpwd=paste(keys[[1]], keys[[2]], sep=":"), httpauth=1L, ssl.verifypeer=FALSE)
     expire <- as.POSIXlt(format(Sys.time(),"%Y-%m-%d %k:%M:%OS"))
-    expire$hour=expire$hour+4
+    expire$hour=expire$hour+2
     tryCatch(res <- fromJSON(getURLContent(web, curl=curl.call, infilesize=length(val), readfunction=val, upload=TRUE, customrequest="POST")), error=function(x){return(res <- data.frame(status=paste(x)))})
 
     if (length(res) == 4){
@@ -172,7 +173,7 @@ Time <- function(){
     compare <- as.POSIXlt(format(Sys.time(),"%Y-%m-%d %k:%M:%OS"))
     if (compare > rplant.env$expire){
       expire <- as.POSIXlt(format(Sys.time(),"%Y-%m-%d %k:%M:%OS"))
-      expire$hour=expire$hour+4
+      expire$hour=expire$hour+2
       assign("expire", expire, envir=rplant.env)
       RenewToken()
     }
@@ -229,8 +230,13 @@ Error <- function(ERR){
       return(stop(substring(ERR,8,len-3), call. = FALSE))
     }
   } else {
-    if (ERR$status == "error"){
-      return(stop(ERR$message, call. = FALSE))
+    for (i in 1:length(ERR)){
+      if (names(ERR)[i] == "status"){
+        if (ERR$status == "error"){
+          return(stop(ERR$message, call. = FALSE))
+        }
+        break;
+      }
     }
   }
 }
@@ -322,23 +328,33 @@ Check <- function(name, path="", suppress.Warnings=FALSE, shared.username=NULL, 
     Time()
     Renew()
     if (!dir){
-      dir.exist <- fromJSON(getURL(paste(rplant.env$webcheck, path, sep="/"), curl=rplant.env$curl.call)) 
-      if (length(dir.exist$result) != 0){
-        if (path==""){
-          file.exist <- fromJSON(getURL(paste(rplant.env$webcheck, name, sep="/"), curl=rplant.env$curl.call))
-        } else {
-          file.exist <- fromJSON(getURL(paste(rplant.env$webcheck, path, name, sep="/"), curl=rplant.env$curl.call))
-        }
-      } else {
-        if (dir.exist$status == "error"){
-          if ((dir.exist$message == "File does not exist") || (dir.exist$message == "File/folder does not exist")){
-            return(stop(paste("file.path '", path, "' not proper directory", sep=""), call. = FALSE))
+      if (is.null(shared.username)){
+      ### What about shared.username=NULL?
+        dir.exist <- fromJSON(getURL(paste(rplant.env$webcheck, path, sep="/"), curl=rplant.env$curl.call)) 
+        if (length(dir.exist$result) != 0){
+          if (path==""){
+            file.exist <- fromJSON(getURL(paste(rplant.env$webcheck, name, sep="/"), curl=rplant.env$curl.call))
           } else {
-            return(stop("improper username/password combination", call. = FALSE))
+            file.exist <- fromJSON(getURL(paste(rplant.env$webcheck, path, name, sep="/"), curl=rplant.env$curl.call))
           }
         } else {
-          return(stop(paste("file.path '", path, "' not proper directory", sep=""), call. = FALSE))
+          if (dir.exist$status == "error"){
+            if ((dir.exist$message == "File does not exist") || (dir.exist$message == "File/folder does not exist")){
+              return(stop(paste("file.path '", path, "' not proper directory", sep=""), call. = FALSE))
+            } else {
+              return(stop("improper username/password combination", call. = FALSE))
+            }
+          } else {
+            return(stop(paste("file.path '", path, "' not proper directory", sep=""), call. = FALSE))
+          }
         }
+      } else {
+        if (path == ""){
+          web <- paste(rplant.env$weblist, shared.username, name, sep="/")
+        } else {
+          web <- paste(rplant.env$weblist, shared.username, path, name, sep="/")
+        }
+        file.exist <- fromJSON(getURL(web, curl=rplant.env$curl.call))
       }
       if (check){
         if (length(file.exist$result) != 0){
@@ -352,29 +368,33 @@ Check <- function(name, path="", suppress.Warnings=FALSE, shared.username=NULL, 
     } else {
       if (is.null(shared.username)){
         web <- paste(rplant.env$weblist, rplant.env$user, sep="/")
-      } else {
-        web <- paste(rplant.env$weblist, shared.username, sep="/")
-      }
-
-      main.exist <- fromJSON(getURL(paste(web, path, sep="/"), curl=rplant.env$curl.call)) 
-      if (length(main.exist$result) != 0){
-        if (path==""){
-          dir.exist <- fromJSON(getURL(paste(web, name, sep="/"), curl=rplant.env$curl.call))
-        } else {
-          dir.exist <- fromJSON(getURL(paste(web, path, name, sep="/"), curl=rplant.env$curl.call))
-        }
-      } else {
-        if (dir.exist$status == "error"){
-          if ((dir.exist$message == "File does not exist") || (dir.exist$message == "File/folder does not exist")){
-            return(stop(paste("dir.path '", path, "' not proper directory", sep=""), call. = FALSE))
+        main.exist <- fromJSON(getURL(paste(web, path, sep="/"), curl=rplant.env$curl.call)) 
+        if (length(main.exist$result) != 0){
+          if (path==""){
+            dir.exist <- fromJSON(getURL(paste(web, name, sep="/"), curl=rplant.env$curl.call))
           } else {
-            return(stop("improper username/password combination", call. = FALSE))
+            dir.exist <- fromJSON(getURL(paste(web, path, name, sep="/"), curl=rplant.env$curl.call))
           }
         } else {
-          return(stop(paste("dir.path '", path, "' not proper directory", sep=""), call. = FALSE))
+          if (dir.exist$status == "error"){
+            if ((dir.exist$message == "File does not exist") || (dir.exist$message == "File/folder does not exist")){
+              return(stop(paste("dir.path '", path, "' not proper directory", sep=""), call. = FALSE))
+            } else {
+              return(stop("improper username/password combination", call. = FALSE))
+            }
+          } else {
+            return(stop(paste("dir.path '", path, "' not proper directory", sep=""), call. = FALSE))
+          }
         }
+      } else {
+        if (path == ""){
+          web <- paste(rplant.env$weblist, shared.username, name, sep="/")
+        } else {
+          web <- paste(rplant.env$weblist, shared.username, path, name, sep="/")
+        }
+        dir.exist <- fromJSON(getURL(web, curl=rplant.env$curl.call))
       }
-
+      
       if (check){
         if (length(dir.exist$result) != 0){
           return(stop(paste("directory '", name, "' already exists in '", path, "' directory", sep=""), call. = FALSE))
