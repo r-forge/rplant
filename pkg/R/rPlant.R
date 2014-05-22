@@ -1228,29 +1228,10 @@ DeleteALL <- function() {
   Error(res)
 
   if (length(res$result) == 0) {
-    return("No jobs in job history")
+    return(stop("No jobs in job history", call. = FALSE))
   } else {
     for (i in 1:length(res$result)){
-
-      if ((res$result[[i]]$status == "STOPPED") || (res$result[[i]]$status == "FINISHED") || (res$result[[i]]$status == "ARCHIVING_FINISHED") || (res$result[[i]]$status == "ARCHIVING") || (res$result[[i]]$status == "FAILED")){
-
-        web <- paste(rplant.env$webjob, res$result[[i]]$id, sep="/")
-        JS <- tryCatch(fromJSON(getForm(web, .checkparams=FALSE, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
-        Error(JS)
-
-        if (length(JS$result$archivePath) !=0){ 
-          dir.name <- unlist(strsplit(JS$result$archivePath, "/"))[length(unlist(strsplit(JS$result$archivePath, "/")))]
-
-          dir.path <- substr(JS$result$archivePath, nchar(rplant.env$user) + 3, nchar(JS$result$archivePath)-nchar(dir.name)-1)
-
-          Check(dir.name, dir.path, dir=TRUE)
-
-          tmp <- tryCatch(fromJSON(httpDELETE(paste(rplant.env$webio, dir.path, dir.name, sep="/"), curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
-          Error(tmp)
-        }
-        tmp <- tryCatch(fromJSON(httpDELETE(web, curl = rplant.env$curl.call)), error = function(err) {return(paste(err))})
-        Error(tmp)
-      }
+      DeleteOne(res$result[[i]]$id)
     }
   }
 }
