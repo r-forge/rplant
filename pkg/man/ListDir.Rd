@@ -26,6 +26,7 @@ DeleteDir(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE)
 	\item{shared.username}{With iPlant you have the ability to share files with other users, their username is the value for the shared.username, see details.}
 	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.}
 	\item{read}{Gives read permissions for shared directory}
+	\item{write}{Gives write permissions for shared directory}
 	\item{execute}{Gives execute permissions for shared directory}
 }
 \details{
