@@ -5,6 +5,8 @@
 \alias{Renew}
 \alias{RenewToken}
 \alias{Time}
+\alias{appINFO}
+\alias{Check}
 \title{Internal Functions}
 \description{
   All internal functions.
@@ -12,8 +14,6 @@
 \usage{
 TestApp(APP)
 Error(ERR)
-Renew()
-Time()
 find.input(x)
 RenewToken(print.curl=FALSE)
 }
