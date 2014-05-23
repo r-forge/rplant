@@ -18,7 +18,7 @@ RenameFile(file.name, new.file.name, file.path="", print.curl=FALSE,
 MoveFile(file.name, file.path="", end.path="", print.curl=FALSE,
          suppress.Warnings=FALSE)
 DeleteFile(file.name, file.path="", print.curl=FALSE, suppress.Warnings=FALSE)
-SupportFile(print.curl=FALSE) 
+SupportFile(print.curl=FALSE, suppress.Warnings=FALSE) 
 }
 \arguments{
 	\item{local.file.name}{Name of local file on user's computer.  This file cannot be an object in the R workspace.}
