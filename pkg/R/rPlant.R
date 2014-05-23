@@ -23,7 +23,7 @@ Create_Keys <- function(user, pwd) {
   return(list(res$result$consumerKey, res$result$consumerSecret))
 }
 
-Validate <- function(user, pwd, api="foundation", print.curl=FALSE) {
+Validate <- function(user, pwd, api="agave", print.curl=FALSE) {
   
   api <- match.arg(api, c("agave", "foundation"))
 
