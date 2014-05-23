@@ -3,6 +3,7 @@
 \alias{Wait}
 \alias{CheckJobStatus}
 \alias{DeleteJob}
+\alias{KillJob}
 \alias{RetrieveJob}
 \alias{ListJobOutput}
 \alias{GetJobHistory}
@@ -17,9 +18,9 @@ SubmitJob(application, file.path="", file.list=NULL, input.list,
           suppress.Warnings=FALSE,  shared.username=NULL,
           print.curl=FALSE, email=TRUE)
 Wait(job.id, minWaitsec, maxWaitsec, print=FALSE)
-CheckJobStatus(job.id, print.curl=FALSE)
+CheckJobStatus(job.id, history = FALSE, print.curl = FALSE)
 KillJob(job.id, print.curl=FALSE)
-ListJobOutput(job.id, print.curl=FALSE, print=TRUE)
+ListJobOutput(job.id, print.curl=FALSE, print.total=TRUE)
 RetrieveJob(job.id, file.vec, print.curl=FALSE, verbose=FALSE)
 GetJobHistory(return.json=FALSE, print.curl=FALSE)
 DeleteJob(job.id, print.curl=FALSE, ALL=FALSE) 
@@ -39,12 +40,14 @@ DeleteJob(job.id, print.curl=FALSE, ALL=FALSE)
 	\item{minWaitsec}{A range of times (in seconds) must be entered for the \code{Wait} function.  This entry is the minimum time (in seconds) of that range.}
 	\item{maxWaitsec}{A range of times (in seconds) must be entered for the \code{Wait} function.  This entry is the maximum time (in seconds) of that range.}
 	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
-	\item{print}{For the \code{ListJobOuput} function this option will print the total number of files in the folder, for the \code{Wait} function, when \code{print=TRUE}, it simply prints the status when the job is complete.}
+	\item{print.total}{Option only for the \code{ListJobOuput} function this option will print the total number of files in the folder}
+	\item{print}{Only for the \code{Wait} function, when \code{print=TRUE}, it simply prints the status when the job is complete.}
 	\item{verbose}{For the \code{RetrieveJob} function this option will print the names of the files as they are downloaded.}
 	\item{shared.username}{With iPlant you have the ability to share folders with other users.  If someone has shared a folder with you and you want to run a job with them, enter their username for this input.}
 	\item{suppress.Warnings}{This will turn off the warnings, will speed up run time.  Use with caution, if the inputs are incorrect they will not be caught.  If the application you are running is a private application have suppress.Warnings=TRUE}
 	\item{email}{This option is only on the \code{SubmitJob} function.  By default an email will be sent to the user when the job finishes.}
 	\item{ALL}{This option is only on the \code{DeleteJob} function.  If ALL=TRUE then all jobs in the job history will be deleted.}
+	\item{history}{This option is only on the \code{CheckJobStatus} function.  If TRUE, then will show entire history of job.}
 }
 \details{
 	The function \code{SubmitJob}, takes inputs and arguments and submits a job on the Foundation API.  For example, take the application \code{velveth-1.2.07u1}.  If the appropriate inputs are put into the \code{SubmitJob} function then \code{velveth-1.2.07u1} will run on the Foundation API. function  provides a list of the supported file types that can be uploaded onto iPlant.  The \code{SubmitJob} function will run the \code{application} with the file inputs \code{file.list} that are in the directory \code{file.path}.  The appropriate options for the \code{application} need to be outlined in \code{input.list} and potentially \code{args.list}.  The \code{SubmitJob} function outputs the \code{job.id} and with that \code{job.id} you can run \code{CheckJobStatus(job.id)}, and this function will tell you what stage your job is at.  The stages are: 
@@ -94,6 +97,8 @@ When it is finished it will read either \code{ARCHIVING_FINISHED} or \code{FINIS
 # Lists and output files a job has created
 \dontrun{ListJobOutput(myJob[[1]])}
 
+# Might want to kill job if incorrect running
+\dontrun{KillJob(myJob[[1]])}
 # Need to wait for job to be done 
 \dontrun{Wait(myJob[[1]], 5, 1800, print=TRUE)}
  
