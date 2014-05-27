@@ -12,7 +12,8 @@
 \usage{
 UploadFile(local.file.name, local.file.path="", filetype=NULL,
            print.curl=FALSE, suppress.Warnings=FALSE)
-ShareFile(file.name, file.path="", shared.username, read=TRUE, execute=TRUE, write=TRUE, print.curl=FALSE, suppress.Warnings=FALSE)
+ShareFile(file.name, file.path="", shared.username, read=TRUE, 
+          execute=TRUE, write=TRUE, print.curl=FALSE, suppress.Warnings=FALSE)
 RenameFile(file.name, new.file.name, file.path="", print.curl=FALSE,
            suppress.Warnings=FALSE)
 MoveFile(file.name, file.path="", end.path="", print.curl=FALSE,
@@ -47,8 +48,10 @@ SupportFile(print.curl=FALSE, suppress.Warnings=FALSE)
 \examples{
 # Write .fasta file to home directory
 \dontrun{data(DNA.fasta)}
-\dontrun{write.fasta(sequences = DNA.fasta, names = names(DNA.fasta), file.out = "DNA.fasta")}
-\dontrun{UploadFile(local.file.name="DNA.fasta", local.file.path="path/to/dir", filetype="FASTA-0")}
+\dontrun{write.fasta(sequences = DNA.fasta, names = names(DNA.fasta), 
+                     file.out = "DNA.fasta")}
+\dontrun{UploadFile(local.file.name="DNA.fasta", local.file.path="path/to/dir", 
+                    filetype="FASTA-0")}
          
 # Upload a file to the DE
 \dontrun{data(geno_test.tfam)}
