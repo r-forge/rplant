@@ -41,14 +41,16 @@ Fasttree(file.name, file.path="", job.name=NULL, args=NULL,
 \examples{
 
 \dontrun{data(PROTEIN.fasta)}
-\dontrun{write.fasta(sequences = PROTEIN.fasta, names = names(PROTEIN.fasta), file.out = "PROTEIN.fasta")}
+\dontrun{write.fasta(sequences = PROTEIN.fasta, names = names(PROTEIN.fasta),
+                     file.out = "PROTEIN.fasta")}
 \dontrun{Validate("username","password")}
 \dontrun{UploadFile("PROTEIN.fasta", filetype="FASTA-0")}
 \dontrun{myJobMaP <- Mafft("PROTEIN.fasta", type="PROTEIN", job.name="mafftAAfasta")}
 \dontrun{minWait = 5 # seconds}
 \dontrun{maxWait = 1800 # 30 min in seconds}
 \dontrun{Wait(myJobMaP[[1]], minWait, maxWait)}
-\dontrun{myJobFaP <- Fasttree("mafft.fa", type="PROTEIN", file.path=paste("analyses/", myJobMaP[[2]], sep=""), job.name="fasttreeCWaa")}
+\dontrun{myJobFaP <- Fasttree("mafft.fa", type="PROTEIN",
+         file.path=paste("analyses/", myJobMaP[[2]], sep=""), job.name="fasttreeCWaa")}
 \dontrun{Wait(myJobFaP[[1]], minWait, maxWait)}
 \dontrun{RetrieveJob(myJobFaP[[1]], c("fasttree.nwk"))}
 
