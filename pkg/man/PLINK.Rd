@@ -43,10 +43,13 @@ See the PLINK website for more information. \url{http://pngu.mgh.harvard.edu/~pu
 \examples{
 \dontrun{data(geno_test.tfam)}
 \dontrun{data(geno_test.tped)}
-\dontrun{write.table(geno_test.tfam, file = "geno_test.tfam", row.names=FALSE, col.names=FALSE, quote=FALSE, sep="\t")}
-\dontrun{write.table(geno_test.tped, file = "geno_test.tped", row.names=FALSE, col.names=FALSE, quote=FALSE, sep="\t")}
+\dontrun{write.table(geno_test.tfam, file = "geno_test.tfam", row.names=FALSE, 
+                     col.names=FALSE, quote=FALSE, sep="\t")}
+\dontrun{write.table(geno_test.tped, file = "geno_test.tped", row.names=FALSE,
+                     col.names=FALSE, quote=FALSE, sep="\t")}
 \dontrun{Validate("username","password")}
 \dontrun{UploadFile("geno_test.tfam")}
 \dontrun{UploadFile("geno_test.tped")}
-\dontrun{PLINK(file.list=list("geno_test.tfam","geno_test.tped"), association.method="--assoc", print.curl=TRUE)}
+\dontrun{PLINK(file.list=list("geno_test.tfam","geno_test.tped"),
+               association.method="--assoc", print.curl=TRUE)}
 }	
