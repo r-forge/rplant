@@ -10,8 +10,10 @@
 	Functions for listing the contents of a directory, making new directories, or deleting entire directories in the iPlant infrastructure
 }
 \usage{
-ListDir(dir.name, dir.path="", print.curl=FALSE, shared.username=NULL, suppress.Warnings=FALSE)
-ShareDir(dir.name, dir.path="", shared.username, read=TRUE, execute=TRUE, write=TRUE, print.curl=FALSE, suppress.Warnings=FALSE) 
+ListDir(dir.name, dir.path="", print.curl=FALSE, shared.username=NULL,
+        suppress.Warnings=FALSE)
+ShareDir(dir.name, dir.path="", shared.username, read=TRUE, execute=TRUE,
+         write=TRUE, print.curl=FALSE, suppress.Warnings=FALSE) 
 RenameDir(dir.name, new.dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE)
 MoveDir(dir.name, dir.path="", end.path="", print.curl=FALSE, suppress.Warnings=FALSE)
 MakeDir(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE)
