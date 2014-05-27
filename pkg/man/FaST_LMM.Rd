@@ -40,8 +40,10 @@ Not all information on the FaST-LMM model is here, see the FaST-LMM website \url
 \examples{
 \dontrun{data(geno_test.tfam)}
 \dontrun{data(geno_test.tped)}
-\dontrun{write.table(geno_test.tfam, file = "geno_test.tfam", row.names=FALSE, col.names=FALSE, quote=FALSE, sep="\t")}
-\dontrun{write.table(geno_test.tped, file = "geno_test.tped", row.names=FALSE, col.names=FALSE, quote=FALSE, sep="\t")}
+\dontrun{write.table(geno_test.tfam, file = "geno_test.tfam", row.names=FALSE, 
+                     col.names=FALSE, quote=FALSE, sep="\t")}
+\dontrun{write.table(geno_test.tped, file = "geno_test.tped", row.names=FALSE, 
+                     col.names=FALSE, quote=FALSE, sep="\t")}
 \dontrun{Validate("username","password")}
 \dontrun{UploadFile("geno_test.tfam")}
 \dontrun{UploadFile("geno_test.tped")}
