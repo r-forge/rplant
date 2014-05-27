@@ -48,14 +48,16 @@ RAxML(file.name, file.path="", job.name=NULL, type="DNA",
 }
 \examples{
 \dontrun{data(PROTEIN.fasta)}
-\dontrun{write.fasta(sequences = PROTEIN.fasta, names = names(PROTEIN.fasta), file.out = "PROTEIN.fasta")}
+\dontrun{write.fasta(sequences = PROTEIN.fasta, names = names(PROTEIN.fasta),
+                     file.out = "PROTEIN.fasta")}
 \dontrun{Validate("username","password")}
 \dontrun{UploadFile("PROTEIN.fasta", filetype="FASTA-0")}
 \dontrun{myJobCWP <- ClustalW("PROTEIN.fasta", type="PROTEIN", job.name="clustalwAAphy")}
 \dontrun{minWait = 5 # seconds}
 \dontrun{maxWait = 1800 # 30 min in seconds}
 \dontrun{Wait(myJobCWP[[1]], minWait, maxWait)}
-\dontrun{myJobRaxP <- RAxML("clustalw2.fa", type="PROTEIN", file.path=paste("analyses/",myJobCWP[[2]], sep=""), job.name="raxmlAA")}
+\dontrun{myJobRaxP <- RAxML("clustalw2.fa", type="PROTEIN", file.path=paste("analyses/", 
+                            myJobCWP[[2]], sep=""), job.name="raxmlAA")}
 \dontrun{Wait(myJobRaxP[[1]], minWait, maxWait)}
 \dontrun{RetrieveJob(myJobRaxP[[1]], c("RAxML_bestTree.nwk"))}
 
