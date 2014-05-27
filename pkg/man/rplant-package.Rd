@@ -22,10 +22,13 @@
 }
 \examples{
 \dontrun{data(PROTEIN.fasta)}
-\dontrun{write.fasta(sequences = PROTEIN.fasta, names = names(PROTEIN.fasta), file.out = "PROTEIN.fasta")}
+\dontrun{write.fasta(sequences = PROTEIN.fasta, names = names(PROTEIN.fasta), 
+                     file.out = "PROTEIN.fasta")}
 \dontrun{Validate("username","password")}
 \dontrun{UploadFile("PROTEIN.fasta", filetype="FASTA-0")}
-\dontrun{SubmitJob(application="Muscle-3.8.32u4", file.list=list("PROTEIN.fasta"), input.list=list("stdin"), args.list=list(c("arguments", "-phyiout")), job.name="MuscleSJAA")}
+\dontrun{SubmitJob(application="Muscle-3.8.32u4", file.list=list("PROTEIN.fasta"), 
+                   input.list=list("stdin"), args.list=list(c("arguments", "-phyiout")),
+                   job.name="MuscleSJAA")}
 ### Or, one can use one of the wrapper functions. ###
 \dontrun{Muscle("PROTEIN.fasta", aln.filetype="PHYLIP_INT", job.name="muscleAA")}
 }
