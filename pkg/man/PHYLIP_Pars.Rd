@@ -36,7 +36,8 @@ PHYLIP_Pars(file.name, file.path="", job.name=NULL, type="DNA",
 \dontrun{minWait = 5 # seconds}
 \dontrun{maxWait = 1800 # 30 min in seconds}
 \dontrun{Wait(myJobMuD[[1]], minWait, maxWait)}
-\dontrun{myJobPhyD <- PHYLIP_Pars("phylip_pars.aln", file.path=paste("analyses/",myJobMuD[[2]], sep=""), job.name="phylipDNA")}
+\dontrun{myJobPhyD <- PHYLIP_Pars("phylip_pars.aln", file.path=paste("analyses/",myJobMuD[[2]],
+                                  sep=""), job.name="phylipDNA")}
 \dontrun{Wait(myJobPhyD[[1]], minWait, maxWait)}
 \dontrun{RetrieveJob(myJobPhyD[[1]], c("outtree.nwk"))}
 
