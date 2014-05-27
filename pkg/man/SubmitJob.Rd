@@ -88,8 +88,11 @@ When it is finished it will read either \code{ARCHIVING_FINISHED} or \code{FINIS
 \dontrun{Validate("username","password")}
 \dontrun{UploadFile("DNA.fasta", filetype="FASTA-0")}
 
-# Submit a MUSCLE job using the provided data in the package.  The job will return a job id and job name
-\dontrun{myJob <- SubmitJob(application="Muscle-3.8.32u4", file.list=list("DNA.fasta"), input.list=list("stdin"), args.list=list(c("arguments", "-phyiout")), job.name="muscleDNA")}
+# Submit a MUSCLE job using the provided data in the package.  The job will return
+# a job id and job name
+\dontrun{myJob <- SubmitJob(application="Muscle-3.8.32u4", file.list=list("DNA.fasta"),
+                            input.list=list("stdin"), args.list=list(c("arguments", 
+                            "-phyiout")), job.name="muscleDNA")}
 
 # Check the status of any job
 \dontrun{CheckJobStatus(myJob[[1]])}
