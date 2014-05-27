@@ -35,7 +35,8 @@ Muscle(file.name, file.path="", job.name=NULL, args=NULL,
 }
 \examples{
 \dontrun{data(PROTEIN.fasta)}
-\dontrun{write.fasta(sequences = PROTEIN.fasta, names = names(PROTEIN.fasta), file.out = "PROTEIN.fasta")}
+\dontrun{write.fasta(sequences = PROTEIN.fasta, names = names(PROTEIN.fasta),
+                     file.out = "PROTEIN.fasta")}
 \dontrun{Validate("username","password")}
 \dontrun{UploadFile("PROTEIN.fasta", filetype="FASTA-0")}
 \dontrun{Muscle("PROTEIN.fasta", aln.filetype="FASTA", job.name="muscleAAfasta")}
