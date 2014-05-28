@@ -2,7 +2,7 @@
 \alias{Validate}
 \title{Authentication functions}
 \description{
-	This basic function simply authenticates users.  
+	This basic function authenticates users.  
 }
 \usage{
 Validate(user, pwd, api="agave", print.curl=FALSE)
@@ -17,7 +17,9 @@ Validate(user, pwd, api="agave", print.curl=FALSE)
 The \code{Validate} function works the same for a user trying to logon to Agave or Foundation.  All that is necessary for the \code{Validate} function is for the user to provide the username and password combination; then it will verify that they are a valid pair for iPlant.  To get a valid pair of credentials go to \url{http://user.iplantcollaborative.org/} and register.
 }
 \value{
-	The function will print the error "Authentication failed" if if fails. 
+	The \code{Validate} function will create a new R environment that stores variables that communicate automatically with the API.  These include, an access token (foundation) or an API consumer key and secret (agave), the expiration, the user name and password, and a few other variables. To see the entire list of environmental variables, see \code{ls(rplant.env)}. 
+	
+	The function will print the error "Authentication failed" if if fails. If it is successful, nothing will print to screen, however you can check that validation occurred by checking rplant.env$consumer_key and rplant.env$consumer_secret.
 }
 \examples{
 \dontrun{Validate("username", "password")}
