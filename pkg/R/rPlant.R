@@ -104,12 +104,12 @@ Validate <- function(user, pwd, api="agave", print.curl=FALSE) {
       assign("curl.call", getCurlHandle(httpheader=c(paste("Authorization: Bearer ", get("access_token", envir=rplant.env), sep="")), httpauth=1L, ssl.verifypeer=FALSE), envir=rplant.env)
     } else {
       sub <- substring(res$status,1,5)
-      if (sub == "Error"){
-        return("Error: Shared username is not valid")
+      if (length(sub) == 0){
+        return(stop("Please Retry", call. = FALSE))
       } else if (sub == "error"){
-        return(res$message)
+        return(stop(res$message, call. = FALSE))
       } else {
-        return(paste(res$status))
+        return(stop(res$status, call. = FALSE))
       }
     }
   }
