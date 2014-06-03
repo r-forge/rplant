@@ -442,7 +442,7 @@ Wait <- function(job.id, minWaitsec, maxWaitsec, print=FALSE){
   }
 
   if (print == TRUE) {
-    print(paste("Job number: '", job.id, "' has status: ", currentStatus, sep=""))
+    message(paste("Job number: '", job.id, "' has status: ", currentStatus, sep=""))
   }
 }
 
@@ -1151,7 +1151,8 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
 
   cat(paste("Job submitted. You can check your job using CheckJobStatus(", 
       res$result$id, ")", sep=""), "\n")
-  return(list(res$result$id, job.name))
+  return(res$result$id)
+  # return(list(res$result$id, job.name))
 }
 
 ####################
@@ -1285,7 +1286,7 @@ DeleteJob <- function(job.id, print.curl=FALSE, ALL=FALSE) {
   if (ALL==TRUE){
     DeleteALL()
     if (print.curl) {
-      print("No curl statement to print")
+      message("No curl statement to print")
     }
   } else {
     DeleteOne(job.id, print.curl)
@@ -1321,7 +1322,7 @@ RetrieveOne <- function(file, archive.path, file.path, print.curl) {
 ####################
 ####################
 
-RetrieveJob <- function(job.id, file.vec, print.curl=FALSE, verbose=FALSE) {  
+RetrieveJob <- function(job.id, file.vec=NULL, print.curl=FALSE, verbose=FALSE) {  
 
   Time()
   Renew()
@@ -1341,6 +1342,9 @@ RetrieveJob <- function(job.id, file.vec, print.curl=FALSE, verbose=FALSE) {
       dir.create(dir.path)
     }
 
+  if(is.null(file.vec)){
+    file.vec <- ListJobOutput(job.id)
+  }  
     fileList <- ListJobOutput(job.id, print.total=FALSE)
     for (file in 1:length(file.vec)) {
       # if file exists in output then download
@@ -1349,7 +1353,7 @@ RetrieveJob <- function(job.id, file.vec, print.curl=FALSE, verbose=FALSE) {
         RetrieveOne(file.vec[file], JS$result$archivePath, dir.path, print.curl)
 
         if (verbose==TRUE) {
-          print(paste("Downloaded", file.vec[file], "to", getwd(), "directory"))
+          message(paste("Downloaded", file.vec[file], "to", getwd(), "directory"))
         }
       } else {
         return(stop(paste("`",file.vec[file], "' is not found within `", job.id,"'", sep=""), call. = FALSE))
@@ -1391,7 +1395,7 @@ ListJobOutput <- function(job.id, print.curl=FALSE, print.total=TRUE) {
     }
 
     if (print.total == TRUE) {
-      print(paste("There are ", len-1, " output files for job '", job.id,"'", sep=""))
+      message(paste("There are ", len-1, " output files for job '", job.id,"'", sep=""))
     }
     for (i in 2:length(res$result)) {
       file.vec <- append(file.vec, res$result[[i]]$name)
