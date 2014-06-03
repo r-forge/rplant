@@ -611,6 +611,93 @@ Share <- function(name, path="", shared.username, read=TRUE, execute=TRUE, write
   if (!suppress.Warnings){Error(res)}
 }
 
+#####################
+#####################
+#### Permissions ####
+#####################
+#####################
+
+Pems <- function(name, path="", print.curl=FALSE, suppress.Warnings=FALSE) {
+
+  if (rplant.env$api == "f"){
+    tmp_string <- "tmp$result$permissions"
+  } else {
+    tmp_string <- "tmp$result"
+  }
+    
+  if (path == ""){
+    web <- paste(rplant.env$webshare, name, sep="/")
+  } else {
+    web <- paste(rplant.env$webshare, path, name, sep="/")
+  }
+
+  if (print.curl){
+    curl.string <- paste(rplant.env$first, web)
+    print(curl.string)
+  }
+
+  Renew()
+  tmp <- tryCatch(fromJSON(getURL(web, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+  if (!suppress.Warnings){Error(tmp)}
+
+  if (rplant.env$api == "a"){
+    len <- length(eval(parse(text=tmp_string))) - 1
+    first <- 2
+  } else {
+    len <- length(eval(parse(text=tmp_string))) - 12
+    first <- 11
+  }
+  
+  if (len == 0){ res <- matrix(, len + 1, 3) } else { res <- matrix(, len, 3) }
+  colnames(res) <- c("Name", "Username", "Permissions")
+  res[1, 1] <- name
+  if (len == 0){
+    res[1, 2] <- "None"
+    res[1, 3] <- "None"
+  } else {
+    cnt = 1
+    for (i in first:(first + len - 1)) {
+      if (i != first){res[cnt,1] <- ""}
+      res[cnt, 2] <- eval(parse(text=paste(tmp_string, "[[", i, "]]$username", sep="")))
+      if (eval(parse(text=paste(tmp_string, "[[", i, "]]$permission$read", sep=""))) == TRUE) {
+        R <- TRUE
+      } else {
+        R <- FALSE
+      }
+      if (eval(parse(text=paste(tmp_string, "[[", i, "]]$permission$write", sep=""))) == TRUE) {
+        W <- TRUE        
+      } else {
+        W <- FALSE
+      }
+      if (eval(parse(text=paste(tmp_string, "[[", i, "]]$permission$execute", sep=""))) == TRUE) {
+        E <- TRUE        
+      } else {
+        E <- FALSE
+      }
+
+      if ((R == TRUE) && (E == TRUE) && (W == TRUE)) {
+        str <- "All"
+      } else if ((R == TRUE) && (E == TRUE) && (W == FALSE)) {
+        str <- "R/E"
+      } else if ((R == TRUE) && (E == FALSE) && (W == TRUE)) {
+        str <- "R/W"
+      } else if ((R == TRUE) && (E == FALSE) && (W == FALSE)) {
+        str <- "R"
+      } else if ((R == FALSE) && (E == TRUE) && (W == TRUE)) {
+        str <- "W/E"
+      } else if ((R == FALSE) && (E == TRUE) && (W == FALSE)) {
+        str <- "E"
+      } else if ((R == FALSE) && (E == FALSE) && (W == TRUE)) {
+        str <- "W"
+      }
+
+      res[cnt, 3] <- str
+      cnt = cnt + 1
+    }
+  }
+  return(res)
+}
+
 # -- END -- #
 
 
@@ -667,6 +754,19 @@ ShareFile <- function(file.name, file.path="", shared.username, read=TRUE, execu
   Check(file.name, file.path, suppress.Warnings)
 
   Share(file.name, file.path, shared.username, read, execute, write, print.curl)
+}
+
+#####################
+#####################
+## PermissionsFile ##
+#####################
+#####################
+
+PermissionsFile <- function(file.name, file.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
+
+    Check(file.name, file.path, suppress.Warnings)
+    
+    Pems(file.name, file.path, print.curl, suppress.Warnings)
 }
 
 #################
@@ -794,6 +894,19 @@ ShareDir <- function(dir.name, dir.path="", shared.username, read=TRUE, execute=
   Check(dir.name, dir.path, suppress.Warnings, dir=TRUE)
 
   Share(dir.name, dir.path, shared.username, read, execute, write, print.curl, TRUE)
+}
+
+#####################
+#####################
+## PermissionsDir ###
+#####################
+#####################
+
+PermissionsDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
+
+    Check(dir.name, dir.path, suppress.Warnings, dir=TRUE)
+    
+    Pems(dir.name, dir.path, print.curl, suppress.Warnings)
 }
 
 #################
