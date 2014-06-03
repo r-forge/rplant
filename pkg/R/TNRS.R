@@ -28,7 +28,7 @@ ResolveNames <- function(names, max.per.call=100, verbose=TRUE) {
         new.names[starting.position + return.index - 
                   1] <- returned.values[[return.index]]$nameScientific
       if (verbose) 
-        print(paste("finished ", name.index, "of ", length(names), "names")) 
+        message(paste("finished ", name.index, "of ", length(names), "names")) 
       starting.position <- name.index + 1
       names.in.call <- 0
       actual.call <- call.base
@@ -38,7 +38,7 @@ ResolveNames <- function(names, max.per.call=100, verbose=TRUE) {
     warning(paste("the input name list was", length(names), 
                   "long but the new one is ", length(new.names), "long"))
   new.names <- sapply(new.names, sub, pattern=" ", replacement="_", USE.NAMES=F)
-  return(print(new.names))
+  return(new.names)
 }
 
 GetPhylotasticToken <- function(names, max.per.call=100, verbose=TRUE) {
