@@ -1335,13 +1335,13 @@ RetrieveJob <- function(job.id, file.vec=NULL, print.curl=FALSE, verbose=FALSE) 
   if ((JS$res$status == "ARCHIVING_FINISHED") || (JS$res$status == "FINISHED")) {
 
     dir.path <- file.path(getwd(), JS$result[[2]])
-
-    if (.Platform$OS.type=="windows") {
-      invisible(shell(paste("mkdir ", JS$result[[2]], sep="")))
-    } else {
-      dir.create(dir.path)
+    if(!file.exists(dir.path)){
+      if (.Platform$OS.type=="windows") {
+        invisible(shell(paste("mkdir ", JS$result[[2]], sep="")))
+      } else {
+        dir.create(dir.path)
+      }
     }
-
   if(is.null(file.vec)){
     file.vec <- ListJobOutput(job.id)
   }  
@@ -1353,7 +1353,7 @@ RetrieveJob <- function(job.id, file.vec=NULL, print.curl=FALSE, verbose=FALSE) 
         RetrieveOne(file.vec[file], JS$result$archivePath, dir.path, print.curl)
 
         if (verbose==TRUE) {
-          message(paste("Downloaded", file.vec[file], "to", getwd(), "directory"))
+          message(paste("Downloaded", file.vec[file], "to", dir.path))
         }
       } else {
         return(stop(paste("`",file.vec[file], "' is not found within `", job.id,"'", sep=""), call. = FALSE))
