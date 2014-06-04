@@ -800,7 +800,7 @@ Move <- function(name, org.path="", end.path="", print.curl=FALSE, suppress.Warn
   #   to 'end.path'
   #
   # Args:
-  #   name: name of object
+  #   name: Name of object
   #   org.path: Original or current path where object is
   #   end.path: Path to where object will be moved
   #   print.curl: Prints the associated curl statement
@@ -854,13 +854,11 @@ Move <- function(name, org.path="", end.path="", print.curl=FALSE, suppress.Warn
 #####################
 
 Delete <- function(name, path="", print.curl=FALSE, suppress.Warnings=FALSE) {
-  # This function simply moves the object 'name' from 'org.path'
-  #   to 'end.path'
+  # This function removes the object 'name' from 'path'
   #
   # Args:
-  #   name: name of object
-  #   org.path: Original or current path where object is
-  #   end.path: Path to where object will be moved
+  #   name: Name of object
+  #   path: Path to current object
   #   print.curl: Prints the associated curl statement
   #   suppress.Warnings: Don't do any error checking (faster)
   #
@@ -877,7 +875,11 @@ Delete <- function(name, path="", print.curl=FALSE, suppress.Warnings=FALSE) {
     print(curl.string)
   }
   Renew()
-  res <- tryCatch(fromJSON(httpDELETE(web, curl = rplant.env$curl.call)), error = function(err) {return(paste(err))})
+  res <- tryCatch(expr  = fromJSON(httpDELETE(web, curl = rplant.env$curl.call)), 
+                  error = function(err) {
+                            return(paste(err))
+                          }
+                  )
   if (!suppress.Warnings){Error(res)}
 }
 
@@ -887,9 +889,28 @@ Delete <- function(name, path="", print.curl=FALSE, suppress.Warnings=FALSE) {
 #####################
 #####################
 
-Share <- function(name, path="", shared.username, read=TRUE, execute=TRUE, write=TRUE, print.curl=FALSE, suppress.Warnings=FALSE, D=FALSE) {
-
+Share <- function(name, path="", shared.username, read=TRUE, execute=TRUE, 
+                  write=TRUE, print.curl=FALSE, suppress.Warnings=FALSE, D=FALSE) {
+  # This function shares the object 'name' with shared.username.  Also one can
+  #   decide which permissions to give to the shared user.
+  #
+  # Args:
+  #   name: Name of object
+  #   path: Current path where object is
+  #   shared.username: String, valid iPlant username with whom the object
+  #     is being shared.
+  #   read: Gives read permissions to object
+  #   execute: Gives execute permissions to object
+  #   write: Gives write permissions to object
+  #   D: Either TRUE or FALSE, if TRUE then object is a directory o/w
+  #     the object is a file.
+  #   print.curl: Prints the associated curl statement
+  #   suppress.Warnings: Don't do any error checking (faster)
+  #
+  # Returns:
+  #   Returns nothing unless an error
   content <- c()
+
   if (rplant.env$api == "f") {
     if (read == TRUE) {content <- append(content, "can_read=true")} 
     if (execute == TRUE) {content <- append(content, "can_execute=true")}
@@ -919,7 +940,9 @@ Share <- function(name, path="", shared.username, read=TRUE, execute=TRUE, write
 
   content <- append(content,paste("username=", shared.username, sep=""))
 
-  if(D){content <- append(content,"recursive=true")}
+  if(D) { # Directory, so add recursive=true so all contents in the directory have same perms
+    content <- append(content,"recursive=true")
+  }
 
   if (path == "") {
     web <- paste(rplant.env$webshare, name, sep="/")
@@ -928,13 +951,23 @@ Share <- function(name, path="", shared.username, read=TRUE, execute=TRUE, write
   }
 
   if (print.curl){
-    curl.string <- paste(rplant.env$first," -X POST -d '", paste(content, collapse = "&"), "' ", web, sep="")
+    curl.string <- paste(rplant.env$first," -X POST -d '", 
+                         paste(content, collapse = "&"), "' ", web, sep="")
     print(curl.string)
   }
 
   val <- charToRaw(paste(content, collapse = "&"))
   Renew()
-  res <- tryCatch(fromJSON(getURLContent(web, curl=rplant.env$curl.call,  infilesize=length(val), readfunction=val, upload=TRUE, customrequest="POST")), error = function(err) {return(paste(err))})
+  res <- tryCatch(expr  = fromJSON(getURLContent(web, 
+                                                 curl          = rplant.env$curl.call, 
+                                                 infilesize    = length(val), 
+                                                 readfunction  = val, 
+                                                 upload        = TRUE, 
+                                                 customrequest = "POST")), 
+                  error = function(err) {
+                            return(paste(err))
+                          }
+                  )
   if (!suppress.Warnings){Error(res)}
 }
 
@@ -945,7 +978,19 @@ Share <- function(name, path="", shared.username, read=TRUE, execute=TRUE, write
 #####################
 
 Pems <- function(name, path="", print.curl=FALSE, suppress.Warnings=FALSE) {
-
+  # This function looks at the permissions on an object.  It will return
+  #   the object name, users with whom the object is shared and their
+  #   permissions.
+  #
+  # Args:
+  #   name: Name of object
+  #   path: Current path where object is
+  #   print.curl: Prints the associated curl statement
+  #   suppress.Warnings: Don't do any error checking (faster)
+  #
+  # Returns:
+  #   Returns the object name, users with whom the object is shared and
+  #     their permissions.
   if (rplant.env$api == "f"){
     tmp_string <- "tmp$result$permissions"
   } else {
@@ -964,39 +1009,51 @@ Pems <- function(name, path="", print.curl=FALSE, suppress.Warnings=FALSE) {
   }
 
   Renew()
-  tmp <- tryCatch(fromJSON(getURL(web, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+  tmp <- tryCatch(expr  = fromJSON(getURL(web, curl=rplant.env$curl.call)), 
+                  error = function(err) {
+                            return(paste(err))
+                          }
+                  )
   if (!suppress.Warnings){Error(tmp)}
 
   if (rplant.env$api == "a"){
     len <- length(eval(parse(text=tmp_string))) - 1
-    first <- 2
+    first <- 2 # We don't want to return the user themself, so start at 2
   } else {
-    len <- length(eval(parse(text=tmp_string))) - 12
-    first <- 11
+    len <- length(eval(parse(text=tmp_string))) - 12 # 12 is total # of other perms on F
+    first <- 11 # The other users start at position 11
   }
   
-  if (len == 0){ res <- matrix(, len + 1, 3) } else { res <- matrix(, len, 3) }
+  if (len == 0){# If the object is not shared, still return something
+    res <- matrix(, len + 1, 3) 
+  } else { 
+    res <- matrix(, len, 3) 
+  }
   colnames(res) <- c("Name", "Username", "Permissions")
   res[1, 1] <- name
-  if (len == 0){
+  if (len == 0){# If the object is not shared, return "None"
     res[1, 2] <- "None"
     res[1, 3] <- "None"
   } else {
     cnt = 1
-    for (i in first:(first + len - 1)) {
+    for (i in first:(first + len - 1)) { # Check permissions
       if (i != first){res[cnt,1] <- ""}
-      res[cnt, 2] <- eval(parse(text=paste(tmp_string, "[[", i, "]]$username", sep="")))
-      if (eval(parse(text=paste(tmp_string, "[[", i, "]]$permission$read", sep=""))) == TRUE) {
+      res[cnt, 2] <- eval(parse(text=paste(tmp_string, "[[", i, "]]$username", 
+                                           sep="")))
+      if (eval(parse(text=paste(tmp_string, "[[", i, "]]$permission$read", 
+                                sep=""))) == TRUE) {
         R <- TRUE
       } else {
         R <- FALSE
       }
-      if (eval(parse(text=paste(tmp_string, "[[", i, "]]$permission$write", sep=""))) == TRUE) {
+      if (eval(parse(text=paste(tmp_string, "[[", i, "]]$permission$write", 
+                                sep=""))) == TRUE) {
         W <- TRUE        
       } else {
         W <- FALSE
       }
-      if (eval(parse(text=paste(tmp_string, "[[", i, "]]$permission$execute", sep=""))) == TRUE) {
+      if (eval(parse(text=paste(tmp_string, "[[", i, "]]$permission$execute", 
+                                sep=""))) == TRUE) {
         E <- TRUE        
       } else {
         E <- FALSE
