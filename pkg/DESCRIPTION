@@ -4,8 +4,7 @@ Date: 2013-05-20
 Title: R interface to the iPlant Discovery Environment
 Author: Kurt Michels <kamichels@math.arizona.edu>, Barb Banbury <bbanbury@utk.edu>, Jeremy M. Beaulieu <jeremy.beaulieu@yale.edu>, Brian O'Meara <bomeara@utk.edu>
 Maintainer: Kurt Michels <kamichels@math.arizona.edu>
-Depends: R (>= 2.13.0)
-Imports: rjson, RCurl, seqinr
+Depends: R (>= 2.13.0), rjson, RCurl, seqinr
 LazyData:yes
 Repository/R-Forge/Project: rplant
 BugReports: https://r-forge.r-project.org/tracker/?group_id=1328
