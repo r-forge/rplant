@@ -1097,7 +1097,19 @@ Pems <- function(name, path="", print.curl=FALSE, suppress.Warnings=FALSE) {
 
 UploadFile <- function(local.file.name, local.file.path="", filetype=NULL,
                        print.curl=FALSE, suppress.Warnings=FALSE) {
-
+  # This function takes a file in a users local directory and it
+  #   uploads the file onto iPlant's servers.
+  #
+  # Args:
+  #   local.file.name: Name of file
+  #   local.file.path: Current path where object is on the local directory
+  #   filetype: Not required, but we can assign the file a file type
+  #   print.curl: Prints the associated curl statement
+  #   suppress.Warnings: Don't do any error checking (faster)
+  #
+  # Returns:
+  #   Returns nothing unless there is an error.  Errors include, file already
+  #     on iPlant servers.
   if (local.file.path == ""){
     file.path = paste(getwd(), local.file.name, sep="/")
   } else {
@@ -1105,21 +1117,47 @@ UploadFile <- function(local.file.name, local.file.path="", filetype=NULL,
   }
 
   if (rplant.env$api == "f") {
-    options <- list(userpwd=paste(rplant.env$user, rplant.env$pwd, sep=":"), ssl.verifypeer=FALSE, httpauth=AUTH_BASIC, useragent="R", followlocation=TRUE)
+    options <- list(userpwd        = paste(rplant.env$user, rplant.env$pwd, sep=":"), 
+                    ssl.verifypeer = FALSE, 
+                    httpauth       = AUTH_BASIC, 
+                    useragent      = "R", 
+                    followlocation = TRUE)
   } else {
-    options <- list(httpheader=c(paste("Authorization: Bearer ", rplant.env$access_token, sep="")), ssl.verifypeer=FALSE, httpauth=AUTH_BASIC, useragent="R", followlocation=TRUE)
+    options <- list(httpheader=c(paste("Authorization: Bearer ", rplant.env$access_token, sep="")), 
+                    ssl.verifypeer = FALSE, 
+                    httpauth       = AUTH_BASIC, 
+                    useragent      = "R", 
+                    followlocation = TRUE)
   }
-
+  # Check that file is not in iPlant directory
   Check(local.file.name, suppress.Warnings=suppress.Warnings, check=TRUE)
 
   if (!is.null(filetype)){
-    res <- tryCatch(fromJSON(postForm(rplant.env$webio, style="httppost", fileToUpload=fileUpload(file.path), fileType=filetype, .opts=options)), error = function(err) {return(paste(err))})
+    res <- tryCatch(expr  = fromJSON(postForm(rplant.env$webio, 
+                                              style        = "httppost", 
+                                              fileToUpload = fileUpload(file.path), 
+                                              fileType     = filetype, 
+                                              .opts        = options)), 
+                    error = function(err) {
+                              return(paste(err))
+                            }
+                    )
     if (!suppress.Warnings){Error(res)}
-    curl.string <- paste(rplant.env$first, " -F 'fileToUpload=@", file.path, "' -F 'fileType=", filetype, "' ", rplant.env$webio, sep="")
+    curl.string <- paste(rplant.env$first, " -F 'fileToUpload=@", file.path, 
+                         "' -F 'fileType=", filetype, "' ", rplant.env$webio, 
+                         sep="")
   } else {
-    res <- tryCatch(fromJSON(postForm(rplant.env$webio, style="httppost", fileToUpload=fileUpload(file.path), .opts=options)), error = function(err) {return(paste(err))})
+    res <- tryCatch(expr  = fromJSON(postForm(rplant.env$webio, 
+                                              style        = "httppost", 
+                                              fileToUpload = fileUpload(file.path),
+                                              .opts        = options)), 
+                    error = function(err) {
+                              return(paste(err))
+                            }
+                    )
     if (!suppress.Warnings){Error(res)}
-    curl.string <- paste(rplant.env$first," -F 'fileToUpload=@", file.path, "' ", rplant.env$webio, sep="")
+    curl.string <- paste(rplant.env$first," -F 'fileToUpload=@", file.path, 
+                         "' ", rplant.env$webio, sep="")
   }
 
   if (print.curl==TRUE){
@@ -1133,8 +1171,26 @@ UploadFile <- function(local.file.name, local.file.path="", filetype=NULL,
 #####################
 #####################
 
-ShareFile <- function(file.name, file.path="", shared.username, read=TRUE, execute=TRUE, write=TRUE, print.curl=FALSE, suppress.Warnings=FALSE) {
- 
+ShareFile <- function(file.name, file.path="", shared.username, read=TRUE, 
+                      execute=TRUE, write=TRUE, print.curl=FALSE, 
+                      suppress.Warnings=FALSE) {
+
+  # This function shares the 'file.name' with shared.username.  Also one can
+  #   decide which permissions to give to the shared user.
+  #
+  # Args:
+  #   file.name: Name of object
+  #   file.path: Current path where object is
+  #   shared.username: String, valid iPlant username with whom the object
+  #     is being shared.
+  #   read: Gives read permissions to object
+  #   execute: Gives execute permissions to object
+  #   write: Gives write permissions to object
+  #   print.curl: Prints the associated curl statement
+  #   suppress.Warnings: Don't do any error checking (faster)
+  #
+  # Returns:
+  #   Returns nothing unless an error, file does not exist
   Check(file.name, file.path, suppress.Warnings)
 
   Share(file.name, file.path, shared.username, read, execute, write, print.curl)
@@ -1146,8 +1202,22 @@ ShareFile <- function(file.name, file.path="", shared.username, read=TRUE, execu
 #####################
 #####################
 
-PermissionsFile <- function(file.name, file.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
+PermissionsFile <- function(file.name, file.path="", print.curl=FALSE, 
+                            suppress.Warnings=FALSE) {
 
+  # This function looks at the permissions on a file.name.  It will return
+  #   the files name, users with whom the file is shared and their
+  #   permissions.
+  #
+  # Args:
+  #   file.name: Name of object
+  #   file.path: Current path where object is
+  #   print.curl: Prints the associated curl statement
+  #   suppress.Warnings: Don't do any error checking (faster)
+  #
+  # Returns:
+  #   Returns the object name, users with whom the object is shared and
+  #     their permissions o/w an error if file does not exist
     Check(file.name, file.path, suppress.Warnings)
     
     Pems(file.name, file.path, print.curl, suppress.Warnings)
@@ -1159,10 +1229,25 @@ PermissionsFile <- function(file.name, file.path="", print.curl=FALSE, suppress.
 #####################
 #####################
 
-RenameFile <- function(file.name, new.file.name, file.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
+RenameFile <- function(file.name, new.file.name, file.path="",
+                       print.curl=FALSE, suppress.Warnings=FALSE) {
+  # This function simply takes 'file.name' and renames it to 'new.file.name'
+  #
+  # Args:
+  #   file.name: Current name of object
+  #   new.file.name: New name of object
+  #   file.path: Path to where object is
+  #   print.curl: Prints the associated curl statement
+  #   suppress.Warnings: Don't do any error checking (faster)
+  #
+  # Returns:
+  #   Returns nothing unless an error if file does not exist, or if
+  #     'new.file.name' does exist in 'file.path'.
 
+  # Check file.name
   Check(file.name, file.path, suppress.Warnings)
 
+  # Check new.file.name
   Check(new.file.name, file.path, suppress.Warnings, check=TRUE)
 
   Rename(file.name, new.file.name, file.path, print.curl) 
@@ -1174,10 +1259,27 @@ RenameFile <- function(file.name, new.file.name, file.path="", print.curl=FALSE,
 #####################
 #####################
 
-MoveFile <- function(file.name, file.path="", end.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
+MoveFile <- function(file.name, file.path="", end.path="", 
+                     print.curl=FALSE, suppress.Warnings=FALSE) {
+  # This function simply moves the 'file.name' from 'file.path'
+  #   to 'end.path'
+  #
+  # Args:
+  #   file.name: Name of object
+  #   file.path: Original or current path where object is
+  #   end.path: Path to where object will be moved
+  #   print.curl: Prints the associated curl statement
+  #   suppress.Warnings: Don't do any error checking (faster)
+  #
+  # Returns:
+  #   Returns nothing unless an error.  Error if 'file.name'
+  #     does not exist or if 'file.name' in 'end.path' already
+  #     does exist
 
+  # Check 'file.name'
   Check(file.name, file.path, suppress.Warnings)
 
+  # Check 'file.name' in 'end.path'
   Check(file.name, end.path, suppress.Warnings, check=TRUE)
 
   Move(file.name, file.path, end.path, print.curl)
@@ -1189,8 +1291,20 @@ MoveFile <- function(file.name, file.path="", end.path="", print.curl=FALSE, sup
 #####################
 #####################
 
-DeleteFile <- function(file.name, file.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
+DeleteFile <- function(file.name, file.path="", print.curl=FALSE, 
+                       suppress.Warnings=FALSE) {
+  # This function removes the 'file.name' from 'file.path'
+  #
+  # Args:
+  #   name: Name of object
+  #   path: Path to current object
+  #   print.curl: Prints the associated curl statement
+  #   suppress.Warnings: Don't do any error checking (faster)
+  #
+  # Returns:
+  #   Returns nothing unless an error if 'file.name' does not exist
 
+  # Check 'file.name'
   Check(file.name, file.path, suppress.Warnings)
 
   Delete(file.name, file.path, print.curl)
@@ -1203,10 +1317,24 @@ DeleteFile <- function(file.name, file.path="", print.curl=FALSE, suppress.Warni
 #####################
 
 SupportFile <- function(print.curl=FALSE, suppress.Warnings=FALSE) {  
-
+  # This function lists all supported file types on either the
+  #   Foundation API or Agave API.
+  #
+  # Args:
+  #   print.curl: Prints the associated curl statement
+  #   suppress.Warnings: Don't do any error checking (faster)
+  #
+  # Returns:
+  #   Returns all supported file types.
   Time()
   Renew()
-  res <- tryCatch(fromJSON(getForm(rplant.env$webtransforms, .checkparams=FALSE, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+  res <- tryCatch(expr  = fromJSON(getForm(uri          = rplant.env$webtransforms, 
+                                           .checkparams = FALSE,
+                                           curl         = rplant.env$curl.call)), 
+                  error = function(err) {
+                            return(paste(err))
+                          }
+                  )
   if (!suppress.Warnings){Error(res)}
 
   if (print.curl) {
