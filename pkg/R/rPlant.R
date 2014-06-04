@@ -273,7 +273,7 @@ RenewToken <- function(print.curl=FALSE) {
   #   acquired.
   #
   # Args:
-  #   print.curl: Prints the associated curl statment
+  #   print.curl: Prints the associated curl statement
   #
   # Returns:
   #   An error if not valid credentials, o/w nothing
@@ -335,250 +335,12 @@ RenewToken <- function(print.curl=FALSE) {
 
 #####################
 #####################
-####### Misc. #######
+####### Check #######
 #####################
 #####################
 
-Renew <- function(){
-  # This is called before every call.  It simply refreshes the curl call
-  #
-  # Returns:
-  #   Nothing
-  if (rplant.env$api == "a") {
-    assign(x     = "curl.call", 
-           value = getCurlHandle(httpheader     = c(paste("Authorization: Bearer ", 
-                                                          get("access_token", envir=rplant.env), 
-                                                          sep="")), 
-                                 httpauth       = 1L, 
-                                 ssl.verifypeer = FALSE), 
-           envir = rplant.env)
-  } else {
-    assign(x     = "curl.call",
-           value = getCurlHandle(userpwd        = paste(get("user", envir = rplant.env), 
-                                                        get("pwd", envir = rplant.env), 
-                                                        sep=":"), 
-                                 httpauth       = 1L, 
-                                 ssl.verifypeer = FALSE), 
-           envir = rplant.env)
-  }
-}
-
-Time <- function(){
-  # For the Agave API the access token expires after 2 hours.  This function
-  #   is called before every curl call.  The time is only kept track of in
-  #   the R workspace, and if the token expires then it is renewed.
-  #
-  # Returns:
-  #   Nothing
-  if (rplant.env$api != "f"){
-    compare <- as.POSIXlt(format(Sys.time(),"%Y-%m-%d %k:%M:%OS"))
-    if (compare > rplant.env$expire){ # If it does expire
-      expire <- as.POSIXlt(format(Sys.time(),"%Y-%m-%d %k:%M:%OS"))
-      expire$hour=expire$hour+2 # insert a new expire time
-      assign("expire", expire, envir=rplant.env)
-      RenewToken() # Renew the token
-    }
-  }
-}
-
-TestApp <- function(APP){
-  # This application takes the application name, and returns a short description
-  #   of the application
-  #
-  # Args:
-  #   APP: name of application
-  #
-  # Returns:
-  #   Short description of application
-  if (rplant.env$api == "f"){
-    first_string <- "res$result[[len]]"
-      if (substring(APP,nchar(APP)-1,nchar(APP)-1) == "u"){
-      priv.APP <- substring(APP,1,nchar(APP)-2)
-    } else if (substring(APP,nchar(APP)-2,nchar(APP)-2) == "u"){
-      priv.APP <- substring(APP,1,nchar(APP)-3)
-    } else {
-      priv.APP <- APP
-    }
-  } else {
-    first_string <- "res$result"
-    priv.APP <- APP
-  }
-
-  Renew()
-  res <- fromJSON(getForm(uri          = paste(rplant.env$webappsname, priv.APP, sep="/"),
-                          .checkparams = FALSE,
-                          curl         = rplant.env$curl.call))
-  len <- length(res$result)
-
-  if (length(res) == 0){
-    return(list(NULL))
-  } else {
-    shortd <- eval(parse(text=paste(first_string, "$shortDescription", sep="")))
-    shortn <- nchar(shortd)
-    longd <- eval(parse(text=paste(first_string, "$longDescription", sep="")))
-    if (is.null(longd)) {longn = 0} else {longn <- nchar(longd)}
-    if (longn >= shortn) {
-      description <- longd
-    } else {
-      description <- shortd
-    }
-    return(c(eval(parse(text=paste(first_string, "$id", sep=""))), description))
-  }
-}
-
-Error <- function(ERR){
-  # This is the error checking component of the package.  It takes in an 
-  #   object.  If the object is a string then it is most likely an error, 
-  #   if it's not a string then the status of the of the object needs to be 
-  #   checked to make sure there were no errors.  If an error did occur then
-  #   an appropriate error is returned.
-  #
-  # Args:
-  #   ERR: object (could be anything)
-  #
-  # Returns:
-  #   Nothing if there is no error, o/w it returns an appropriate error
-  if (length(ERR) == 1){
-    sub1 <- substring(ERR,8,8)
-    if (sub1 == "B"){
-      return(stop("Bad Request", call. = FALSE))
-    } else if (sub1 == "U"){
-      return(stop("Invalid username/password combination", call. = FALSE))
-    } else if ((sub1 == "F") || (sub1 == "N")){
-      return(stop("file or directory or job id does not exist", call. = FALSE))
-    } else {
-      len <- nchar(ERR)
-      return(stop(substring(ERR,8,len-3), call. = FALSE))
-    }
-  } else {
-    for (i in 1:length(ERR)){
-      if (names(ERR)[i] == "status"){
-        if (ERR$status == "error"){
-          return(stop(ERR$message, call. = FALSE))
-        }
-        break;
-      }
-    }
-  }
-}
-
-appINFO <- function(application, dep=FALSE, input=FALSE){
-  # This is the error checking component of the package.  It takes in an 
-  #   object.  If the object is a string then it is most likely an error, 
-  #   if it's not a string then the status of the of the object needs to be 
-  #   checked to make sure there were no errors.  If an error did occur then
-  #   an appropriate error is returned.
-  #
-  # Args:
-  #   application: application name (string)
-  #   dep: Either TRUE or FALSE indicating to check if application is
-  #     depracated.  If application is deprecated then an error is sent.
-  #   input: Either TRUE or FALSE, if TRUE then include application info
-  #
-  # Returns:
-  #   Returns different information depending on the inputs.  All information
-  #     is about the application.
-  Time()
-  Renew()
-  # For the Foundation API and Agave API, naming schemes are a litle bit different.
-  #   This needs to be accounted for on every function.
-  if (rplant.env$api == "f"){
-    tmp_string <- "tmp$result[[len]]"
-    tmp_str <- "$public"
-    if (substring(application,nchar(application)-1,nchar(application)-1) == "u"){
-      priv.APP <- substring(application,1,nchar(application)-2)
-    } else if (substring(application,nchar(application)-2,nchar(application)-2) == "u"){
-      priv.APP <- substring(application,1,nchar(application)-3)
-    } else {
-      priv.APP <- application
-    }
-  } else {
-    tmp_string <- "tmp$result"
-    tmp_str <- "$isPublic"
-    priv.APP <- application
-  }
-  # This part depends on the application name ending in "u1" etc.   If the 
-  #   naming scheme for the public applications still does this, which is
-  #   true for current (2014) Agave and Foundation API.  Then this simply
-  #   takes that part off.  So the name 'Muscleu2' becomes 'Muscle'
-  if (substring(application,nchar(application)-1,nchar(application)-1) == "u"){
-    version <- as.numeric(substring(application, nchar(application), nchar(application)))
-    text <- "Public App"
-  } else if (substring(application,nchar(application)-2,nchar(application)-2) == "u"){
-    version <- as.numeric(paste(substring(application,nchar(application)-1,nchar(application)-1),
-                                substring(application,nchar(application),nchar(application)),
-                                sep=""))
-    text <- "Public App"
-  } else {
-    text <- "Private App"
-  }
-
-  tmp <- tryCatch(expr  = fromJSON(getForm(uri          = paste(rplant.env$webappsname, priv.APP, sep="/"),
-                                           .checkparams = FALSE, 
-                                           curl         = rplant.env$curl.call)), 
-                  error = function(err) {
-                            return(paste(err))
-                          }
-                  )
-  Error(tmp)
-
-  len <- length(tmp$result)
-  if (eval(parse(text=paste(tmp_string, tmp_str, sep=""))) == FALSE) {
-    text <- "Private App"
-  } else if (length(tmp) == 0) {
-    return(stop("No information on application: not valid", call. = FALSE))
-  }
-  # This depends on the naming scheme, for 'Muscleu2' the version number is 'u2'
-  if (text == "Public App"){
-    APP <- eval(parse(text=paste(tmp_string, "$id", sep="")))
-    if (substring(APP,nchar(APP)-1,nchar(APP)-1) == "u"){
-      priv.APP <- substring(APP,1,nchar(APP)-2)
-      version.APP <- as.numeric(substring(APP,nchar(APP),nchar(APP)))
-    } else if (substring(APP,nchar(APP)-2,nchar(APP)-2) == "u"){
-      priv.APP <- substring(APP,1,nchar(APP)-3)
-      version.APP <- as.numeric(paste(substring(APP,nchar(APP)-1,nchar(APP)-1),substring(APP,nchar(APP),nchar(APP)),sep=""))
-    }
-    # When the application is looked up under the name 'Muscle', it finds the
-    #   newest version.  So 'Muscleu2' is compared to the most recent version
-    #   which could be 'u3', if this is so the application is deprecated and
-    #   you are told so.
-    if (version.APP > version){
-      v.text <- paste("Deprecated, the newest version is:", APP)
-    } else {
-      v.text <- "Newest Version"
-    }
-    # When submitting a job use dep=TRUE, that way if application is deprecated
-    #   the job will not be submitted because an error is returned.
-    if (dep){
-      if (substring(v.text, 1, 1) == "D"){
-        return(stop(paste("Application deprecated, should be:", APP), call. = FALSE))
-      }
-    }
-  }
-  # This finds if the application can be parallelized, and it is returned
-  set <- eval(parse(text=paste(tmp_string, "$parallelism", sep="")))
-  # Don't return verbose output
-  if (!input){
-    if (text == "Private App"){
-      return(list("Private App", priv.APP, tmp, set))
-    } else {
-      return(list("Public App", priv.APP, v.text, APP, tmp, set))
-    }
-  } else { # Return verbose output
-    app.info<-c()
-    for (input in sequence(length(eval(parse(text=paste(tmp_string, "$inputs", sep="")))))) {
-      app.info <- rbind(app.info, eval(parse(text=paste(tmp_string, "$inputs[[input]]$id", 
-                                                        sep=""))))
-    }
-    if (text == "Private App"){
-      return(list("Private App", priv.APP, tmp, app.info, set))
-    } else {
-      return(list("Public App", priv.APP, v.text, APP, tmp, app.info, set))
-    }
-  }
-}
-
-Check <- function(name, path="", suppress.Warnings=FALSE, shared.username=NULL, check=FALSE){
+Check <- function(name, path="", suppress.Warnings=FALSE, 
+                  shared.username=NULL, check=FALSE){
   # This takes a file name (or directory name) and it simply checks if that
   #   file (or directory) exist.  If not an error is returned. 
   #
@@ -645,6 +407,12 @@ Check <- function(name, path="", suppress.Warnings=FALSE, shared.username=NULL, 
   }
 }
 
+#####################
+#####################
+####### Wait ########
+#####################
+#####################
+
 Wait <- function(job.id, minWaitsec, maxWaitsec, print=FALSE){
   # This function simply waits for the job to finish before proceeding.  It is
   #   used when result files from a job must be retrieved in order to do the
@@ -687,6 +455,274 @@ Wait <- function(job.id, minWaitsec, maxWaitsec, print=FALSE){
   }
 }
 
+#####################
+#####################
+####### Misc. #######
+#####################
+#####################
+
+#############
+### Renew ###
+#############
+
+Renew <- function(){
+  # This is called before every call.  It simply refreshes the curl call
+  #
+  # Returns:
+  #   Nothing
+  if (rplant.env$api == "a") {
+    assign(x     = "curl.call", 
+           value = getCurlHandle(httpheader     = c(paste("Authorization: Bearer ", 
+                                                          get("access_token", envir=rplant.env), 
+                                                          sep="")), 
+                                 httpauth       = 1L, 
+                                 ssl.verifypeer = FALSE), 
+           envir = rplant.env)
+  } else {
+    assign(x     = "curl.call",
+           value = getCurlHandle(userpwd        = paste(get("user", envir = rplant.env), 
+                                                        get("pwd", envir = rplant.env), 
+                                                        sep=":"), 
+                                 httpauth       = 1L, 
+                                 ssl.verifypeer = FALSE), 
+           envir = rplant.env)
+  }
+}
+
+#############
+### Time ####
+#############
+
+Time <- function(){
+  # For the Agave API the access token expires after 2 hours.  This function
+  #   is called before every curl call.  The time is only kept track of in
+  #   the R workspace, and if the token expires then it is renewed.
+  #
+  # Returns:
+  #   Nothing
+  if (rplant.env$api != "f"){
+    compare <- as.POSIXlt(format(Sys.time(),"%Y-%m-%d %k:%M:%OS"))
+    if (compare > rplant.env$expire){ # If it does expire
+      expire <- as.POSIXlt(format(Sys.time(),"%Y-%m-%d %k:%M:%OS"))
+      expire$hour=expire$hour+2 # insert a new expire time
+      assign("expire", expire, envir=rplant.env)
+      RenewToken() # Renew the token
+    }
+  }
+}
+
+#############
+## TestApp ##
+#############
+
+TestApp <- function(APP){
+  # This application takes the application name, and returns a short description
+  #   of the application
+  #
+  # Args:
+  #   APP: name of application
+  #
+  # Returns:
+  #   Short description of application
+  if (rplant.env$api == "f"){
+    first_string <- "res$result[[len]]"
+      if (substring(APP,nchar(APP)-1,nchar(APP)-1) == "u"){
+      priv.APP <- substring(APP,1,nchar(APP)-2)
+    } else if (substring(APP,nchar(APP)-2,nchar(APP)-2) == "u"){
+      priv.APP <- substring(APP,1,nchar(APP)-3)
+    } else {
+      priv.APP <- APP
+    }
+  } else {
+    first_string <- "res$result"
+    priv.APP <- APP
+  }
+
+  Renew()
+  res <- fromJSON(getForm(uri          = paste(rplant.env$webappsname, priv.APP, sep="/"),
+                          .checkparams = FALSE,
+                          curl         = rplant.env$curl.call))
+  len <- length(res$result)
+
+  if (length(res) == 0){
+    return(list(NULL))
+  } else {
+    shortd <- eval(parse(text=paste(first_string, "$shortDescription", sep="")))
+    shortn <- nchar(shortd)
+    longd <- eval(parse(text=paste(first_string, "$longDescription", sep="")))
+    if (is.null(longd)) {longn = 0} else {longn <- nchar(longd)}
+    if (longn >= shortn) {
+      description <- longd
+    } else {
+      description <- shortd
+    }
+    return(c(eval(parse(text=paste(first_string, "$id", sep=""))), description))
+  }
+}
+
+#############
+### Error ###
+#############
+
+Error <- function(ERR){
+  # This is the error checking component of the package.  It takes in an 
+  #   object.  If the object is a string then it is most likely an error, 
+  #   if it's not a string then the status of the of the object needs to be 
+  #   checked to make sure there were no errors.  If an error did occur then
+  #   an appropriate error is returned.
+  #
+  # Args:
+  #   ERR: object (could be anything)
+  #
+  # Returns:
+  #   Nothing if there is no error, o/w it returns an appropriate error
+  if (length(ERR) == 1){
+    sub1 <- substring(ERR,8,8)
+    if (sub1 == "B"){
+      return(stop("Bad Request", call. = FALSE))
+    } else if (sub1 == "U"){
+      return(stop("Invalid username/password combination", call. = FALSE))
+    } else if ((sub1 == "F") || (sub1 == "N")){
+      return(stop("file or directory or job id does not exist", call. = FALSE))
+    } else {
+      len <- nchar(ERR)
+      return(stop(substring(ERR,8,len-3), call. = FALSE))
+    }
+  } else {
+    for (i in 1:length(ERR)){
+      if (names(ERR)[i] == "status"){
+        if (ERR$status == "error"){
+          return(stop(ERR$message, call. = FALSE))
+        }
+        break;
+      }
+    }
+  }
+}
+
+#############
+## appINFO ##
+#############
+
+appINFO <- function(application, dep=FALSE, input=FALSE){
+  # This is the error checking component of the package.  It takes in an 
+  #   object.  If the object is a string then it is most likely an error, 
+  #   if it's not a string then the status of the of the object needs to be 
+  #   checked to make sure there were no errors.  If an error did occur then
+  #   an appropriate error is returned.
+  #
+  # Args:
+  #   application: application name (string)
+  #   dep: Either TRUE or FALSE indicating to check if application is
+  #     depracated.  If application is deprecated then an error is sent.
+  #   input: Either TRUE or FALSE, if TRUE then include application info
+  #
+  # Returns:
+  #   Returns different information depending on the inputs.  All information
+  #     is about the application.
+  Time()
+  Renew()
+  # For the Foundation API and Agave API, naming schemes are a litle bit different.
+  #   This needs to be accounted for on every function.
+  if (rplant.env$api == "f"){
+    tmp_string <- "tmp$result[[len]]"
+    tmp_str <- "$public"
+    if (substring(application,nchar(application)-1,nchar(application)-1) == "u"){
+      priv.APP <- substring(application,1,nchar(application)-2)
+    } else if (substring(application,nchar(application)-2,nchar(application)-2) == "u"){
+      priv.APP <- substring(application,1,nchar(application)-3)
+    } else {
+      priv.APP <- application
+    }
+  } else {
+    tmp_string <- "tmp$result"
+    tmp_str <- "$isPublic"
+    priv.APP <- application
+  }
+  # This part depends on the application name ending in "u1" etc.   If the 
+  #   naming scheme for the public applications still does this, which is
+  #   true for current (2014) Agave and Foundation API.  Then this simply
+  #   takes that part off.  So the name 'Muscleu2' becomes 'Muscle'
+  if (substring(application,nchar(application)-1,nchar(application)-1) == "u"){
+    version <- as.numeric(substring(application, nchar(application), nchar(application)))
+    text <- "Public App"
+  } else if (substring(application, nchar(application)-2, nchar(application)-2) == "u"){
+    version <- as.numeric(paste(substring(application, nchar(application)-1, nchar(application)-1),
+                                substring(application, nchar(application), nchar(application)),
+                                sep=""))
+    text <- "Public App"
+  } else {
+    text <- "Private App"
+  }
+
+  tmp <- tryCatch(expr  = fromJSON(getForm(uri          = paste(rplant.env$webappsname,
+                                                                priv.APP, sep="/"),
+                                           .checkparams = FALSE, 
+                                           curl         = rplant.env$curl.call)), 
+                  error = function(err) {
+                            return(paste(err))
+                          }
+                  )
+  Error(tmp)
+
+  len <- length(tmp$result)
+  if (eval(parse(text=paste(tmp_string, tmp_str, sep=""))) == FALSE) {
+    text <- "Private App"
+  } else if (length(tmp) == 0) {
+    return(stop("No information on application: not valid", call. = FALSE))
+  }
+  # This depends on the naming scheme, for 'Muscleu2' the version number is 'u2'
+  if (text == "Public App"){
+    APP <- eval(parse(text=paste(tmp_string, "$id", sep="")))
+    if (substring(APP,nchar(APP)-1,nchar(APP)-1) == "u"){
+      priv.APP <- substring(APP,1,nchar(APP)-2)
+      version.APP <- as.numeric(substring(APP,nchar(APP),nchar(APP)))
+    } else if (substring(APP,nchar(APP)-2,nchar(APP)-2) == "u"){
+      priv.APP <- substring(APP,1,nchar(APP)-3)
+      version.APP <- as.numeric(paste(substring(APP, nchar(APP)-1, nchar(APP)-1),
+                                      substring(APP,nchar(APP),nchar(APP)),
+                                      sep=""))
+    }
+    # When the application is looked up under the name 'Muscle', it finds the
+    #   newest version.  So 'Muscleu2' is compared to the most recent version
+    #   which could be 'u3', if this is so the application is deprecated and
+    #   you are told so.
+    if (version.APP > version){
+      v.text <- paste("Deprecated, the newest version is:", APP)
+    } else {
+      v.text <- "Newest Version"
+    }
+    # When submitting a job use dep=TRUE, that way if application is deprecated
+    #   the job will not be submitted because an error is returned.
+    if (dep){
+      if (substring(v.text, 1, 1) == "D"){
+        return(stop(paste("Application deprecated, should be:", APP), call. = FALSE))
+      }
+    }
+  }
+  # This finds if the application can be parallelized, and it is returned
+  set <- eval(parse(text=paste(tmp_string, "$parallelism", sep="")))
+  # Don't return verbose output
+  if (!input){
+    if (text == "Private App"){
+      return(list("Private App", priv.APP, tmp, set))
+    } else {
+      return(list("Public App", priv.APP, v.text, APP, tmp, set))
+    }
+  } else { # Return verbose output
+    app.info<-c()
+    for (input in sequence(length(eval(parse(text=paste(tmp_string, "$inputs", sep="")))))) {
+      app.info <- rbind(app.info, eval(parse(text=paste(tmp_string, "$inputs[[input]]$id", 
+                                                        sep=""))))
+    }
+    if (text == "Private App"){
+      return(list("Private App", priv.APP, tmp, app.info, set))
+    } else {
+      return(list("Public App", priv.APP, v.text, APP, tmp, app.info, set))
+    }
+  }
+}
+
 # -- END -- #
 
 
@@ -705,7 +741,17 @@ Wait <- function(job.id, minWaitsec, maxWaitsec, print=FALSE){
 #####################
 
 Rename <- function(name, new.name, path="", print.curl=FALSE, suppress.Warnings=FALSE) {
-
+  # This function simply takes the object 'name' and renames it to 'new.name'
+  #
+  # Args:
+  #   name: Current name of object
+  #   new.name: New name of object
+  #   path: Path to where object is
+  #   print.curl: Prints the associated curl statement
+  #   suppress.Warnings: Don't do any error checking (faster)
+  #
+  # Returns:
+  #   Returns nothing unless an error
   content <- c()
   if (rplant.env$api == "f") {
     content[1] <- "action=rename"
@@ -726,25 +772,42 @@ Rename <- function(name, new.name, path="", print.curl=FALSE, suppress.Warnings=
   }
 
   if (print.curl){
-    curl.string <- paste(rplant.env$first, " -X PUT -d '", paste(content, collapse = "&"), "' ", web, sep="")
+    curl.string <- paste(rplant.env$first, " -X PUT -d '", 
+                         paste(content, collapse = "&"), "' ", web, sep="")
     print(curl.string)
   }
 
   val <- charToRaw(paste(content, collapse = "&"))
   Renew()
-  res <- tryCatch(fromJSON(httpPUT(web, content=val, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+  res <- tryCatch(expr  = fromJSON(httpPUT(url     = web, 
+                                           content = val, 
+                                           curl    = rplant.env$curl.call)),
+                  error = function(err) {
+                            return(paste(err))
+                          }
+                  )
   if (!suppress.Warnings){Error(res)}
 }
 
-
-#################
-#################
-##### Move ######
-#################
-#################
+#####################
+#####################
+####### Move ########
+#####################
+#####################
 
 Move <- function(name, org.path="", end.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
-
+  # This function simply moves the object 'name' from 'org.path'
+  #   to 'end.path'
+  #
+  # Args:
+  #   name: name of object
+  #   org.path: Original or current path where object is
+  #   end.path: Path to where object will be moved
+  #   print.curl: Prints the associated curl statement
+  #   suppress.Warnings: Don't do any error checking (faster)
+  #
+  # Returns:
+  #   Returns nothing unless an error
   if (rplant.env$api == "f") {
     path <- "newPath="
   } else {
@@ -766,24 +829,43 @@ Move <- function(name, org.path="", end.path="", print.curl=FALSE, suppress.Warn
   }
 
   if (print.curl){
-    curl.string <- paste(rplant.env$first, " -X PUT -d '", paste(content, collapse = "&"), "' ", rplant.env$webio, sep="")
+    curl.string <- paste(rplant.env$first, " -X PUT -d '", 
+                         paste(content, collapse = "&"), "' ", 
+                         rplant.env$webio, sep="")
     print(curl.string)
   }
 
   val <- charToRaw(paste(content, collapse = "&"))
   Renew()
-  res <- tryCatch(fromJSON(httpPUT(web, content=val, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+  res <- tryCatch(expr  = fromJSON(httpPUT(url     = web, 
+                                           content = val, 
+                                           curl    = rplant.env$curl.call)),
+                  error = function(err) {
+                            return(paste(err))
+                          }
+                  )
   if (!suppress.Warnings){Error(res)}
 }
 
-#################
-#################
-#### Delete #####
-#################
-#################
+#####################
+#####################
+###### Delete #######
+#####################
+#####################
 
 Delete <- function(name, path="", print.curl=FALSE, suppress.Warnings=FALSE) {
-
+  # This function simply moves the object 'name' from 'org.path'
+  #   to 'end.path'
+  #
+  # Args:
+  #   name: name of object
+  #   org.path: Original or current path where object is
+  #   end.path: Path to where object will be moved
+  #   print.curl: Prints the associated curl statement
+  #   suppress.Warnings: Don't do any error checking (faster)
+  #
+  # Returns:
+  #   Returns nothing unless an error
   if (path == "") {
     web <- paste(rplant.env$webio, name, sep="/")
   } else {
@@ -799,11 +881,11 @@ Delete <- function(name, path="", print.curl=FALSE, suppress.Warnings=FALSE) {
   if (!suppress.Warnings){Error(res)}
 }
 
-#################
-#################
-##### Share #####
-#################
-#################
+#####################
+#####################
+####### Share #######
+#####################
+#####################
 
 Share <- function(name, path="", shared.username, read=TRUE, execute=TRUE, write=TRUE, print.curl=FALSE, suppress.Warnings=FALSE, D=FALSE) {
 
@@ -950,11 +1032,11 @@ Pems <- function(name, path="", print.curl=FALSE, suppress.Warnings=FALSE) {
 
 # -- FILE FUNCTIONS -- #
 
-#################
-#################
-## UploadFile ###
-#################
-#################
+#####################
+#####################
+#### UploadFile #####
+#####################
+#####################
 
 UploadFile <- function(local.file.name, local.file.path="", filetype=NULL,
                        print.curl=FALSE, suppress.Warnings=FALSE) {
@@ -988,11 +1070,11 @@ UploadFile <- function(local.file.name, local.file.path="", filetype=NULL,
   }
 }
 
-#################
-#################
-### ShareFile ###
-#################
-#################
+#####################
+#####################
+##### ShareFile #####
+#####################
+#####################
 
 ShareFile <- function(file.name, file.path="", shared.username, read=TRUE, execute=TRUE, write=TRUE, print.curl=FALSE, suppress.Warnings=FALSE) {
  
@@ -1014,11 +1096,11 @@ PermissionsFile <- function(file.name, file.path="", print.curl=FALSE, suppress.
     Pems(file.name, file.path, print.curl, suppress.Warnings)
 }
 
-#################
-#################
-## RenameFile ###
-#################
-#################
+#####################
+#####################
+#### RenameFile #####
+#####################
+#####################
 
 RenameFile <- function(file.name, new.file.name, file.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
 
@@ -1029,11 +1111,11 @@ RenameFile <- function(file.name, new.file.name, file.path="", print.curl=FALSE,
   Rename(file.name, new.file.name, file.path, print.curl) 
 }
 
-#################
-#################
-### MoveFile ####
-#################
-#################
+#####################
+#####################
+##### MoveFile ######
+#####################
+#####################
 
 MoveFile <- function(file.name, file.path="", end.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
 
@@ -1044,11 +1126,11 @@ MoveFile <- function(file.name, file.path="", end.path="", print.curl=FALSE, sup
   Move(file.name, file.path, end.path, print.curl)
 }
 
-#################
-#################
-## DeleteFile ###
-#################
-#################
+#####################
+#####################
+#### DeleteFile #####
+#####################
+#####################
 
 DeleteFile <- function(file.name, file.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
 
@@ -1057,11 +1139,11 @@ DeleteFile <- function(file.name, file.path="", print.curl=FALSE, suppress.Warni
   Delete(file.name, file.path, print.curl)
 }
 
-#################
-#################
-## SupportFile ##
-#################
-#################
+#####################
+#####################
+#### SupportFile ####
+#####################
+#####################
 
 SupportFile <- function(print.curl=FALSE, suppress.Warnings=FALSE) {  
 
@@ -1089,11 +1171,11 @@ SupportFile <- function(print.curl=FALSE, suppress.Warnings=FALSE) {
 
 # -- DIRECTORY FUNCTIONS -- #
 
-#################
-#################
-#### ListDir ####
-#################
-#################
+#####################
+#####################
+###### ListDir ######
+#####################
+#####################
 
 ListDir <- function(dir.name="", dir.path="", print.curl=FALSE, shared.username=NULL, suppress.Warnings=FALSE) {
 
@@ -1128,11 +1210,11 @@ ListDir <- function(dir.name="", dir.path="", print.curl=FALSE, shared.username=
   return(res)
 }
 
-#################
-#################
-### ShareDir ####
-#################
-#################
+#####################
+#####################
+##### ShareDir ######
+#####################
+#####################
 
 ShareDir <- function(dir.name, dir.path="", shared.username, read=TRUE, execute=TRUE, write=TRUE, print.curl=FALSE, suppress.Warnings=FALSE) {
 
@@ -1154,11 +1236,11 @@ PermissionsDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.War
     Pems(dir.name, dir.path, print.curl, suppress.Warnings)
 }
 
-#################
-#################
-### RenameDir ###
-#################
-#################
+#####################
+#####################
+##### RenameDir #####
+#####################
+#####################
 
 RenameDir <- function(dir.name, new.dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
   Check(dir.name, dir.path, suppress.Warnings)
@@ -1168,11 +1250,11 @@ RenameDir <- function(dir.name, new.dir.name, dir.path="", print.curl=FALSE, sup
   Rename(dir.name, new.dir.name, dir.path, print.curl) 
 }
 
-#################
-#################
-#### MoveDir ####
-#################
-#################
+#####################
+#####################
+###### MoveDir ######
+#####################
+#####################
 
 MoveDir <- function(dir.name, dir.path="", end.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
 
@@ -1183,11 +1265,11 @@ MoveDir <- function(dir.name, dir.path="", end.path="", print.curl=FALSE, suppre
   Move(dir.name, dir.path, end.path, print.curl)
 }
 
-#################
-#################
-### DeleteDir ###
-#################
-#################
+#####################
+#####################
+##### DeleteDir #####
+#####################
+#####################
 
 DeleteDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
 
@@ -1196,11 +1278,11 @@ DeleteDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings
   Delete(dir.name, dir.path, print.curl)
 }
 
-#################
-#################
-#### MakeDir ####
-#################
-#################
+#####################
+#####################
+###### MakeDir ######
+#####################
+#####################
 
 MakeDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
 
@@ -1243,11 +1325,11 @@ MakeDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=F
 
 # -- APPLICATION FUNCTIONS -- #
 
-#################
-#################
-### ListApps ####
-#################
-#################
+#####################
+#####################
+##### ListApps ######
+#####################
+#####################
 
 ListApps<- function (description=FALSE, print.curl=FALSE, suppress.Warnings=FALSE) 
 {
@@ -1289,11 +1371,11 @@ ListApps<- function (description=FALSE, print.curl=FALSE, suppress.Warnings=FALS
   return(sort(res))
 }
 
-#################
-#################
-## GetAppInfo ###
-#################
-#################
+#####################
+#####################
+#### GetAppInfo #####
+#####################
+#####################
 
 GetAppInfo <- function(application, return.json=FALSE, print.curl=FALSE) {
 
@@ -1358,11 +1440,11 @@ GetAppInfo <- function(application, return.json=FALSE, print.curl=FALSE) {
 
 # -- JOB FUNCTIONS -- #
 
-#################
-#################
-### SubmitJob ###
-#################
-#################
+#####################
+#####################
+##### SubmitJob #####
+#####################
+#####################
 
 SubmitJob <- function(application, file.path="", file.list=NULL, input.list, 
                       args.list=NULL, job.name, nprocs=1, private.APP=FALSE, 
@@ -1513,11 +1595,11 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
   # return(list(res$result$id, job.name))
 }
 
-####################
-####################
-## CheckJobStatus ##
-####################
-####################
+#####################
+#####################
+## CheckJobStatus ###
+#####################
+#####################
 
 CheckJobStatus <- function(job.id, history=FALSE, print.curl=FALSE) {
 
@@ -1545,11 +1627,11 @@ CheckJobStatus <- function(job.id, history=FALSE, print.curl=FALSE) {
   }
 }
 
-####################
-####################
-##### KillJob ######
-####################
-####################
+#####################
+#####################
+###### KillJob ######
+#####################
+#####################
 
 KillJob <- function(job.id, print.curl=FALSE) {
 
@@ -1572,11 +1654,11 @@ KillJob <- function(job.id, print.curl=FALSE) {
   }
 }
 
-####################
-####################
-#### DeleteALL #####
-####################
-####################
+#####################
+#####################
+##### DeleteALL #####
+#####################
+#####################
 
 DeleteALL <- function() {
 
@@ -1595,11 +1677,11 @@ DeleteALL <- function() {
   }
 }
 
-####################
-####################
-#### DeleteOne #####
-####################
-####################
+#####################
+#####################
+##### DeleteOne #####
+#####################
+#####################
 
 DeleteOne <- function(job.id, print.curl=FALSE) {
 
@@ -1634,11 +1716,11 @@ DeleteOne <- function(job.id, print.curl=FALSE) {
   }
 }
 
-####################
-####################
-#### DeleteJob #####
-####################
-####################
+#####################
+#####################
+##### DeleteJob #####
+#####################
+#####################
 
 DeleteJob <- function(job.id, print.curl=FALSE, ALL=FALSE) {
   if (ALL==TRUE){
@@ -1651,11 +1733,11 @@ DeleteJob <- function(job.id, print.curl=FALSE, ALL=FALSE) {
   }
 }
 
-####################
-####################
-### RetrieveOne ####
-####################
-####################
+#####################
+#####################
+#### RetrieveOne ####
+#####################
+#####################
 
 
 RetrieveOne <- function(file, archive.path, file.path, print.curl) {  
@@ -1674,11 +1756,11 @@ RetrieveOne <- function(file, archive.path, file.path, print.curl) {
   }
 }
 
-####################
-####################
-### RetrieveJob ####
-####################
-####################
+#####################
+#####################
+#### RetrieveJob ####
+#####################
+#####################
 
 RetrieveJob <- function(job.id, file.vec=NULL, print.curl=FALSE, verbose=FALSE) {  
 
@@ -1722,11 +1804,11 @@ RetrieveJob <- function(job.id, file.vec=NULL, print.curl=FALSE, verbose=FALSE) 
   }
 }
 
-####################
-####################
-## ListJobOutput ###
-####################
-####################
+#####################
+#####################
+### ListJobOutput ###
+#####################
+#####################
 
 ListJobOutput <- function(job.id, print.curl=FALSE, print.total=TRUE) {
 
@@ -1764,11 +1846,11 @@ ListJobOutput <- function(job.id, print.curl=FALSE, print.total=TRUE) {
   }
 }
 
-####################
-####################
-## GetJobHistory ###
-####################
-####################
+#####################
+#####################
+### GetJobHistory ###
+#####################
+#####################
 
 GetJobHistory <- function(return.json=FALSE, print.curl=FALSE) {
 
