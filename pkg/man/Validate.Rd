@@ -8,7 +8,7 @@
 Validate(user, pwd, api="agave", print.curl=FALSE)
 }
 \arguments{
-	\item{user}{iPlant Discovery Environment user name}
+	\item{user}{iPlant Discovery Environment username}
 	\item{pwd}{iPlant Discovery Environment password}
 	\item{api}{The API to be interfaced with.  The only supported API's are the "agave" and "foundation", default is "agave"}
 	\item{print.curl}{Prints the curl statement that can be used in the terminal, if curl is installed on your computer}
