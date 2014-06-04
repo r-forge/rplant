@@ -850,7 +850,7 @@ SupportFile <- function(print.curl=FALSE, suppress.Warnings=FALSE) {
 #################
 #################
 
-ListDir <- function(dir.name, dir.path="", print.curl=FALSE, shared.username=NULL, suppress.Warnings=FALSE) {
+ListDir <- function(dir.name="", dir.path="", print.curl=FALSE, shared.username=NULL, suppress.Warnings=FALSE) {
 
   if (is.null(shared.username)){
     web <- paste(rplant.env$weblist, rplant.env$user, sep="/")
