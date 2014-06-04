@@ -1,4 +1,6 @@
-# Copyright (c) 2012, University of Tennessee
+# Copyright (c) 2012 by Barb Banbury, University of Tennessee, 
+# Update to Agave API 2014 by Kurt Michels, University of Arizona
+#
 # rPlant directly interacts with iplant's command-line API for the 
 # Discovery Environment (DE)
 
@@ -138,15 +140,31 @@ Validate <- function(user, pwd, api="agave", print.curl=FALSE) {
       return(res$message)
     }
   } else {
+
     keys <- Create_Keys(user,pwd)
+    # Since is the first function using RCurl, I will say in detail 
+    #   how it works.
+
+    # First get a base url which will be the url to be called.  The url
+    #   can be very complicated, and in rplant.env all of the url's
+    #   that are called are stored in there.  It is just a matter of
+    #   calling the correct one.
     web_BASE <- "https://agave.iplantc.org/"
+
+    # A couple of the curl statements (PUT, POST) include the following
+    #   options.  A GET statement does not have the options.  
     content <- c()
     content[1] <- "grant_type=client_credentials"
     content[2] <- "scope=PRODUCTION"
     content[3] <- paste("username=", user, sep="")
     content[4] <- paste("password=", pwd, sep="")
+
+    # These options are separated by '&'
     string <- paste(content, collapse = "&")
 
+    # Take that string and convert it essentially to integers.  If you look
+    #   up ASCII characters they have an associated integer value, this is
+    #   what the values are converted to
     val <- charToRaw(string)
 
     web <- paste(web_BASE, "token", sep="")
@@ -154,11 +172,24 @@ Validate <- function(user, pwd, api="agave", print.curl=FALSE) {
     curl.string <- paste("curl -sku '", keys[[1]], ":", keys[[2]], 
                          "' -X POST -d '", string, "' ", web, sep="")
 
-    curl.call <- getCurlHandle(userpwd        = paste(keys[[1]], keys[[2]], sep=":"), 
+    # For RCurl a curl call must be made.  Essentially this is the validation
+    #   part of the curl statement.  For this Validate function on Agave
+    #   it is taking the key and secret from the Agave store and using that
+    #   for validation.  This type of validation is for this part only,
+    #   for most validation on Agave an access token is used.
+    curl.call <- getCurlHandle(userpwd        = paste(keys[[1]], keys[[2]],
+                                                      sep=":"), 
                                httpauth       = 1L, 
                                ssl.verifypeer = FALSE)
     expire <- as.POSIXlt(format(Sys.time(),"%Y-%m-%d %k:%M:%OS"))
     expire$hour=expire$hour+2
+    
+    # This is the RCurl statement, getURLContent() is used, it should be noted
+    #   that this way is not unique.  Now the RCurl statement of course starts
+    #   with the url, then the curl call, then it reads in the value vector.
+    #   remember this vector was originally the options in the curl statement
+    #   VERY importantly separated by a '&'.  Then the customrequest = "POST"
+    #   because this is a POST curl statement.
     res <- tryCatch(expr  = fromJSON(getURLContent(web, 
                                                    curl          = curl.call, 
                                                    infilesize    = length(val), 
@@ -169,6 +200,22 @@ Validate <- function(user, pwd, api="agave", print.curl=FALSE) {
                               return(paste(err))
                             }
                     )
+
+    # As I said the RCurl statements are not unique, here is another way to do
+    #   that exact statement, using postFORM(), which the RCurl creator, Dr.
+    #   Lang said he liked to use.
+    #
+    #   res <- tryCatch(expr  = fromJSON(postForm(web, 
+    #                                             grant_type = "client_credentials",
+    #                                             scope      = "PRODUCTION", 
+    #                                             username   = user, 
+    #                                             password   = pwd, 
+    #                                             style      = "POST", 
+    #                                             curl       = curl.call)), 
+    #                   error = function(err) {
+    #                             return(paste(err))
+    #                           }
+    #                   )
 
     if (length(res) == 4){
       assign(x     = "rplant.env",   
@@ -214,13 +261,15 @@ Validate <- function(user, pwd, api="agave", print.curl=FALSE) {
              value = paste(web_BASE, "jobs/v2", sep=""),    
              envir = rplant.env)
       assign(x     = "webprofiles",   
-             value = paste(web_BASE, "profiles/v2/search/username/", user, sep=""),
+             value = paste(web_BASE, "profiles/v2/search/username/", 
+                           user, sep=""),
              envir=rplant.env)
       assign(x     = "webauth",   
              value = paste(web_BASE, "token", sep=""),    
              envir = rplant.env)
       assign(x     = "first",   
-             value = paste("curl -sk -H 'Authorization: Bearer ", res$access_token, "'", sep=""),    
+             value = paste("curl -sk -H 'Authorization: Bearer ", 
+                           res$access_token, "'", sep=""),    
              envir = rplant.env)
       assign(x     = "user",   
              value = user,    
@@ -395,13 +444,13 @@ Check <- function(name, path="", suppress.Warnings=FALSE,
     # Check whether object exists or not
     if (check){# If check=TRUE and object IS in directory return error
       if (length(obj.exist$result) != 0){
-        return(stop(paste("file '", name, "' already exists in '", path, "' directory", sep=""),
-               call. = FALSE))
+        return(stop(paste("file '", name, "' already exists in '", path,
+                          "' directory", sep=""), call. = FALSE))
       }
     } else {# If check=FALSE and object IS NOT in directory return error
       if (length(obj.exist$result) == 0){
-        return(stop(paste("file '", name, "' doesn't exist in '", path, "' directory", sep=""),
-                    call. = FALSE))
+        return(stop(paste("file '", name, "' doesn't exist in '", path, 
+                          "' directory", sep=""), call. = FALSE))
       }
     }
   }
@@ -471,6 +520,9 @@ Renew <- function(){
   # Returns:
   #   Nothing
   if (rplant.env$api == "a") {
+    # The type of curl call for RCurl in the Agave API uses the Bearer access
+    #   token.  Because of this the curl call is slightly different from the
+    #   Foundation API
     assign(x     = "curl.call", 
            value = getCurlHandle(httpheader     = c(paste("Authorization: Bearer ", 
                                                           get("access_token", envir=rplant.env), 
@@ -479,6 +531,8 @@ Renew <- function(){
                                  ssl.verifypeer = FALSE), 
            envir = rplant.env)
   } else {
+    # The curl call for RCurl on the Foundation API simply uses username and
+    #   password.
     assign(x     = "curl.call",
            value = getCurlHandle(userpwd        = paste(get("user", envir = rplant.env), 
                                                         get("pwd", envir = rplant.env), 
@@ -1179,18 +1233,20 @@ ShareFile <- function(file.name, file.path="", shared.username, read=TRUE,
   #   decide which permissions to give to the shared user.
   #
   # Args:
-  #   file.name: Name of object
-  #   file.path: Current path where object is
+  #   file.name: Name of file
+  #   file.path: Current path where file is
   #   shared.username: String, valid iPlant username with whom the object
   #     is being shared.
-  #   read: Gives read permissions to object
-  #   execute: Gives execute permissions to object
-  #   write: Gives write permissions to object
+  #   read: Gives read permissions to file
+  #   execute: Gives execute permissions to file
+  #   write: Gives write permissions to file
   #   print.curl: Prints the associated curl statement
   #   suppress.Warnings: Don't do any error checking (faster)
   #
   # Returns:
   #   Returns nothing unless an error, file does not exist
+
+  # Check 'file.name'
   Check(file.name, file.path, suppress.Warnings)
 
   Share(file.name, file.path, shared.username, read, execute, write, print.curl)
@@ -1210,13 +1266,13 @@ PermissionsFile <- function(file.name, file.path="", print.curl=FALSE,
   #   permissions.
   #
   # Args:
-  #   file.name: Name of object
-  #   file.path: Current path where object is
+  #   file.name: Name of file
+  #   file.path: Current path where fiile is
   #   print.curl: Prints the associated curl statement
   #   suppress.Warnings: Don't do any error checking (faster)
   #
   # Returns:
-  #   Returns the object name, users with whom the object is shared and
+  #   Returns the file name, users with whom the object is shared and
   #     their permissions o/w an error if file does not exist
     Check(file.name, file.path, suppress.Warnings)
     
@@ -1234,9 +1290,9 @@ RenameFile <- function(file.name, new.file.name, file.path="",
   # This function simply takes 'file.name' and renames it to 'new.file.name'
   #
   # Args:
-  #   file.name: Current name of object
-  #   new.file.name: New name of object
-  #   file.path: Path to where object is
+  #   file.name: Current name of file
+  #   new.file.name: New name of file
+  #   file.path: Path to where file is
   #   print.curl: Prints the associated curl statement
   #   suppress.Warnings: Don't do any error checking (faster)
   #
@@ -1265,9 +1321,9 @@ MoveFile <- function(file.name, file.path="", end.path="",
   #   to 'end.path'
   #
   # Args:
-  #   file.name: Name of object
-  #   file.path: Original or current path where object is
-  #   end.path: Path to where object will be moved
+  #   file.name: Name of file
+  #   file.path: Original or current path where file is
+  #   end.path: Path to where file will be moved
   #   print.curl: Prints the associated curl statement
   #   suppress.Warnings: Don't do any error checking (faster)
   #
@@ -1296,8 +1352,8 @@ DeleteFile <- function(file.name, file.path="", print.curl=FALSE,
   # This function removes the 'file.name' from 'file.path'
   #
   # Args:
-  #   name: Name of object
-  #   path: Path to current object
+  #   name: Name of file
+  #   path: Path to current file
   #   print.curl: Prints the associated curl statement
   #   suppress.Warnings: Don't do any error checking (faster)
   #
@@ -1362,8 +1418,21 @@ SupportFile <- function(print.curl=FALSE, suppress.Warnings=FALSE) {
 #####################
 #####################
 
-ListDir <- function(dir.name="", dir.path="", print.curl=FALSE, shared.username=NULL, suppress.Warnings=FALSE) {
-
+ListDir <- function(dir.name="", dir.path="", print.curl=FALSE, 
+                    shared.username=NULL, suppress.Warnings=FALSE) {
+  # This function lists all files in the 'dir.name' contained in 'dir.path'
+  #   A user can also list files shared with them from the shared user.
+  #
+  # Args:
+  #   dir.name: Name of directory
+  #   dir.path: Path to current directory
+  #   shared.username: String, valid iPlant username with whom the object
+  #     is being shared.
+  #   print.curl: Prints the associated curl statement
+  #   suppress.Warnings: Don't do any error checking (faster)
+  #
+  # Returns:
+  #   Returns nothing unless an error if 'dir.name' does not exist
   if (is.null(shared.username)){
     web <- paste(rplant.env$weblist, rplant.env$user, sep="/")
   } else {
@@ -1375,7 +1444,7 @@ ListDir <- function(dir.name="", dir.path="", print.curl=FALSE, shared.username=
   } else {
     web <- paste(web, dir.path, dir.name, sep="/")
   }
-
+  # Check 'dir.name'
   Check(dir.name, dir.path, suppress.Warnings, shared.username) 
 
   if (print.curl){
@@ -1383,7 +1452,11 @@ ListDir <- function(dir.name="", dir.path="", print.curl=FALSE, shared.username=
     print(curl.string)
   }
   Renew()
-  tmp <- tryCatch(fromJSON(getURL(web, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+  tmp <- tryCatch(expr  = fromJSON(getURL(web, curl=rplant.env$curl.call)), 
+                  error = function(err) {
+                            return(paste(err))
+                          }
+                  )
   if (!suppress.Warnings){Error(tmp)}
 
   res <- matrix(, length(tmp$result)-1, 2)
@@ -1401,8 +1474,27 @@ ListDir <- function(dir.name="", dir.path="", print.curl=FALSE, shared.username=
 #####################
 #####################
 
-ShareDir <- function(dir.name, dir.path="", shared.username, read=TRUE, execute=TRUE, write=TRUE, print.curl=FALSE, suppress.Warnings=FALSE) {
+ShareDir <- function(dir.name, dir.path="", shared.username, read=TRUE, 
+                     execute=TRUE, write=TRUE, print.curl=FALSE, suppress.Warnings=FALSE) {
+  # This function shares the 'dir.name' with shared.username.  Also one can
+  #   decide which permissions to give to the shared user.  All contents
+  #   within the directory are shared with the shared.username.
+  #
+  # Args:
+  #   dir.name: Name of directory
+  #   dir.path: Current path where directory is
+  #   shared.username: String, valid iPlant username with whom the object
+  #     is being shared.
+  #   read: Gives read permissions to directory
+  #   execute: Gives execute permissions to directory
+  #   write: Gives write permissions to directory
+  #   print.curl: Prints the associated curl statement
+  #   suppress.Warnings: Don't do any error checking (faster)
+  #
+  # Returns:
+  #   Returns nothing unless an error, directory does not exist
 
+  # Check 'dir.name'
   Check(dir.name, dir.path, suppress.Warnings)
 
   Share(dir.name, dir.path, shared.username, read, execute, write, print.curl, TRUE)
@@ -1415,10 +1507,24 @@ ShareDir <- function(dir.name, dir.path="", shared.username, read=TRUE, execute=
 #####################
 
 PermissionsDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
+  # This function looks at the permissions on 'dir.name'.  It will return
+  #   the directories name, users with whom the directory is shared and their
+  #   permissions.
+  #
+  # Args:
+  #   dir.name: Name of directory
+  #   dir.path: Current path where directory is
+  #   print.curl: Prints the associated curl statement
+  #   suppress.Warnings: Don't do any error checking (faster)
+  #
+  # Returns:
+  #   Returns the directory name, users with whom the directory is shared and
+  #     their permissions; o/w an error if directory does not exist
 
-    Check(dir.name, dir.path, suppress.Warnings)
+  # Check 'dir.name'
+  Check(dir.name, dir.path, suppress.Warnings)
     
-    Pems(dir.name, dir.path, print.curl, suppress.Warnings)
+  Pems(dir.name, dir.path, print.curl, suppress.Warnings)
 }
 
 #####################
@@ -1428,8 +1534,23 @@ PermissionsDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.War
 #####################
 
 RenameDir <- function(dir.name, new.dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
+  # This function simply takes 'dir.name' and renames it to 'new.dir.name'
+  #
+  # Args:
+  #   dir.name: Current name of directory
+  #   new.dir.name: New name of directory
+  #   dir.path: Path to where directory is
+  #   print.curl: Prints the associated curl statement
+  #   suppress.Warnings: Don't do any error checking (faster)
+  #
+  # Returns:
+  #   Returns nothing unless an error if directory does not exist, or if
+  #     'new.dir.name' does exist in 'dir.path'.
+
+  # Check 'dir.name' in 'dir.path'
   Check(dir.name, dir.path, suppress.Warnings)
 
+  # Check 'new.dir.name' in 'dir.path'
   Check(new.dir.name, dir.path, suppress.Warnings, check=TRUE)
 
   Rename(dir.name, new.dir.name, dir.path, print.curl) 
@@ -1442,9 +1563,25 @@ RenameDir <- function(dir.name, new.dir.name, dir.path="", print.curl=FALSE, sup
 #####################
 
 MoveDir <- function(dir.name, dir.path="", end.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
+  # This function simply moves the 'dir.name' from 'dir.path'
+  #   to 'end.path'
+  #
+  # Args:
+  #   dir.name: Name of directory
+  #   dir.path: Original or current path where directory is
+  #   end.path: Path to where directory will be moved
+  #   print.curl: Prints the associated curl statement
+  #   suppress.Warnings: Don't do any error checking (faster)
+  #
+  # Returns:
+  #   Returns nothing unless an error.  Error if 'dir.name'
+  #     does not exist or if 'dir.name' in 'end.path' already
+  #     does exist
 
+  # Check 'dir.name'
   Check(dir.name, dir.path, suppress.Warnings)
 
+  # Check 'dir.name' in 'end.path'
   Check(dir.name, end.path, suppress.Warnings, check=TRUE)
 
   Move(dir.name, dir.path, end.path, print.curl)
@@ -1457,7 +1594,18 @@ MoveDir <- function(dir.name, dir.path="", end.path="", print.curl=FALSE, suppre
 #####################
 
 DeleteDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
+  # This function removes the 'dir.name' from 'dir.path'
+  #
+  # Args:
+  #   dir.name: Name of directory
+  #   dir.path: Path to current directory
+  #   print.curl: Prints the associated curl statement
+  #   suppress.Warnings: Don't do any error checking (faster)
+  #
+  # Returns:
+  #   Returns nothing unless an error if 'dir.name' does not exist
 
+  # Check 'dir.name'
   Check(dir.name, dir.path, suppress.Warnings)
 
   Delete(dir.name, dir.path, print.curl)
@@ -1469,8 +1617,19 @@ DeleteDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings
 #####################
 #####################
 
-MakeDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
-
+MakeDir <- function(dir.name, dir.path="", print.curl=FALSE, 
+                    suppress.Warnings=FALSE) {
+  # This function simply makes the directory 'dir.name' in 'dir.path'
+  #
+  # Args:
+  #   dir.name: Name of directory
+  #   dir.path: Current path where directory is
+  #   print.curl: Prints the associated curl statement
+  #   suppress.Warnings: Don't do any error checking (faster)
+  #
+  # Returns:
+  #   Returns nothing unless an error.  Error if 'dir.name'
+  #     already exists in 'dir.path'
   content <- c()
   if (rplant.env$api == "f") {
     content[1] <- paste("dirName=", dir.name, sep="")
@@ -1493,13 +1652,21 @@ MakeDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=F
   content[2] <- "action=mkdir"
 
   if (print.curl) {
-    curl.string <- paste(rplant.env$first, " -d '", paste(content, collapse = "&"), "' ", web, sep="")
+    curl.string <- paste(rplant.env$first, " -d '", 
+                         paste(content, collapse = "&"), "' ", 
+                         web, sep="")
     print(curl.string)
   }
 
   val <- charToRaw(paste(content, collapse = "&"))
   Renew()
-  res <- tryCatch(fromJSON(httpPUT(web, content=val, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+  res <- tryCatch(expr  = fromJSON(httpPUT(url     = web, 
+                                           content = val, 
+                                           curl    = rplant.env$curl.call)),
+                  error = function(err) {
+                            return(paste(err))
+                          }
+                  )
   if (!suppress.Warnings){Error(res)}
 }
 
@@ -1519,9 +1686,28 @@ MakeDir <- function(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=F
 ListApps<- function (description=FALSE, print.curl=FALSE, suppress.Warnings=FALSE) 
 {
 
+  # This function simply lists all of the public applications available to a
+  #   user.
+  #
+  # Args:
+  #   description: Either TRUE or FALSE, if TRUE then a short description of
+  #     the application is included.
+  #   print.curl: Prints the associated curl statement
+  #   suppress.Warnings: Don't do any error checking (faster)
+  #
+  # Returns:
+  #   Returns a list of applications, the list contains no duplicates and
+  #     only the most current version of an app. o/w errors
+
   Time()
   Renew()
-  tmp <- tryCatch(fromJSON(getForm(rplant.env$webappslist, .checkparams=FALSE, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+  tmp <- tryCatch(expr  = fromJSON(getForm(rplant.env$webappslist, 
+                                           .checkparams = FALSE, 
+                                           curl         = rplant.env$curl.call)), 
+                  error = function(err) {
+                            return(paste(err))
+                          }
+                  )
   if (!suppress.Warnings){Error(tmp)}
 
   if (print.curl) {
@@ -1531,27 +1717,28 @@ ListApps<- function (description=FALSE, print.curl=FALSE, suppress.Warnings=FALS
 
   Apps <- list()
   for (j in 1:length(tmp$result)){
-    ans <- TestApp(tmp$result[[j]]$id)
-    if ((j != 1) & (!is.null(ans[[1]]))){
-      for (k in 1:length(Apps)){
-        if (ans[[1]] == Apps[[k]][1]){
+    ans <- TestApp(tmp$result[[j]]$id) # returns App id and description
+    # The loop is to make sure there are no duplicates
+    if ((j != 1) & (!is.null(ans[[1]]))){ # If NOT the first, and not NULL
+      for (k in 1:length(Apps)){ # Go through entire App list
+        if (ans[[1]] == Apps[[k]][1]){ # if equality, then return NULL
           ans <- list(NULL, NULL)
           break
         }
       }
     }
-    if (!is.null(ans[[1]])){
+    if (!is.null(ans[[1]])){ # Now no duplicate so add to list
       Apps <- append(Apps,list(c(ans)))
     }
   }
-  if (description == TRUE){
+  if (description == TRUE){ # If description
     res <- matrix(, length(Apps))
-    colnames(res) <- "Application"
+    colnames(res) <- "Application" # Below, list both
     for (i in 1:length(Apps)) res[i, 1] <- paste(Apps[[i]], collapse=" - ")
   } else {
     res <- matrix(, length(Apps))
     colnames(res) <- "Application"
-    for (i in 1:length(Apps)) res[i, 1] <- Apps[[i]][1]
+    for (i in 1:length(Apps)) res[i, 1] <- Apps[[i]][1] # Just list the ids
   }
   return(sort(res))
 }
@@ -1563,7 +1750,20 @@ ListApps<- function (description=FALSE, print.curl=FALSE, suppress.Warnings=FALS
 #####################
 
 GetAppInfo <- function(application, return.json=FALSE, print.curl=FALSE) {
-
+  # This takes the application name and returns basic information about the
+  #   app.  For Foundation API and Agave API the applications are inherently
+  #   private to the user only, or are public, where all iPlant users can
+  #   use it.  An application is private until the user makes it public.
+  #
+  # Args:
+  #   application: A string, application name
+  #   return.json: Return json of app, contains all information
+  #   print.curl: Prints the associated curl statement
+  #
+  # Returns:
+  #   Returns a description about the application, whether the application
+  #     is public, newest version, then vital information about the app,
+  #     including input, output, etc. o/w errors
   if (rplant.env$api == "f"){
     tmp_string <- "tmp$result[[len]]"
   } else {
@@ -1583,7 +1783,8 @@ GetAppInfo <- function(application, return.json=FALSE, print.curl=FALSE) {
   }
 
   if (print.curl) {
-    curl.string <- paste(rplant.env$first, " -X GET ", rplant.env$webappsname, "/", priv.APP, sep="")
+    curl.string <- paste(rplant.env$first, " -X GET ", rplant.env$webappsname,
+                         "/", priv.APP, sep="")
     print(curl.string)
   }
   
@@ -1592,16 +1793,49 @@ GetAppInfo <- function(application, return.json=FALSE, print.curl=FALSE) {
   } else {
     app.info<-c()
     len <- length(tmp$result)
-    for (input in sequence(length(eval(parse(text=paste(tmp_string, "$inputs", sep="")))))) {
-      app.info <- rbind(app.info, c("input", eval(parse(text=paste(tmp_string, "$inputs[[input]]$id", sep=""))), eval(parse(text=paste(tmp_string, "$inputs[[input]]$semantics$fileTypes[1]", sep=""))), eval(parse(text=paste(tmp_string, "$inputs[[input]]$details$label", sep="")))))
+    for (input in sequence(length(eval(parse(text=paste(tmp_string, "$inputs",
+                                                        sep="")))))) {
+      app.info <- rbind(app.info, 
+                        c("input", 
+                          eval(parse(text=paste(tmp_string, 
+                                                "$inputs[[input]]$id",
+                                                sep=""))), 
+                          eval(parse(text=paste(tmp_string, 
+                                                "$inputs[[input]]$semantics$fileTypes[1]",
+                                                sep=""))), 
+                          eval(parse(text=paste(tmp_string, 
+                                                "$inputs[[input]]$details$label", 
+                                                sep="")))))
     }
 
-    for (output in sequence(length(eval(parse(text=paste(tmp_string, "$outputs", sep="")))))) {
-      app.info <- rbind(app.info, c("output", eval(parse(text=paste(tmp_string, "$outputs[[output]]$id", sep=""))), eval(parse(text=paste(tmp_string, "$outputs[[output]]$semantics$fileTypes[1]", sep=""))), eval(parse(text=paste(tmp_string, "$outputs[[output]]$details$label", sep=""))))) 
+    for (output in sequence(length(eval(parse(text=paste(tmp_string, "$outputs",
+                                                         sep="")))))) {
+      app.info <- rbind(app.info, 
+                        c("output", 
+                          eval(parse(text=paste(tmp_string, 
+                                                "$outputs[[output]]$id", 
+                                                sep=""))), 
+                          eval(parse(text=paste(tmp_string, 
+                                                "$outputs[[output]]$semantics$fileTypes[1]", 
+                                                sep=""))), 
+                          eval(parse(text=paste(tmp_string, 
+                                                "$outputs[[output]]$details$label", 
+                                                sep=""))))) 
     }
 
-    for (parameter in sequence(length(eval(parse(text=paste(tmp_string, "$parameters", sep="")))))) {
-      app.info <- rbind(app.info, c("output", eval(parse(text=paste(tmp_string, "$parameters[[parameter]]$id", sep=""))), eval(parse(text=paste(tmp_string, "$parameters[[parameter]]$value$type", sep=""))), eval(parse(text=paste(tmp_string, "$parameters[[parameter]]$details$label", sep=""))))) 
+    for (parameter in sequence(length(eval(parse(text=paste(tmp_string, "$parameters", 
+                                                            sep="")))))) {
+      app.info <- rbind(app.info, 
+                        c("output", 
+                          eval(parse(text=paste(tmp_string, 
+                                                "$parameters[[parameter]]$id", 
+                                                sep=""))), 
+                          eval(parse(text=paste(tmp_string, 
+                                                "$parameters[[parameter]]$value$type", 
+                                                sep=""))), 
+                          eval(parse(text=paste(tmp_string, 
+                                                "$parameters[[parameter]]$details$label",
+                                                sep=""))))) 
     }
     shortd <- eval(parse(text=paste(tmp_string, "$shortDescription", sep="")))
     shortn <- nchar(shortd)
@@ -1614,9 +1848,11 @@ GetAppInfo <- function(application, return.json=FALSE, print.curl=FALSE) {
     }
     colnames(app.info)<-c("kind", "id", "fileType/value", "details")
     if (text == "Private App"){
-      return(list(Description=description, Application=c(application, text), Information=app.info))
+      return(list(Description=description, Application=c(application, text),
+                  Information=app.info))
     } else {
-      return(list(Description=description, Application=c(application, text, v.text), Information=app.info))
+      return(list(Description=description, Application=c(application, text, v.text),
+                  Information=app.info))
     }
   }
 }
@@ -1635,15 +1871,40 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
                       args.list=NULL, job.name, nprocs=1, private.APP=FALSE, 
                       suppress.Warnings=FALSE, shared.username=NULL,
                       print.curl=FALSE, email=TRUE) {
+  # This takes the application name and returns basic information about the
+  #   app.
+  #
+  # Args:
+  #   application: A string, application name
+  #   file.path: Path to where ALL input files are located
+  #   file.list: List of input files, can be many input
+  #   input.list: List corresponding to file list, is type of input
+  #     see help(SubmitJob) for details.  Use GetAppList to find input list
+  #   args.list: List of arguments for the specific application.  This list
+  #     has a very specific format that is included in the help(SubmitJob) file
+  #   job.name: Job name adds a time stamp to make them unique
+  #   nprocs: Number of processors allocated to job.  This number depends
+  #     on if application is parallelizable.
+  #   private.APP: Either TRUE or FALSE, if TRUE the application is private
+  #     to the user, o/w the app is public
+  #   email: Either TRUE or FALSE, if TRUE the user is sent an email when
+  #     jov is finished.
+  #   shared.username: String, valid iPlant username with whom the object
+  #     is being shared.
+  #   print.curl: Prints the associated curl statement
+  #   suppress.Warnings: Don't do any error checking (faster)
+  #
+  # Returns:
+  #   Returns the job id (number) and the job name.  o/w an error
 
-  ### Job Name is automatically time stamped
+  # Job Name is automatically time stamped
   job.name <- paste(unlist(strsplit(paste(job.name, "_", format(Sys.time(), 
                     "%Y-%m-%d_%k-%M-%OS3"), sep=""), " ")), collapse="")
 
   Time()
   Renew()
   content <- c()
-
+  # Create the options
   if (rplant.env$api == "f") {
     tmp_string <- "tmp$result[[len]]"
     eml_string <- "callbackUrl="
@@ -1659,23 +1920,24 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
     content[3] <- paste("nodeCount=", nprocs, sep="")
     content[4] <- "maxRunTime=24:00:00"
   }
-
+  # Check that all of the files exist
   for (i in 1:length(file.list)){
     Check(file.list[[i]], file.path, suppress.Warnings, shared.username)
   }
 
   if (suppress.Warnings == FALSE){
-
+    # Output includes info about inputs of app
     result <- appINFO(application, FALSE, TRUE)
-
+   
     if (result[[1]] == "Public App"){
-      input <- result[[6]]
-      set <- result[[7]]
+      input <- result[[6]] # Input information, compare to input.list
+      set <- result[[7]] # Parallelization information of app
     } else {
-      input <- result[[4]]
-      set <- result[[5]]
+      input <- result[[4]] # Input information, compare to input.list
+      set <- result[[5]] # Parallelization information of app
     }
-
+    # Compare the input.list to actual inputs of the application.
+    #   If they don't match throw an error.
     test.input <- rep(0, length(input.list))
     for (j in 1:length(input.list)){
       for (i in 1:length(input)){
@@ -1685,12 +1947,16 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
         }
       }
     }
-
+    # Throw an error if one of the inputs in input.list is incorrect
     if (sum(test.input) > 0 ){
-      return(stop("At least one of the inputs in 'input.list' is incorrect, check GetAppInfo function for proper inputs", call. = FALSE))
+      return(stop(paste("At least one of the inputs in 'input.list' is incorrect,",
+                        "check GetAppInfo function for proper inputs", sep = ""), 
+                  call. = FALSE))
     }
   }
-
+  # If suppressing Warnings then the look up about the application didn't 
+  #   happen.  Need to look up the application to get parallelization
+  #   information.
   if (suppress.Warnings==TRUE){
     result <- appINFO(application)
     if (result[[1]] == "Public App"){
@@ -1699,42 +1965,55 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
       set <- result[[4]]
     }
   }
-
+  # If the application is a private app, then stop, because we can't run
+  #   a job on someone elses private app
   if (private.APP==FALSE){
     if (result[[1]] == "Private App"){
-      return(stop("Private application, not valid for SubmitJob.  If it is your own private application use private.APP=TRUE", call. = FALSE))
+      return(stop(paste("Private application, not valid for SubmitJob.  If it", 
+                        "is your own private application use private.APP=TRUE"),
+                  call. = FALSE))
     }
   }
-
+  # If the application can be run in parallel, then increase the number of
+  #   processors to be used.  A user cannot use more than 512 processors
   if (set == "PARALLEL"){
     if (nprocs < 2){
       nprocs = 12
     } else if (nprocs > 512){
       nprocs = 512
     }
-  } else {
+  } else { # If the application is not parallel nprocs is set to one
     if (nprocs != 1){
       nprocs = 1
     }
   }
 
-  if(!is.null(args.list)){m <- length(args.list)} else {m <- 0}
-
-  if(!is.null(file.list)){n <- length(file.list)} else {n <- 0}
-
-  # Automatically make analyses directory; will not overwrite if already present
+  # Automatically makes analyses directory; will not overwrite if already present
   MakeDir("analyses", suppress.Warnings=TRUE)
 
+  # Set archivePath, where job output will be returned
   content[5] <- "archive=1"
-  content[6] <- paste("archivePath=", rplant.env$user, "analyses", job.name, sep="/"); x <- 6;
+  content[6] <- paste("archivePath=", rplant.env$user, "analyses", 
+                      job.name, sep="/"); x <- 6; # x tells the length of options
 
+  # If email is TRUE
   if (email==TRUE){
     Renew()
-    res <- tryCatch(fromJSON(getURLContent(rplant.env$webprofiles, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+    res <- tryCatch(expr  = fromJSON(getURLContent(url  = rplant.env$webprofiles, 
+                                                   curl = rplant.env$curl.call)), 
+                    error = function(err) {
+                              return(paste(err))
+                            }
+                    )
     Error(res)
     content[7] <- paste(eml_string, res$result[[1]]$email, sep=""); x <- 7;
   }
 
+  # For the loop below n needs to be initialized
+  if(!is.null(file.list)){n <- length(file.list)} else {n <- 0}
+
+  # For all of the files in file.list the options needed to line up with the
+  #   input.list, and also go to the correct directory.
   if (n > 0){
     for (i in c(1:n)){
       if (file.path=="") {
@@ -1757,6 +2036,11 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
     }
   }
 
+  # For the loop below m needs to be initialized
+  if(!is.null(args.list)){m <- length(args.list)} else {m <- 0}
+
+  # For the specific format of args.list, if there are arguments
+  #   add them to the options.
   if (m > 0){
     for (i in c(1:m)){
       content[x+n+i] <- paste(args.list[[i]][1],"=", 
@@ -1765,17 +2049,28 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
   }
 
   if (print.curl) {
-    curl.string <- paste(rplant.env$first," -X POST -d '", paste(content, collapse = "&"), "' ", rplant.env$webjob, sep="")
+    curl.string <- paste(rplant.env$first," -X POST -d '", 
+                         paste(content, collapse = "&"), "' ", 
+                         rplant.env$webjob, sep="")
     print(curl.string)
   }
 
   val <- charToRaw(paste(content, collapse = "&"))
   Renew()
-  res <- tryCatch(fromJSON(getURLContent(rplant.env$webjob, curl=rplant.env$curl.call,  infilesize=length(val), readfunction=val, upload=TRUE, customrequest="POST")), error = function(err) {return(paste(err))})
+  res <- tryCatch(expr  = fromJSON(getURLContent(rplant.env$webjob, 
+                                                 curl          = rplant.env$curl.call,
+                                                 infilesize    = length(val), 
+                                                 readfunction  = val, 
+                                                 upload        = TRUE, 
+                                                 customrequest = "POST")),
+                  error = function(err) {
+                            return(paste(err))
+                          }
+                  )
   if (!suppress.Warnings){Error(res)}
 
   cat(paste("Job submitted. You can check your job using CheckJobStatus(", 
-      res$result$id, ")", sep=""), "\n")
+            res$result$id, ")", sep=""), "\n")
   return(res$result$id)
   # return(list(res$result$id, job.name))
 }
@@ -1787,7 +2082,31 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
 #####################
 
 CheckJobStatus <- function(job.id, history=FALSE, print.curl=FALSE) {
-
+  # This function checks the
+  #   app.
+  #
+  # Args:
+  #   application: A string, application name
+  #   file.path: Path to where ALL input files are located
+  #   file.list: List of input files, can be many input
+  #   input.list: List corresponding to file list, is type of input
+  #     see help(SubmitJob) for details.  Use GetAppList to find input list
+  #   args.list: List of arguments for the specific application.  This list
+  #     has a very specific format that is included in the help(SubmitJob) file
+  #   job.name: Job name adds a time stamp to make them unique
+  #   nprocs: Number of processors allocated to job.  This number depends
+  #     on if application is parallelizable.
+  #   private.APP: Either TRUE or FALSE, if TRUE the application is private
+  #     to the user, o/w the app is public
+  #   email: Either TRUE or FALSE, if TRUE the user is sent an email when
+  #     jov is finished.
+  #   shared.username: String, valid iPlant username with whom the object
+  #     is being shared.
+  #   print.curl: Prints the associated curl statement
+  #   suppress.Warnings: Don't do any error checking (faster)
+  #
+  # Returns:
+  #   Returns the job id (number) and the job name.  o/w an error
   Time()
   Renew()
 
