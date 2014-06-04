@@ -1342,7 +1342,7 @@ DeleteALL <- function() {
   Error(res)
 
   if (length(res$result) == 0) {
-    return(stop("No jobs in job history", call. = FALSE))
+    message("No jobs in job history")
   } else {
     for (i in 1:length(res$result)){
       DeleteOne(res$result[[i]]$id)
