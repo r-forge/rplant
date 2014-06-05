@@ -1419,7 +1419,7 @@ SupportFile <- function(print.curl=FALSE, suppress.Warnings=FALSE) {
 #####################
 
 ListDir <- function(dir.name="", dir.path="", print.curl=FALSE, 
-                    shared.username=NULL, suppress.Warnings=FALSE) {
+                    shared.username=NULL, suppress.Warnings=FALSE, show.hidden=FALSE) {
   # This function lists all files in the 'dir.name' contained in 'dir.path'
   #   A user can also list files shared with them from the shared user.
   #
@@ -1453,17 +1453,25 @@ ListDir <- function(dir.name="", dir.path="", print.curl=FALSE,
   }
   Renew()
   tmp <- tryCatch(expr  = fromJSON(getURL(web, curl=rplant.env$curl.call)), 
-                  error = function(err) {
-                            return(paste(err))
-                          }
-                  )
+                  error = function(err) {return(paste(err))})
   if (!suppress.Warnings){Error(tmp)}
+  nms <- NULL  #create names vector to parse hiddens
+  for(i in sequence(length(tmp$result))){
+    nms <- c(nms, tmp$result[[i]]$name)
+  }
+  toIgnore <- grep("^[.]$", nms)  #always ignore home directory
+  whichHiddens <- grep("^[.]\\D+", nms)
+  if(show.hidden)
+    toIgnore <- c(toIgnore, whichHiddens)
+  tmpIgnore <- tmp$result[-toIgnore]
 
-  res <- matrix(, length(tmp$result)-1, 2)
-  colnames(res) <- c("name", "type")
-  for (i in 2:length(tmp$result)) {
-    res[i-1, 1] <- tmp$result[[i]]$name
-    res[i-1, 2] <- tmp$result[[i]]$type
+  res <- matrix(nrow=length(tmp$result)-length(toIgnore), ncol=3)
+  colnames(res) <- c("name", "type", "permissions")
+
+  for (i in sequence(dim(res)[1])) {
+    res[i, 1] <- tmpIgnore[[i]]$name
+    res[i, 2] <- tmpIgnore[[i]]$type
+    res[i, 3] <- tmpIgnore[[i]]$permissions
   }
   return(res)
 }
