@@ -2221,8 +2221,8 @@ DeleteOne <- function(job.id, print.curl=FALSE) {
   if ((JS$result$status == "FINISHED") || (JS$result$status == "STOPPED") || 
       (JS$result$status == "ARCHIVING_FINISHED") || (JS$result$status == "FAILED")){
     # DeleteJob deletes the directory the result files are in, this finds that folder
-    dir.name <- unlist(strsplit(JS$result$archivePath, "/"))
-                       [length(unlist(strsplit(JS$result$archivePath, "/")))]
+    dir.name <- unlist(strsplit(JS$result$archivePath, "/"))[
+                       length(unlist(strsplit(JS$result$archivePath, "/")))]
 
     dir.path <- substr(JS$result$archivePath, nchar(rplant.env$user) + 3, 
                        nchar(JS$result$archivePath)-nchar(dir.name)-1)
