@@ -12,7 +12,7 @@
 }
 \usage{
 ListDir(dir.name, dir.path="", print.curl=FALSE, shared.username=NULL,
-        suppress.Warnings=FALSE)
+        suppress.Warnings=FALSE, show.hidden=FALSE)
 ShareDir(dir.name, dir.path="", shared.username, read=TRUE, execute=TRUE,
          write=TRUE, print.curl=FALSE, suppress.Warnings=FALSE) 
 PermissionsDir(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE)
@@ -32,6 +32,7 @@ DeleteDir(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE)
 	\item{read}{Gives read permissions for shared directory}
 	\item{write}{Gives write permissions for shared directory}
 	\item{execute}{Gives execute permissions for shared directory}
+	\item{show.hidden}{Option to display hidden files (ie, ".svn", ".Rdata")}
 }
 \details{
 	The \code{ListDir} function lists the files in the given directory, \code{dir.path}.  If listing shared folders then the \code{dir.path} becomes the path to the SHARED users shared folder.  iPlant offers sharing of files between two (or more) iPlant users, the \code{ShareDir} makes it so.  Once sharing is done a user can use \code{PermissionsDir} on any directory to find who the folder is shared with.  The \code{RenameDir} function renames the \code{dir.name} in \code{dir.path} (on the iPlant servers), to the \code{new.dir.name}.  The \code{MoveDir} function moves a \code{dir.name} in the \code{dir.path} to the \code{end.path}  .The \code{MakeDir} function makes a directory \code{dir.name} in the directory \code{dir.path}.  The \code{DeleteDir} function deletes the directory \code{dir.name} in the directory \code{dir.path}.

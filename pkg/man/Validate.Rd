@@ -19,7 +19,9 @@ The \code{Validate} function works the same for a user trying to logon to Agave 
 \value{
 	The \code{Validate} function will create a new R environment that stores variables that communicate automatically with the API.  These include, an access token (foundation) or an API consumer key and secret (agave), the expiration, the user name and password, and a few other variables. To see the entire list of environmental variables, see \code{ls(rplant.env)}. 
 	
-	The function will print the error "Authentication failed" if if fails. If it is successful, nothing will print to screen, however you can check that validation occurred by checking rplant.env$consumer_key and rplant.env$consumer_secret.
+	The function will print the error "Authentication failed" if if fails. Sometimes the API will require a second validation, in which case rPlant will report an error asking you to retry.  If it is successful, nothing will print to screen, however you can check that validation occurred by checking rplant.env$consumer_key and rplant.env$consumer_secret.
+	
+	Validation will have to occur at every new R session.  If a session times out and expires, you do not have to renew validation. If the rplant.env is an object found within the workspace, your token will be auto-renewed by using one of rPlant's functions (ie. \code{SubmitJob}, \code{CheckJobStatus}, etc.). 
 }
 \examples{
 \dontrun{Validate("username", "password")}
