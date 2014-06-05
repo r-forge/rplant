@@ -2082,31 +2082,34 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
 #####################
 
 CheckJobStatus <- function(job.id, history=FALSE, print.curl=FALSE) {
-  # This function checks the
-  #   app.
+  # This function checks the job status of the job with that job number
   #
   # Args:
-  #   application: A string, application name
-  #   file.path: Path to where ALL input files are located
-  #   file.list: List of input files, can be many input
-  #   input.list: List corresponding to file list, is type of input
-  #     see help(SubmitJob) for details.  Use GetAppList to find input list
-  #   args.list: List of arguments for the specific application.  This list
-  #     has a very specific format that is included in the help(SubmitJob) file
-  #   job.name: Job name adds a time stamp to make them unique
-  #   nprocs: Number of processors allocated to job.  This number depends
-  #     on if application is parallelizable.
-  #   private.APP: Either TRUE or FALSE, if TRUE the application is private
-  #     to the user, o/w the app is public
-  #   email: Either TRUE or FALSE, if TRUE the user is sent an email when
-  #     jov is finished.
-  #   shared.username: String, valid iPlant username with whom the object
-  #     is being shared.
+  #   job.id: Job number of job to be checked
+  #   history:  Either TRUE or FALSE, only for Agave API, if TRUE
+  #     then will show entire history of job.
   #   print.curl: Prints the associated curl statement
-  #   suppress.Warnings: Don't do any error checking (faster)
   #
   # Returns:
-  #   Returns the job id (number) and the job name.  o/w an error
+  #   Returns the status of the job:
+  #     ‘PENDING’            
+  #     ‘STAGING_INPUTS’     
+  #     ‘CLEANING_UP’        
+  #     ‘ARCHIVING’          
+  #     ‘STAGING_JOB’        
+  #     ‘FINISHED’           
+  #     ‘KILLED’             
+  #     ‘FAILED’             
+  #     ‘STOPPED’            
+  #     ‘RUNNING’            
+  #     ‘PAUSED’             
+  #     ‘QUEUED’             
+  #     ‘SUBMITTING’         
+  #     ‘STAGED’             
+  #     ‘PROCESSING_INPUTS’  
+  #     ‘ARCHIVING_FINISHED’ 
+  #     ‘ARCHIVING_FAILED’  
+ 
   Time()
   Renew()
 
@@ -2116,7 +2119,13 @@ CheckJobStatus <- function(job.id, history=FALSE, print.curl=FALSE) {
      web <- paste(web, "history", sep="")
   }
 
-  res <- tryCatch(fromJSON(getForm(web, .checkparams=FALSE, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+  res <- tryCatch(expr  = fromJSON(getForm(web, 
+                                           .checkparams = FALSE, 
+                                           curl         = rplant.env$curl.call)), 
+                  error = function(err) {
+                            return(paste(err))
+                          }
+                  )
   Error(res)
 
   if (print.curl) {
@@ -2138,7 +2147,14 @@ CheckJobStatus <- function(job.id, history=FALSE, print.curl=FALSE) {
 #####################
 
 KillJob <- function(job.id, print.curl=FALSE) {
-
+  # This function stops the job with the job number
+  #
+  # Args:
+  #   job.id: Job number of job to be checked
+  #   print.curl: Prints the associated curl statement
+  #
+  # Returns:
+  #   Returns nothing unless an Error
   Time()
   Renew()
 
@@ -2149,35 +2165,23 @@ KillJob <- function(job.id, print.curl=FALSE) {
 
   val <- charToRaw(paste(content, collapse = "&"))
 
-  res <- tryCatch(fromJSON(getURLContent(web, curl=rplant.env$curl.call,  infilesize=length(val), readfunction=val, upload=TRUE, customrequest="POST")), error = function(err) {return(paste(err))})
+  res <- tryCatch(expr  = fromJSON(getURLContent(web, 
+                                                 curl          = rplant.env$curl.call,
+                                                 infilesize    = length(val), 
+                                                 readfunction  = val, 
+                                                 upload        = TRUE, 
+                                                 customrequest = "POST")),
+                  error = function(err) {
+                            return(paste(err))
+                          }
+                  )
   Error(res)
 
   if (print.curl) {
-    curl.string <- paste(rplant.env$first, " -X POST -d '", paste(content, collapse = "&"), "' ",  web, sep="")
+    curl.string <- paste(rplant.env$first, " -X POST -d '", 
+                         paste(content, collapse = "&"), "' ", 
+                         web, sep="")
     print(curl.string)
-  }
-}
-
-#####################
-#####################
-##### DeleteALL #####
-#####################
-#####################
-
-DeleteALL <- function() {
-
-  Time()
-  Renew()
-
-  res <- tryCatch(fromJSON(getForm(rplant.env$webjoblist, .checkparams=FALSE, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
-  Error(res)
-
-  if (length(res$result) == 0) {
-    message("No jobs in job history")
-  } else {
-    for (i in 1:length(res$result)){
-      DeleteOne(res$result[[i]]$id)
-    }
   }
 }
 
@@ -2188,26 +2192,60 @@ DeleteALL <- function() {
 #####################
 
 DeleteOne <- function(job.id, print.curl=FALSE) {
-
+  # This function deletes the job with the job number, and it deletes
+  #   the folder the result files are in
+  #
+  # Args:
+  #   job.id: Job number of job to be checked
+  #   print.curl: Prints the associated curl statement
+  #
+  # Returns:
+  #   Returns nothing unless an Error
   Time()
   Renew()
 
   web <- paste(rplant.env$webjob, job.id, sep="/")
 
-  JS <- tryCatch(fromJSON(getForm(web, .checkparams=FALSE, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+  # Check that job id exists
+  JS <- tryCatch(expr  = fromJSON(getForm(web, 
+                                          .checkparams = FALSE, 
+                                          curl         = rplant.env$curl.call)), 
+                 error = function(err) {
+                           return(paste(err))
+                         }
+                 )
   Error(JS)
 
-  if ((JS$result$status == "FINISHED") || (JS$result$status == "STOPPED") || (JS$result$status == "ARCHIVING_FINISHED") || (JS$result$status == "FAILED")){
-    dir.name <- unlist(strsplit(JS$result$archivePath, "/"))[length(unlist(strsplit(JS$result$archivePath, "/")))]
+  # If the job is finished or stopped then it can be deleted, it it's running
+  #   an appropriate error is returned
+  if ((JS$result$status == "FINISHED") || (JS$result$status == "STOPPED") || 
+      (JS$result$status == "ARCHIVING_FINISHED") || (JS$result$status == "FAILED")){
+    # DeleteJob deletes the directory the result files are in, this finds that folder
+    dir.name <- unlist(strsplit(JS$result$archivePath, "/"))
+                       [length(unlist(strsplit(JS$result$archivePath, "/")))]
 
-    dir.path <- substr(JS$result$archivePath, nchar(rplant.env$user) + 3, nchar(JS$result$archivePath)-nchar(dir.name)-1)
-
+    dir.path <- substr(JS$result$archivePath, nchar(rplant.env$user) + 3, 
+                       nchar(JS$result$archivePath)-nchar(dir.name)-1)
+   
+    # Check that folder hasn't already been deleted
     Check(dir.name, dir.path)
 
-    tmp <- tryCatch(fromJSON(httpDELETE(paste(rplant.env$webio, dir.path, dir.name, sep="/"), curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+    # Delete the directory
+    tmp <- tryCatch(expr  = fromJSON(httpDELETE(paste(rplant.env$webio, dir.path, 
+                                                      dir.name, sep="/"), 
+                                                curl = rplant.env$curl.call)),
+                    error = function(err) {
+                              return(paste(err))
+                            }
+                    )
     Error(tmp)
 
-    tmp <- tryCatch(fromJSON(httpDELETE(web, curl = rplant.env$curl.call)), error = function(err) {return(paste(err))})
+    # Delete the job
+    tmp <- tryCatch(expr  = fromJSON(httpDELETE(web, curl = rplant.env$curl.call)),
+                    error = function(err) {
+                              return(paste(err))
+                            }
+                    )
     Error(tmp)
   
     if (print.curl) {
@@ -2216,9 +2254,49 @@ DeleteOne <- function(job.id, print.curl=FALSE) {
     }
 
   } else {
-    return(stop(paste("Error: Could not delete, job status:", JS$result$status), call. = FALSE))
+    return(stop(paste("Error: Could not delete, job status:", 
+                      JS$result$status), call. = FALSE))
   }
 }
+
+#####################
+#####################
+##### DeleteALL #####
+#####################
+#####################
+
+DeleteALL <- function() {
+  # Deletes all of the jobs in the job history, and their associated
+  #   directories
+  #
+  # Args:
+  #   Nothing
+  #
+  # Returns:
+  #   Returns nothing unless an Error
+  Time()
+  Renew()
+
+  # Get the entire job list
+  res <- tryCatch(expr  = fromJSON(getForm(rplant.env$webjoblist, 
+                                           .checkparams = FALSE, 
+                                           curl         = rplant.env$curl.call)), 
+                  error = function(err) {
+                            return(paste(err))
+                          }
+                  )
+  Error(res)
+
+  if (length(res$result) == 0) {
+    message("No jobs in job history")
+  } else { # Go through each job and delete it
+    for (i in 1:length(res$result)){
+      DeleteOne(res$result[[i]]$id)
+    }
+  }
+}
+
+
 
 #####################
 #####################
@@ -2227,6 +2305,16 @@ DeleteOne <- function(job.id, print.curl=FALSE) {
 #####################
 
 DeleteJob <- function(job.id, print.curl=FALSE, ALL=FALSE) {
+  # Deletes the job with the job number, also have the option to delete all
+  #   jobs
+  #
+  # Args:
+  #   job.id: Job number of job to be deleted
+  #   print.curl: Prints the associated curl statement
+  #   ALL: Delete all jobs in the job history
+  #
+  # Returns:
+  #   Returns nothing unless an Error
   if (ALL==TRUE){
     DeleteALL()
     if (print.curl) {
@@ -2245,13 +2333,26 @@ DeleteJob <- function(job.id, print.curl=FALSE, ALL=FALSE) {
 
 
 RetrieveOne <- function(file, archive.path, file.path, print.curl) {  
-
+  # This function takes the file in the archive.path from the iPlant servers
+  # to the file.path on the local computer.
+  #
+  # Args:
+  #   file: String of the file name
+  #   archive.path: Path to the file on the iPlant server side
+  #   file.path: Path to where file will be downloaded on local computer
+  #   print.curl: Prints the associated curl statement
+  #
+  # Returns:
+  #   Returns nothing unless an Error
   Time()
   Renew()
 
   web <- paste(rplant.env$webio1, archive.path, "/", file, sep="")
 
-  curlPerform(url=web, curl=rplant.env$curl.call, writedata = CFILE(file.path(file.path,file), mode="wrb")@ref)
+  curlPerform(url       = web, 
+              curl      = rplant.env$curl.call, 
+              writedata = CFILE(file.path(file.path,file), 
+              mode      = "wrb")@ref)
   gc()
 
   if (print.curl) {
@@ -2267,17 +2368,36 @@ RetrieveOne <- function(file, archive.path, file.path, print.curl) {
 #####################
 
 RetrieveJob <- function(job.id, file.vec=NULL, print.curl=FALSE, verbose=FALSE) {  
-
+  # From the job number, retrieve the files in the file.vec and download
+  # to the current directory on the local computer.  A folder the name
+  # of the job is created, and all files put inside.
+  #
+  # Args:
+  #   job.id: Job number of job whose files will be retreived
+  #   file.vec: Vector containing file names, if NULL all files will be 
+  #     downloaded
+  #   print.curl: Prints the associated curl statement
+  #   verbose: Either TRUE or FALSE, if TRUE print a statment listing
+  #     which files have been downloaded to which folder
+  #
+  # Returns:
+  #   Returns nothing unless verbose=TRUE or an Error
   Time()
   Renew()
 
   web <- paste(rplant.env$webjob, job.id, sep="/")
 
-  JS <- tryCatch(fromJSON(getForm(web, .checkparams=FALSE, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+  JS <- tryCatch(expr  = fromJSON(getForm(web, 
+                                          .checkparams=FALSE, 
+                                           curl=rplant.env$curl.call)), 
+                 error = function(err) {
+                           return(paste(err))
+                         }
+                 )
   Error(JS)
 
   if ((JS$res$status == "ARCHIVING_FINISHED") || (JS$res$status == "FINISHED")) {
-
+    # Create a local folder in current R working directory
     dir.path <- file.path(getwd(), JS$result[[2]])
     if(!file.exists(dir.path)){
       if (.Platform$OS.type=="windows") {
@@ -2286,24 +2406,31 @@ RetrieveJob <- function(job.id, file.vec=NULL, print.curl=FALSE, verbose=FALSE) 
         dir.create(dir.path)
       }
     }
-  if(is.null(file.vec)){
-    file.vec <- ListJobOutput(job.id)
-  }  
+
+    # If file.vec is NULL, get all result file name for job number
+    if(is.null(file.vec)){
+      file.vec <- ListJobOutput(job.id, print.total=FALSE)
+    }  
+
+    # Get all result file name for job number
     fileList <- ListJobOutput(job.id, print.total=FALSE)
+
+    # Go through each file in file.vec
     for (file in 1:length(file.vec)) {
       # if file exists in output then download
       if (file.vec[file] %in% fileList) {
 
         RetrieveOne(file.vec[file], JS$result$archivePath, dir.path, print.curl)
 
-        if (verbose==TRUE) {
+        if (verbose==TRUE) { # If TRUE, verbose output
           message(paste("Downloaded", file.vec[file], "to", dir.path))
         }
-      } else {
-        return(stop(paste("`",file.vec[file], "' is not found within `", job.id,"'", sep=""), call. = FALSE))
+      } else { # If file not there, return an error
+        return(stop(paste("`",file.vec[file], "' is not found within `", 
+                          job.id,"'", sep=""), call. = FALSE))
       }
     }
-  } else {
+  } else { # If job is not finished
     return(stop(paste("Job is", JS$res$status), call. = FALSE))
   }
 }
@@ -2315,16 +2442,32 @@ RetrieveJob <- function(job.id, file.vec=NULL, print.curl=FALSE, verbose=FALSE) 
 #####################
 
 ListJobOutput <- function(job.id, print.curl=FALSE, print.total=TRUE) {
-
+  # List the names of the result files with the job number
+  #
+  # Args:
+  #   job.id: Job number of job whose files will be retreived
+  #   print.curl: Prints the associated curl statement
+  #   print.total: Either TRUE or FALSE, if TRUE prints number of files
+  #
+  # Returns:
+  #   Returns the file list, else an error
   Time()
   Renew()
 
-  JS <- tryCatch(fromJSON(getForm(paste(rplant.env$webjob, job.id, sep="/"), .checkparams=FALSE, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+  # Check status of the job, and that it exists
+  JS <- tryCatch(expr  = fromJSON(getForm(paste(rplant.env$webjob, job.id, sep="/"), 
+                                          .checkparams = FALSE, 
+                                          curl         = rplant.env$curl.call)), 
+                 error = function(err) {
+                           return(paste(err))
+                         }
+                 )
   Error(JS)
 
   file.vec <- c()
   if ((JS$res$status == "FINISHED") || (JS$res$status == "ARCHIVING_FINISHED")) {
-
+    # Knowing it does, and knowing the archivePath, where the result files
+    #   are located, get the list of files in the folder
     web <- paste(rplant.env$weblist, JS$result$archivePath, sep="")
     res <- fromJSON(getURLContent(web, curl=rplant.env$curl.call))
 
@@ -2335,12 +2478,15 @@ ListJobOutput <- function(job.id, print.curl=FALSE, print.total=TRUE) {
 
     len <- length(res$result)
     if (len == 0){
-      return(paste("There are ", len, " output files for job '", job.id,"'", sep=""))
+      return(paste("There are ", len, " output files for job '", 
+                   job.id,"'", sep=""))
     }
 
     if (print.total == TRUE) {
-      message(paste("There are ", len-1, " output files for job '", job.id,"'", sep=""))
+      message(paste("There are ", len-1, " output files for job '", 
+                    job.id,"'", sep=""))
     }
+    # Add each name into 'file.vec'
     for (i in 2:length(res$result)) {
       file.vec <- append(file.vec, res$result[[i]]$name)
     }
@@ -2357,7 +2503,15 @@ ListJobOutput <- function(job.id, print.curl=FALSE, print.total=TRUE) {
 #####################
 
 GetJobHistory <- function(return.json=FALSE, print.curl=FALSE) {
-
+  # List all of the jobs in the job history
+  #
+  # Args:
+  #   return.json: Returns a json containing all information
+  #   print.curl: Prints the associated curl statement
+  #
+  # Returns:
+  #   Returns a list of jobs, with id, name and current status.  If no
+  #     job then return "No jobs in history"
   Time()
   Renew()
   if (rplant.env$api == "f") {
@@ -2368,7 +2522,13 @@ GetJobHistory <- function(return.json=FALSE, print.curl=FALSE) {
 
   jobList <- c()
 
-  res <- tryCatch(fromJSON(getForm(rplant.env$webjoblist, .checkparams=FALSE, curl=rplant.env$curl.call)), error = function(err) {return(paste(err))})
+  res <- tryCatch(expr  = fromJSON(getForm(rplant.env$webjoblist, 
+                                           .checkparams = FALSE, 
+                                           curl         = rplant.env$curl.call)), 
+                  error = function(err) {
+                            return(paste(err))
+                          }
+                  )
   Error(res)
 
   if (print.curl) {
