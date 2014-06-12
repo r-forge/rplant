@@ -1777,7 +1777,7 @@ GetAppInfo <- function(application, return.json=FALSE, print.curl=FALSE) {
   } else {
     tmp_string <- "tmp$result"
   }
-
+  # Get the basic application ifo
   result <- appINFO(application)
   text <- result[[1]]
   priv.APP <- result[[2]]
@@ -1799,6 +1799,7 @@ GetAppInfo <- function(application, return.json=FALSE, print.curl=FALSE) {
   if (return.json) {
     return(tmp)
   } else {
+    # Go through the json and tease out all of the info we need.
     app.info<-c()
     len <- length(tmp$result)
     for (input in sequence(length(eval(parse(text=paste(tmp_string, "$inputs",
@@ -1903,7 +1904,7 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
   #   suppress.Warnings: Don't do any error checking (faster)
   #
   # Returns:
-  #   Returns the job id (number) and the job name.  o/w an error
+  #   Returns the job id (number).  o/w an error
 
   # Job Name is automatically time stamped
   job.name <- paste(unlist(strsplit(paste(job.name, "_", format(Sys.time(), 
