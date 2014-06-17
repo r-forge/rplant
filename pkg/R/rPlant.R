@@ -2077,8 +2077,8 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
                           }
                   )
   if (!suppress.Warnings){Error(res)}
-
-  cat(paste("Job submitted. You can check your job using CheckJobStatus(", 
+  cat("Job submitted.")
+  cat(paste("You can check your job using CheckJobStatus(", 
             res$result$id, ")", sep=""), "\n")
   return(res$result$id)
   # return(list(res$result$id, job.name))
