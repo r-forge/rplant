@@ -1,0 +1,531 @@
+% \VignetteIndexEntry{rPlant}
+
+
+% This vignette requires validation in order to run.  To compile it in Sweave, you need to enter your credentials as part of this document and then compile.  
+
+
+\documentclass[12pt]{article}
+\usepackage{graphicx}
+\usepackage{amsfonts}
+\usepackage{enumitem}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage[fleqn]{amsmath}
+\usepackage{natbib}
+\usepackage{url}
+
+\bibpunct{(}{)}{;}{a}{}{,}
+
+\setlength{\topmargin}{-1.0 in}
+\setlength{\textheight}{9.9  in}
+\setlength{\oddsidemargin}{-.2in} 
+\setlength{\evensidemargin}{-.2in}
+\setlength{\textwidth}{6.5in}
+
+\title{rPlant}
+\author{Barb Banbury, University of Tennessee, darwinthesun@gmail.com \\ 
+Kurt Michels, University of Arizona, kamichels@math.arizona.edu}
+\date{\today}
+\def\fs{\footnotesize}
+
+\usepackage{Sweave}
+\begin{document}
+\maketitle
+
+\tableofcontents
+
+\section{Introduction}
+
+\noindent The iPlant Collaborative has developed many resources to deal with the emerging computational challenges facing biology. The project was initially designed to support the plant sciences, but thanks to a generic approach, can be equally used by other disciplines.  Users have access to many different applications for data analysis, including clustering/network analyses, QTL mapping, sequence alignments, phylogenetic tree building, and comparative methods. \\
+
+\noindent The main interface is its user-friendly Discovery Environment (\url{http://www.iplantcollaborative.org/discover/discovery-environment}).  A command-line interface, the agave API (\url{http://agaveapi.co/}, \citep{dooley2012agave}), is linked to the Discovery environment. The Agave API is used for computationally intensive applications. The API is a RESTful application programming interface \citep{fielding2000} that allows direct interaction with all of iPlant resources.  The only way to access the API is to use {\it cURL} statements \citep{warranty1996}, an example of a {\it cURL} statement will be detailed in one of the sections.  The API provides access to authentication, data manipulation and storage, and job submittal via HTTPS- and command-line functions. The benefit of using the API is having programmatic access that allows advantages to power users (e.g. submitting jobs via batch files).  The {\it rPlant} package provides a direct link between high performance resources located at the Texas Advanced Computing Center (\url{http://www.tacc.utexas.edu}) that the API can access and the R environment, by essentially creating wrappers around the {\it cURL} statements, using the {\it RCurl} \citep{lang2007r} package. 
+
+% also cite agave itself, http://agaveapi.co/citing-agave/  
+
+
+\section{Getting Started}
+
+\noindent This vignette assumes you have the current version of R \citep{R}.  First, install and load the package.  A stable release is available through CRAN (\url{http://cran.r-project.org/web/packages/rPlant/}) or a working repository can also be used through R-Forge (\url{https://r-forge.r-project.org/projects/rplant/}). \\
+
+\noindent You can register as an iPlant user on their website (\url{http://user.iplantcollaborative.org/}) generating a unique username and password combination. 
+
+ \subsection{Gaining Access to the API}
+
+\noindent {\ttfamily Validate(username, password, api="agave")} \\
+
+\noindent The username/password combination will be used in the {\ttfamily Validate} function.  The {\ttfamily Validate} function is required for every rPlant session and needs to be the first thing executed or the session will fail. In addition, it has a four-hour expiration. {\it rPlant} functions will auto renew a session, thereby extending the expiration. If a session sits idle and expires, the user will not have to re-validate a session as the functions will do this automatically.  The only time a user will need to use the {\ttfamily Validate}  function is at the start of a new session.  
+
+% Modify the following if you are going to compile the document in Sweave:
+% Then enter the code as commented out parts below...
+
+<<>>=
+library(rPlant)
+library(seqinr)
+username <- "bleplant"
+password <- "Chl0r0phyll"
+Validate(username, password, api="agave")
+@
+
+\noindent The function checks if the username and password are valid iPlant credentials.  If they aren't the above error is displayed.  If the function is successful then nothing is printed. On {\it rPlant's} backend, a new R environment (rPlant.env) was created that stores all of the validation objects, including the user key and secret, user name and password, and token expiration. These items can be examined by using the  {\ttfamily ls(rPlant.env)} and using the \$ operator to display individual objects. \\
+
+\noindent Every {\it rPlant} function has the option {\ttfamily print.curl=TRUE} or {\ttfamily FALSE}.  This refers to {\ttfamily cURL} a computer software project providing a way to transfer data using various protocols, for detail on {\ttfamily cURL} see \url{http://en.wikipedia.org/wiki/CURL}.  These statements (w/o the outside quotes) can be copied and pasted into a terminal in linux or unix.  And if {\ttfamily cURL} is installed on the computer then the statements can be executed.  You will see that these statements do the exact same thing as the {\it rPlant} functions.  This is one of the big advantages of {\it rPlant}, it can be used on any computer (including windows) and there is no need for the user to install {\ttfamily cURL} on that computer, because {\it rPlant} uses the package {\ttfamily RCurl}. \\
+
+\noindent {\it Note}: This package abides by the unix rule, ``silence is golden".  If a function is successful then no output will be displayed.  If an error is attained then the error will be printed.
+
+\section{Uploading Files}
+\subsection{UploadFile function}
+
+\noindent {\ttfamily UploadFile(local.file.name, local.file.path="", filetype=NULL, print.curl=FALSE, suppress.Warnings=FALSE)} \\
+
+\noindent The first step is to upload files onto iPlants. {\ttfamily UploadFile} takes a file from your computer and uploads it onto iPlants servers, it does NOT take a file from the R workspace. Objects in the workspace will need to be saved to the computer in a supported file format before uploading them. 
+
+<<>>=
+data(DNA.fasta)
+write.fasta(sequences=DNA.fasta, names=names(DNA.fasta), file.out="DNA.fasta")
+UploadFile(local.file.name="DNA.fasta", filetype="FASTA-0")
+@
+
+\noindent In the event that the file already exists on the iPlant server, an error will report and the file will not upload. For details on how to check contents of iPlant directories, see Section 4, and for manipulating files (like deleting, moving, sharing) see Section 5 below.  
+
+\noindent The file format for the uploaded file can be defined using {\ttfamily filetype}, some programs will only accept certain types of files.  This can also be left as NULL, if the iPlant application doesn't require it. For the fasta file the file type is FASTA-0.  See the following section for the various file types supported by the API. 
+
+\subsection{Supported File Types}
+
+\noindent {\ttfamily SupportFile(print.curl=FALSE)} \\
+
+\noindent There are 33 other file types supported by iPlant, use the {\ttfamily SupportFile} function to see all of the available file types (i.e. PHYLIP file type is ``PHYLIP-0" and ClustalW is ``ClustalW-1.8").
+
+<<>>=
+SupportFile()
+@
+
+\section{Manipulating directories on iPlant servers}
+
+\noindent Now that the file DNA.fasta has been uploaded onto the iPlant servers we can look at the file (or at least see which directory the file is in) by using the {\ttfamily ListDir} function.  There are a few other directory manipulation functions, they are: {\ttfamily MakeDir}, {\ttfamily ShareDir}, {\ttfamily RenameDir}, {\ttfamily MoveDir} and {\ttfamily DeleteDir}.
+
+\subsection{Listing directories}
+
+\noindent {\ttfamily ListDir(dir.name, dir.path="", print.curl=FALSE, shared.username=NULL, \\
+\noindent suppress.Warnings=FALSE)} \\
+
+\noindent Looking in the home directory you can see the ``DNA.fasta'' file.
+
+<<>>=
+ListDir(dir.name="")
+@
+
+\noindent {\it Note}: Some functions contain an option, {\ttfamily suppress.Warnings}.  If you are absolutely sure that the commands you are entering are correct then to speed up the process have {\ttfamily suppress.Warnings=TRUE}.  But be careful, if used inappropriately then files could get overwritten or the files might not even exist and you will get no warning about it. %Probably a good idea to add a sentence or two about what types of warnings are being suppressed.
+
+
+\noindent {\ttfamily MakeDir(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE)} \\
+
+\noindent The following function will make a directory hello in the home directory.
+
+<<>>=
+MakeDir(dir.name="hello")
+@
+
+\noindent Again making the directoy ``all" in the ``hello" directory.
+
+<<>>=
+MakeDir(dir.name="all", dir.path="hello")
+@
+
+\noindent Here we make another directory ``robots" in the ``all" directory.  Note how the {\ttfamily dir.path} needs to be constructed, and how the {\ttfamily dir.name} and {\ttfamily dir.path} are related.  All of the functions have this same format.
+
+<<>>=
+MakeDir(dir.name="robots", dir.path="hello/all")
+@
+
+\noindent We can look inside the ``hello/all/robots" directory and see that there is nothing in there.
+
+<<>>=
+ListDir(dir.name="robots", dir.path="hello/all")
+@
+
+\subsection{Sharing Directories}
+
+\noindent {\ttfamily ShareDir(dir.name, dir.path="", shared.username, read=TRUE, execute=TRUE, \\
+\noindent print.curl=FALSE, suppress.Warnings=FALSE)} \\
+
+\noindent A really nice feature of {\it iPlant} is the file sharing feature.  As was said in the introduction one of iPlant's goals was to work with very large data sets.  And when data sets are too large to send via email then a sharing feature is absolutely necessary.  There are in fact two share functions, one for sharing a single file ({\ttfamily ShareFile}) and the other ({\ttfamily ShareDir}) for sharing an entire directory. When sharing a directory, all files contained within will be shared. \\  %is there an upper limit on file size?
+
+\noindent In this sample we share the ``all" directory.  
+
+<<>>=
+ShareDir(dir.name="all", dir.path="hello", shared.username="henryl")
+@
+
+\noindent In the above example I share something with user ``henryl". I can also view files and directories that have been shared with me.
+
+\noindent {\ttfamily ListDir(dir.name="data", dir.path="", shared.username="phyllisl")}
+
+\noindent Several other functions use the {\ttfamily shared.username} option. For example, the {\ttfamily SubmitJob} function and the wrapper functions.  A job can be run on files that are shared with you (see Section 7).
+
+\subsection{Renaming Directories}
+
+\noindent {\ttfamily RenameDir(dir.name, new.dir.name, dir.path="", print.curl=FALSE, \\
+\noindent suppress.Warnings=FALSE)} \\
+
+\noindent This function renames a directory.
+
+<<>>=
+RenameDir("robots", "tools", "hello/all")
+@
+
+\noindent And you can see that it has been changed. \\
+
+<<>>=
+ListDir("all", "hello")
+@
+
+\noindent {\it Note}: When the directory is renamed, permissions on sharing will have to be redone.
+
+\subsection{Moving Directories}
+
+\noindent {\ttfamily MoveDir(dir.name, dir.path="", end.path="", print.curl=FALSE, \\
+\noindent suppress.Warnings=FALSE)} \\
+
+\noindent This function moves a directory. The following code will move the directory 'tools' from 'hello/all' to the home directory.  Verified below.
+
+<<>>=
+MoveDir("tools", dir.path="hello/all", end.path="")
+ListDir("")
+@
+
+\noindent {\it Note}: When the directory is moved, permissions on sharing will have to be redone.
+
+\subsection{Deleting Directories}
+
+\noindent {\ttfamily DeleteDir(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE)} \\
+
+\noindent This function deletes a directory and all of the subdirectories.
+
+<<>>=
+DeleteDir("tools", dir.path="")
+ListDir("")
+@
+
+\section{Manipulating files on iPlant servers}
+
+\noindent The file manipulation tools available in this package are very similar to directory manipulation tools.  The file manipulation functions are: {\ttfamily ShareFile}, {\ttfamily RenameFile}, {\ttfamily MoveFile} and {\ttfamily DeleteFile}.
+
+\subsection{Sharing Files}
+
+\noindent {\ttfamily ShareFile(file.name, file.path="", shared.username, read=TRUE, execute=TRUE, \\
+\noindent print.curl=FALSE, suppress.Warnings=FALSE)} \\
+
+\noindent As described in the {\ttfamily ShareDir} function, a really nice feature of iPlant is the file sharing feature. This function shares one file at a time. \\
+
+\noindent The following code will share the file DNA.fasta with phyllisl.
+
+<<>>=
+ShareFile(file.name="DNA.fasta", shared.username="phyllisl")
+@
+
+\subsection{Moving Files}
+
+\noindent {\ttfamily MoveFile(file.name, file.path="", end.path="", print.curl=FALSE, \\
+\noindent suppress.Warnings=FALSE)} \\
+
+\noindent This function moves the file from one directory to another.
+
+<<>>=
+MoveFile("DNA.fasta", end.path="hello/all")
+ListDir("all", "hello")
+@
+
+\noindent The move took the file DNA.fasta from the home directory into the ``hello/all" directory.  Below you can see this change:
+
+\noindent {\it Note}: When the file is moved, permissions on sharing will have to be redone.
+
+\subsection{Renaming Files}
+
+\noindent {\ttfamily RenameFile(file.name, new.file.name, file.path="", print.curl=FALSE, \\
+\noindent suppress.Warnings=FALSE)} \\
+
+\noindent This function renames a single file.
+
+<<>>=
+RenameFile("DNA.fasta", "lp.fasta", "hello/all")
+ListDir("all", "hello")
+@
+
+\noindent {\it Note}: When the file is renamed, permissions on sharing will have to be redone.
+
+\subsection{Deleting Files}
+
+\noindent {\ttfamily DeleteFile(file.name, file.path="", print.curl=FALSE, suppress.Warnings=FALSE)} \\
+
+\noindent This function deletes a single file in the specified directory.
+
+<<>>=
+DeleteFile("lp.fasta", "hello/all")
+ListDir("all", "hello")
+@
+
+\noindent The file lp.fasta is no longer in the ``hello/all" directory. \\
+
+\section{Applications}
+
+\noindent The real power in the {\it rPlant} package is to have the programmatic access to the phylogenetic tools/applications that are available in the API.  {\it rPlant} can be used to interact with any of the API applications. 
+
+\subsection{Listing Applications}
+
+\noindent {\ttfamily ListApps(description=FALSE, print.curl=FALSE)} \\
+
+\noindent This function returns a sorted list of the newest versions of the public applications that are available via the Foundation API.  These applications are ones that can be used with the {\ttfamily SubmitJob} function (see Section 7).
+
+<<>>=
+ListApps(description=FALSE)
+@
+
+\noindent {\it Note}:  As said above, these applications are PUBLIC applications. Applications in the API are split into two categories, public and private.  Private applications are ones that are developed and tested and changed.  Only the user who created the private application can use it.  The other category is public applications.  After a private application has gone through extensive testing, then the application can be published and it becomes a public application which is available to all iPlant users.  In the API a public application is labeled by adding the suffix 'u1' to it.  The '1' is referred to as the version number, so if a public application is fixed and republished the suffix becomes 'u2'.
+
+\subsection{Application Information}
+
+\noindent {\ttfamily GetAppInfo(application, return.json=FALSE, print.curl=FALSE)}\\
+
+\noindent The {\ttfamily GetAppInfo} function returns the application with a short description and the input/output filetypes.\\
+
+<<>>=
+GetAppInfo("velveth-1.2.07u1")
+@
+
+\noindent The {\ttfamily GetAppInfo} function returns a list of information about the application that is needed for the {\ttfamily SubmitJob} function. The first element gives a short description of the application. The second element in the list gives information on the application including its use permissions (public vs. private) and whether it is the newest version. The third element in the list  is a matrix with four columns of information: kind, id, file type or value, and any details. In the example above, first column ('kind') states there are six inputs for this app, the 'id' column names those inputs as 'reads5', 'reads3', etc. There are also eight parameters for the app, such as 'format2', 'kmer', etc. The third column ('Type/value') returns the type of file the application is expecting if it is input or it returns the type of input necessary for the application parameters, common ones are string, boolean, etc. The last column gives brief details on each input.
+
+\section{Submitting Jobs in the rPlant package}
+
+\subsection{Submitting Job}
+
+\noindent {\ttfamily SubmitJob(application, file.path="", file.list=NULL, input.list, args.list=NULL, job.name, nprocs=1, \\
+\noindent private.APP=FALSE, suppress.Warnings=FALSE, shared.username=NULL, print.curl=FALSE, email=TRUE)}\\
+
+\noindent An important benefit of using {\it rPlant} is the ability to create batch-scripted files that automate job submittal and retrieval. For example, a user could submit parallel alignment jobs of different gene regions or multiple jobs with the same data and different parameter values. The results could then be automatically downloaded upon completion. \\
+
+\noindent The following function is the main way to submit a job to the iPlant server, and can be used for any iPlant application. You can also submit jobs via the wrapper functions (for example, {\ttfamily Muscle()}, see Section 9), which call upon the {\ttfamily SubmitJob} function internally.  
+
+<<>>=
+UploadFile(local.file.name="DNA.fasta", filetype="FASTA-0")
+ListDir("")
+myJobM <- SubmitJob(application="Muscle-3.8.32u4", file.list=list("DNA.fasta"),
+                    input.list=list("stdin"), args.list=list(c("arguments", 
+                    "-phyiout -center -cluster1 upgma")), job.name="Muscle")
+@
+
+\noindent Several important argument definitions are listed below, but can also be found in the help files: 
+\noindent {\ttfamily input.list}:  This argument defines what kind of input you are passing the application. You can get application information from the {\ttfamily GetAppInfo} function ({\ttfamily GetAppInfo("Muscle-3.8.32u4")\$Information}).  In this example, the 'kind' column states there is one input for this app, and the 'id' column names that input as 'stdin'.  Input types change from application to application. \\
+
+\noindent {\ttfamily file.list}: Similar to {\ttfamily input.list}, the {\ttfamily file.list} argument defines which files are being passed to the application. The named file must be on the DE within the {\ttfamily file.path} and be formatted to the correct specification (for example, \ttfamily{GetAppInfo("Muscle-3.8.32u4")\$Information}). If it the file types don't match then the application will fail. \\
+
+\noindent {\ttfamily args.list}:  The {\ttfamily args.list} is where application flagging options can be entered. These typically change default options. Using information from the {\ttfamily GetAppInfo} function, the 'kind' column states there is one parameter for this app, the 'id' column gives the name of that parameter is ``arguments", and the  ``fileType/value" column tells me it is a string. This is where the fourth column 'details' comes in handy; it tells me that the parameter input is ``program arguments and options", which means it can accept a string. For example: {\ttfamily args.list=list(c(arguments, "-phyiout -center -cluster1 upgma"))} \\
+
+\noindent The {\ttfamily args.list} is a list that is as long as the number of parameters (so length 1 in the Muscle example), that means there as many vectors as there are parameters. All vectors are of the same length, two in this example. In the first position, is the name of the parameter, ``arguments", and in the second position is the value of that parameter, ``-phyiout -center -cluster1 upgma''. In this example, it is a string of command line flags. \\
+
+\noindent The function {\ttfamily SubmitJob} will return a list of two objects (in this example, {\ttfamily myJobM}). The first object, is the job number and the second is the job name, both are important information for retrieving results. \\
+
+\noindent If job submittal is successful, then the function automatically creates the folder ``analyses" within a user's cloud (if it did not previously exist). If the job finishes, then a folder is created within the analyses folder that is named the job name.
+
+\subsection{Submitting a job with a shared file}
+
+\noindent Jobs can also be submitted from files stored in other user's cloudspace that are shared.
+
+\section{Checking Job Status and Retrieving Job output}
+
+\noindent Once the job is submitted, it is assigned a job identification number (job.id) that we can use to check the status and download any results files. The job.id is returned with the SubmitJob function, so if you create an object when you submit a job then you can use that object as an identifier as well.  Otherwise, you can copy/paste a job ID into any of the functions as a character string.  
+The job number is used in a few rPlant functions including, {\ttfamily CheckJobStatus}, {\ttfamily ListJobOutput}, {\ttfamily RetrieveJob} and {\ttfamily DeleteJob}. If you need to get job IDs from older jobs, you can use the function {\ttfamily GetJobHistory()}. 
+
+\subsection{Checking job status}
+
+\noindent {\ttfamily CheckJobStatus(job.id, print.curl=FALSE)} \\
+
+\noindent This function checks the status of a job on the iPlant servers.
+
+\begin{table}[ht]
+\caption{Possible Outputs for {\ttfamily CheckJobStatus()}}
+% title of Table
+\centering
+% used for centering table
+\begin{tabular}{l}
+% centered columns (1 columns)
+\hline\hline
+%inserts double horizontal lines
+{\bfseries Stages} \\ [0.5ex]
+% inserts table
+%heading
+\hline
+% inserts single horizontal line
+{\ttfamily PENDING}            \\
+{\ttfamily STAGING\_INPUTS}     \\
+{\ttfamily CLEANING\_UP}        \\
+{\ttfamily ARCHIVING}          \\
+{\ttfamily STAGING\_JOB}        \\
+{\ttfamily FINISHED}           \\
+{\ttfamily KILLED}             \\
+{\ttfamily FAILED}             \\
+{\ttfamily STOPPED}            \\
+{\ttfamily RUNNING}            \\
+{\ttfamily PAUSED}             \\
+{\ttfamily QUEUED}             \\
+{\ttfamily SUBMITTING}         \\
+{\ttfamily STAGED}             \\
+{\ttfamily PROCESSING\_INPUTS}  \\
+{\ttfamily ARCHIVING\_FINISHED} \\
+{\ttfamily ARCHIVING\_FAILED}  \\[1ex]
+% [1ex] adds vertical space
+\hline
+%inserts single line
+\end{tabular}
+\label{table:nonlin}
+% is used to refer this table in the text
+\end{table}
+
+<<>>=
+CheckJobStatus(myJobM)
+@
+
+\subsection{Listing job status}
+
+\noindent {\ttfamily ListJobOutput(job.id, print.curl=FALSE, print.total=TRUE)} \\
+
+\noindent This function lists the output files from a finished job. For example, these files are the output from our MUSCLE example above.  
+
+<<>>=
+# I include a while statement, so that we do not move forward until the job is done.
+while(CheckJobStatus(myJobM) != "FINISHED"){
+  CheckJobStatus(myJobM)
+  }
+ListJobOutput(myJobM)
+@
+
+\subsection{Looking at Job History}
+
+\noindent {\ttfamily GetJobHistory(return.json=FALSE, print.curl=FALSE)} \\
+
+\noindent This function displays the entire job history for the user. This is an easy way to grab old job IDs in order to retrieve files or check the status of a set of jobs.  
+
+<<>>=
+GetJobHistory()
+@
+
+\subsection{Retrieve job files}
+
+\noindent {\ttfamily RetrieveJob(job.id, file.vec=NULL, print.curl=FALSE, verbose=FALSE)} \\
+
+\noindent One very handy thing about the {\it rPlant} package is the ability to download the files directly from the iPlant servers to your computer.  The following downloads all of the output files.
+
+<<>>=
+RetrieveJob(myJobM)
+@
+
+\noindent The files have been downloaded into a new directory within your working directory. If you want to download select files at a time, then these will need to be defined within the file.vec argument (for example: {\ttfamily RetrieveJob(myJobS, file.vec=c("fasta.aln"))}) 
+
+\subsection{Delete job}
+
+\noindent {\ttfamily DeleteJob(job.id, print.curl=FALSE, ALL=FALSE)} \\
+
+\noindent After the job has been submitted, the results downloaded, and you have no need for the job anymore, you can use the {\ttfamily DeleteJob} function to delete the job. The nice thing about this function is that not only will it delete the job number from the job history but it will also delete the job folder and all contents in the analyses folder in the user's cloudspace.
+
+<<>>=
+DeleteJob(myJobM)
+@
+
+\noindent You also have the option to erase ALL job history from a user's past.  This may be useful after a round of testing.  
+
+<<>>=
+DeleteJob(ALL=TRUE)
+@
+
+\section{Submitting Jobs With Wrappers}
+
+\noindent We have ten dedicated wrapper functions for iPlant applications that will ease submitting jobs. These wrappers will use many application defaults and/or change flags into wrapper function arguments.  Of course, if a user needs more flexibility in flagging options, then they can still submit jobs using the {\ttfamily SubmitJob} function. 
+
+Of the iPlant applications that have dedicated wrappers, there is a clear bias towards phylogenetic applications because the authors are evolutionary biologists and regularly use these programs. Writing wrapper functions is not programmatically difficult, but it does require familiarity with the individual programs and their associated data sets. We would like to encourage any users who are using programs without wrappers to submit patches adding wrapper functions or request to be a developer. You can make these feature requests at the R-Forge site: \url{https://r-forge.r-project.org/tracker/?group_id=1328}. \\
+
+\noindent Among the wrappers there are three which do alignments: {\ttfamily Muscle}, {\ttfamily Mafft} and {\ttfamily ClustalW}.  The alignments will do both protein and nucleotide.  Also make sure that the taxon names in the sequence files do not contain tabulators, carriage returns, spaces, ":", ",", ")", "(", ";", "]", "["''.
+
+<<>>=
+data(PROTEIN.fasta)
+write.fasta(sequences=PROTEIN.fasta, names=names(PROTEIN.fasta), file.out="PROTEIN.fasta")
+UploadFile(local.file.name="PROTEIN.fasta", filetype="FASTA-0")
+@
+
+\subsection{Muscle}
+
+\noindent {\ttfamily Muscle(file.name, file.path="", job.name=NULL, args=NULL, version="Muscle-3.8.32u4", print.curl=FALSE, aln.filetype="PHYLIP\_INT", shared.username=NULL, \\
+\noindent suppress.Warnings=FALSE)} \\
+
+\noindent MUSCLE is a program for creating multiple alignments of amino acid or nucleotide sequences. A range of options is provided that give you the choice of optimizing accuracy, speed, or some compromise between the two.  The manual is also available here: \url{http://www.drive5.com/muscle/muscle\_userguide3.8.html} \\
+
+<<>>=
+myJobMuDP <- Muscle("DNA.fasta", aln.filetype="PHYLIP_INT", job.name="muscleDNAphyINT")
+myJobMuDF <- Muscle("DNA.fasta", aln.filetype="FASTA", job.name="muscleDNAfasta")
+myJobMuDPP <- Muscle("DNA.fasta", aln.filetype="PHYLIP_PARS", job.name="muscleDNAphyPARS")
+myJobMuDPS <- Muscle("DNA.fasta", aln.filetype="PHYLIP_SEQ", job.name="muscleDNAphySEQ")
+myJobMuDC <- Muscle("DNA.fasta", aln.filetype="CLUSTALW", job.name="muscleDNAclustalw")
+myJobMuDM <- Muscle("DNA.fasta", aln.filetype="MSF", job.name="muscleDNAmsf")
+myJobMuPP <- Muscle("PROTEIN.fasta", aln.filetype="PHYLIP_INT", job.name="musclePROTEINphyINT")
+myJobMuPF <- Muscle("PROTEIN.fasta", aln.filetype="FASTA", job.name="musclePROTEINfasta")
+myJobMuPPP <- Muscle("PROTEIN.fasta", aln.filetype="PHYLIP_PARS", job.name="musclePROTEINphyPARS")
+myJobMuPPS <- Muscle("PROTEIN.fasta", aln.filetype="PHYLIP_SEQ", job.name="musclePROTEINphySEQ")
+myJobMuPC <- Muscle("PROTEIN.fasta", aln.filetype="CLUSTALW", job.name="musclePROTEINclustalw")
+myJobMuPM <- Muscle("PROTEIN.fasta", aln.filetype="MSF", job.name="muscleDNAmsf")
+@
+
+\noindent MUSCLE outputs six alignments: fasta.aln (\url{http://en.wikipedia.org/wiki/FASTA\_format}), phylip\_sequential.aln, phylip\_interleaved.aln, phylip\_pars.aln (\url{http://www.bioperl.org/wiki/PHYLIP\_multiple\_alignment\_format}), clustalw.aln (\url{http://meme.nbcr.net/meme/doc/clustalw-format.html}) and msf.aln (\url{http://en.wikipedia.org/wiki/MSF}).
+
+\subsection{Mafft}
+
+\noindent {\ttfamily Mafft(file.name, file.path="", type="DNA",  print.curl=FALSE, version="mafftDispatcher-1.0.13100u1", args=NULL, job.name=NULL, aln.filetype="FASTA", shared.username=NULL, suppress.Warnings=FALSE)} \\
+
+\noindent MAFFT is a multiple sequence alignment program for unix-like operating systems.  It offers a range of multiple alignment methods, L-INS-i (accurate; for alignment of about 200 sequences), FFT-NS-2 (fast; for alignment of about 10,000 sequences), etc.  See \url{http://mafft.cbrc.jp/alignment/software/}.  The manual is also available here: \url{http://mafft.cbrc.jp/alignment/software/manual/manual.html}.
+
+<<>>=
+myJobMaDF <- Mafft("DNA.fasta", job.name="mafftDNAfasta")
+myJobMaDC <- Mafft("DNA.fasta", aln.filetype="CLUSTALW", job.name="mafftDNAclustalw")
+myJobMaPF <- Mafft("PROTEIN.fasta", type="PROTEIN", job.name="mafftPROTEINfasta")
+myJobMaPC <- Mafft("PROTEIN.fasta", type="PROTEIN", aln.filetype="CLUSTALW",
+                    job.name="mafftPROTEINclustalw")
+@
+
+\noindent MAFFT outputs two alignments (both named: mafft.fa): {\ttfamily FASTA} (\url{http://en.wikipedia.org/wiki/FASTA\_format}) and {\ttfamily CLUSTALW} (\url{http://meme.nbcr.net/meme/doc/clustalw-format.html}).
+
+\subsection{ClustalW}
+
+\noindent {\ttfamily ClustalW(file.name, file.path="", type="DNA", job.name=NULL, version="ClustalW2-2.1u1", print.curl=FALSE, args=NULL, aln.filetype="PHYLIP", shared.username=NULL, suppress.Warnings=FALSE)} \\
+
+\noindent An approach for performing multiple alignments of large numbers of amino acid or nucleotide sequences is described. The method is based on first deriving a phylogenetic tree from a matrix of all pairwise sequence similarity scores, obtained using a fast pairwise alignment algorithm.  See details on \url{http://www.clustal.org/clustal2/}.
+
+<<>>=
+myJobCWDP <- ClustalW("DNA.fasta", job.name="clustalwDNAphylip")
+myJobCWDC <- ClustalW("DNA.fasta", aln.filetype="CLUSTALW", job.name="clustalwDNAclustalw")
+myJobCWDN <- ClustalW("DNA.fasta", aln.filetype="NEXUS", job.name="clustalwDNAnexus")
+myJobCWDGCG <- ClustalW("DNA.fasta", aln.filetype="GCG", job.name="clustalwDNAgcg")
+myJobCWDGDE <- ClustalW("DNA.fasta", aln.filetype="GDE", job.name="clustalwDNAgde")
+myJobCWDPIR <- ClustalW("DNA.fasta", aln.filetype="PIR", job.name="clustalwDNApir")
+myJobCWPP <- ClustalW("PROTEIN.fasta", type="PROTEIN", job.name="clustalwPROTEINphylip")
+myJobCWPC <- ClustalW("PROTEIN.fasta", type="PROTEIN", aln.filetype="CLUSTALW",
+                       job.name="clustalwPROTEINclustalw")
+myJobCWPN <- ClustalW("PROTEIN.fasta", type="PROTEIN", aln.filetype="NEXUS",
+                       job.name="clustalwPROTEINnexus")
+myJobCWPGCG <- ClustalW("PROTEIN.fasta", type="PROTEIN", aln.filetype="GCG",
+                       job.name="clustalwPROTEINgcg")
+myJobCWPGDE <- ClustalW("PROTEIN.fasta", type="PROTEIN", aln.filetype="GDE",
+                       job.name="clustalwPROTEINgde")
+myJobCWPPIR <- ClustalW("PROTEIN.fasta", type="PROTEIN", aln.filetype="PIR",
+                       job.name="clustalwPROTEINpir")
+@
+
+\noindent {\ttfamily ClustalW} outputs six alignments (all named: clustalw.fa): CLUSTALW \url{http://meme.nbcr.net/meme/doc/clustalw-format.html}, PHYLIP\_INT \url{http://www.bioperl.org/wiki/PHYLIP\_multiple\_alignment\_format}, NEXUS \url{http://en.wikipedia.org/wiki/Nexus\_file}, GCG \url{http://www.genomatix.de/online\_help/help/sequence\_formats.html#GCG}, GDE \url{http://www.cse.unsw.edu.au/~binftools/birch/GDE/overview/GDE.file\_formats.html},  and PIR \url{http://www.bioinformatics.nl/tools/crab\_pir.html}.
+
+\noindent After this vignette has run out all of these analyses, we can kill any running processes and then delete all the jobs from our user history. If these were real analyses, you would need to finish the runs and save any output files.  
+
+
+\newpage
+
+\bibliography{refs}
+
+\end{document}
+
+
+

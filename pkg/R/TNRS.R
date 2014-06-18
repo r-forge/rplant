@@ -118,6 +118,6 @@ CompareNames <- function(old.names, new.names, verbose=TRUE) {
         message(paste0(comp[i,1], " was changed to ", comp[i,2], cat("\n")))
     }
   }
-  cat(paste(taxa.changed, "taxa changed names according to TNRS"))
+  return(paste(taxa.changed, "taxa changed names according to TNRS"))
 }
 # -- END --#

@@ -1,0 +1,100 @@
+% \VignetteIndexEntry{TNRS}
+
+\documentclass[12pt]{article}
+\title{Taxonomic Name Resolution Service}
+\author{Barb Banbury, University of Tennessee, darwinthesun@gmail.com}
+
+\usepackage{Sweave}
+\usepackage{url}
+\include{Sweave}
+\textwidth=6.2in
+\textheight=8.5in
+%\parskip=.3cm
+\oddsidemargin=.1in
+\evensidemargin=.1in
+\headheight=-.3in
+
+<<echo=FALSE>>=
+options(width=60)
+@
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+\noindent The Taxonomic Name Resolution Service (TNRS) is a service hosted by iPlant to name match plant taxa (\url{http://tnrs.iplantcollaborative.org/}). This service will check taxonomic names against a database of published plant names, so that users can ensure that they have the valid status and spelling. Similarly, Phylotastic has a name resolution service, Taxosaurus - The Taxonomic Thesaurus, that works on both plant and animal taxa (\url{http://api.phylotastic.org/tnrs}). Both sites act to standardize scientific nomenclature.  \\
+
+\noindent {\it rPlant} has several functions that serve to interact with both the iPlant TNRS and the Phylotastic TNRS.  
+
+\section{Name Checking}
+
+\subsection{iPlant TNRS}
+
+\noindent The {\ttfamily ResolveNames} function will take a list of taxonomic names and pass them to the iPlant TNRS.  This only works for plant taxa. The TNRS does not currently require authorization to use. As an example, we can use the DNA.fasta data that comes with {\it rPlant}. 
+
+<<>>=
+library(rPlant)
+data("DNA.fasta")
+TNRSnames <- ResolveNames(names(DNA.fasta))
+TNRSnames
+@
+
+\subsection{Phylotastic Taxosaurus}
+
+\noindent Taxosaurus also accepts and returns a list of names. However, the service works a little different as it is all done by http submission. For this service, a vector of names can be passed to the server via the function {\ttfamily GetPhylotasticToken}, and then a http token is returned with the matching names. The service returns a website with a JSON script that includes all the taxonomic names matching several sources (iPlant and NCBI). \\
+
+\noindent Once the matching is complete, these names can be retrieved using the function {\ttfamily RetrieveTNRSNames}. Because the server returns several sources, you will have to define which one to use.
+
+<<>>=
+myToken <- GetPhylotasticToken(names(DNA.fasta))
+NCBINames <- RetrieveTNRSNames(names(DNA.fasta), 
+             myToken, source="NCBI")
+NCBINames
+iPlantNames <- RetrieveTNRSNames(names(DNA.fasta), 
+               myToken, source="iPlant_TNRS")
+iPlantNames
+@
+
+\section{Compare Names}
+
+\noindent We also have a function for comparing the list of two names, {\ttfamily CompareNames}.  This function will return a comment about how many taxon names have changed between the two lists.  
+
+<<>>=
+CompareNames(names(DNA.fasta), TNRSnames)
+@
+
+\section{sessionInfo}
+<<>>=
+sessionInfo()
+@
+
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
