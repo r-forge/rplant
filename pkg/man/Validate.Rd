@@ -15,6 +15,8 @@ Validate(user, pwd, api="agave", print.curl=FALSE)
 }
 \details{
 The \code{Validate} function works the same for a user trying to logon to Agave or Foundation.  All that is necessary for the \code{Validate} function is for the user to provide the username and password combination; then it will verify that they are a valid pair for iPlant.  To get a valid pair of credentials go to \url{http://user.iplantcollaborative.org/} and register.
+
+Sometimes the API will have trouble validating.  If this is the case, you will receive the following message from rPlant: "API Error, please retry". This only seems to occur in a new R session. If this occurs, please try the validation a second time.  If it does not work the second time, then there may be a problem with your account.  
 }
 \value{
 	The \code{Validate} function will create a new R environment that stores variables that communicate automatically with the API.  These include, an access token (foundation) or an API consumer key and secret (agave), the expiration, the user name and password, and a few other variables. To see the entire list of environmental variables, see \code{ls(rplant.env)}. 

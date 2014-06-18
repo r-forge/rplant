@@ -297,7 +297,7 @@ Validate <- function(user, pwd, api="agave", print.curl=FALSE) {
     } else {
       sub <- substring(res$status,1,5)
       if (length(sub) == 0){
-        return(stop("Please Retry", call. = FALSE))
+        return(stop("API Error, please retry", call. = FALSE))
       } else if (sub == "error"){
         return(stop(res$message, call. = FALSE))
       } else {
@@ -2077,7 +2077,7 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
                           }
                   )
   if (!suppress.Warnings){Error(res)}
-  cat("Job submitted.")
+  cat("Job submitted. \n")
   cat(paste("You can check your job using CheckJobStatus(", 
             res$result$id, ")", sep=""), "\n")
   return(res$result$id)
