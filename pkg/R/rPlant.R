@@ -1948,14 +1948,20 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
     # Compare the input.list to actual inputs of the application.
     #   If they don't match throw an error.
     test.input <- rep(0, length(input.list))
+
     for (j in 1:length(input.list)){
+      cnt = 0
       for (i in 1:length(input)){
-        if (input.list[[j]] != input[i]){
-          test.input[j] <- 1
-          break;
+        if (input.list[[j]] == input[i]){
+          cnt = cnt + 1
         }
       }
+      if (cnt != 1){
+        test.input[j] <- 1
+        break;
+      }
     }
+
     # Throw an error if one of the inputs in input.list is incorrect
     if (sum(test.input) > 0 ){
       return(stop(paste("At least one of the inputs in 'input.list' is incorrect,",
