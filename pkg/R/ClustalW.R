@@ -3,10 +3,37 @@ ClustalW <- function(file.name, file.path="", type="DNA", job.name=NULL,
                      aln.filetype="PHYLIP_INT", shared.username=NULL,
                      suppress.Warnings=FALSE, email=TRUE) {
 
+  #  An approach for performing multiple alignments of large numbers of
+  #   amino acid or nucleotide sequences is described. Input is a fasta file
+  #   output is an alignment.
+  #
+  # Args:
+  #   file.name (type = string): File name of input fasta file
+  #   file.path (type = string): Path to where input file is located
+  #   type (type = string): Either 'DNA' or 'PROTEIN'
+  #   args (type = string): Optional for arguments (i.e. flags, like on command 
+  #     line).  One string with commands separated by spaces. see help(ClustalW)
+  #     for details.
+  #   job.name (type = string): Job name adds a time stamp to make them unique
+  #   aln.filetype (type = string): Six options: 'CLUSTALW', "PHYLIP_INT', 
+  #     'NEXUS', 'GCG', 'GDE', 'PIR'.  This is output filetype
+  #   print.curl (type = string): Prints the associated curl statement
+  #   version (type = string): ClustalW version
+  #   shared.username (type = string): Valid iPlant username with whom the files 
+  #     are being shared.
+  #   suppress.Warnings (type = boolean): Don't do any error checking
+  #   email (type = boolean): By default an email will be sent to the user when 
+  #     the job finishes.
+  #
+  # Returns:
+  #   Returns the job id (number).  o/w an error
+
   type <- match.arg(type, c("DNA", "PROTEIN"))
 
-  aln.filetype <- match.arg(aln.filetype, c("CLUSTALW", "PHYLIP_INT", "NEXUS", "GCG", "GDE", "PIR"))
+  aln.filetype <- match.arg(aln.filetype, c("CLUSTALW", "PHYLIP_INT", "NEXUS", 
+                                            "GCG", "GDE", "PIR"))
 
+  # Get the appropriate flags for the function
   if (type == "DNA"){
     args <- append(args, "-TYPE=DNA")
   } else {
@@ -25,6 +52,7 @@ ClustalW <- function(file.name, file.path="", type="DNA", job.name=NULL,
     args <- append(args, "-OUTPUT=PIR")
   }
 
+  # Get proper input.list
   nprocs=1
   App <- GetAppInfo(version)[[3]]
   input.list <- vector("list",1)
