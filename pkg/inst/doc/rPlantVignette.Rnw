@@ -58,13 +58,24 @@ Kurt Michels, University of Arizona, kamichels@math.arizona.edu}
 % Modify the following if you are going to compile the document in Sweave:
 % Then enter the code as commented out parts below...
 
-<<>>=
-library(rPlant)
-library(seqinr)
-username <- "bleplant"
-password <- "Chl0r0phyll"
+{\fs
+<<input, echo=TRUE, eval=FALSE>>=
+require(rPlant)
+username <- "enter your username"
+password <- "enter your secret password"
 Validate(username, password, api="agave")
 @
+
+<<inputres, echo=FALSE, eval=TRUE, results=verbatim>>=
+require(rPlant)
+# username <- "bleplant"
+# password <- "Chl0r0phyll"
+username <- "henryl"
+password <- "Blizzard1"
+tryCatch(Validate(username, password, api="agave"), error=function(err){return(paste(err))})
+tryCatch(Validate(username, password, api="agave"), error=function(err){return(paste(err))})
+@
+}
 
 \noindent The function checks if the username and password are valid iPlant credentials.  If they aren't the above error is displayed.  If the function is successful then nothing is printed. On {\it rPlant's} backend, a new R environment (rPlant.env) was created that stores all of the validation objects, including the user key and secret, user name and password, and token expiration. These items can be examined by using the  {\ttfamily ls(rPlant.env)} and using the \$ operator to display individual objects. \\
 
@@ -79,11 +90,19 @@ Validate(username, password, api="agave")
 
 \noindent The first step is to upload files onto iPlants. {\ttfamily UploadFile} takes a file from your computer and uploads it onto iPlants servers, it does NOT take a file from the R workspace. Objects in the workspace will need to be saved to the computer in a supported file format before uploading them. 
 
-<<>>=
+{\fs
+<<uploadfiledna, echo=TRUE, eval=FALSE>>=
 data(DNA.fasta)
-write.fasta(sequences=DNA.fasta, names=names(DNA.fasta), file.out="DNA.fasta")
-UploadFile(local.file.name="DNA.fasta", filetype="FASTA-0")
+write.fasta(sequences = DNA.fasta, names = names(DNA.fasta), file.out = "DNA.fasta")
+UploadFile(local.file.name="DNA.fasta")
 @
+
+<<uploadfilednares, echo=FALSE, eval=TRUE, results=verbatim>>=
+data(DNA.fasta)
+write.fasta(sequences = DNA.fasta, names = names(DNA.fasta), file.out = "DNA.fasta")
+tryCatch(UploadFile(local.file.name="DNA.fasta"), error=function(err){return(paste(err))})
+@
+}
 
 \noindent In the event that the file already exists on the iPlant server, an error will report and the file will not upload. For details on how to check contents of iPlant directories, see Section 4, and for manipulating files (like deleting, moving, sharing) see Section 5 below.  
 
@@ -95,9 +114,11 @@ UploadFile(local.file.name="DNA.fasta", filetype="FASTA-0")
 
 \noindent There are 33 other file types supported by iPlant, use the {\ttfamily SupportFile} function to see all of the available file types (i.e. PHYLIP file type is ``PHYLIP-0" and ClustalW is ``ClustalW-1.8").
 
-<<>>=
+{\fs
+<<supportfile, echo=TRUE>>=
 SupportFile()
 @
+}
 
 \section{Manipulating directories on iPlant servers}
 
@@ -110,9 +131,11 @@ SupportFile()
 
 \noindent Looking in the home directory you can see the ``DNA.fasta'' file.
 
-<<>>=
-ListDir(dir.name="")
+{\fs
+<<ListDir, echo=TRUE>>=
+ListDir(dir.name="", suppress.Warnings=TRUE)
 @
+}
 
 \noindent {\it Note}: Some functions contain an option, {\ttfamily suppress.Warnings}.  If you are absolutely sure that the commands you are entering are correct then to speed up the process have {\ttfamily suppress.Warnings=TRUE}.  But be careful, if used inappropriately then files could get overwritten or the files might not even exist and you will get no warning about it. %Probably a good idea to add a sentence or two about what types of warnings are being suppressed.
 
@@ -121,27 +144,40 @@ ListDir(dir.name="")
 
 \noindent The following function will make a directory hello in the home directory.
 
-<<>>=
+<<DeleteDirHidden, echo=FALSE, results=HIDE>>=
+tryCatch(DeleteDir(dir.name="hello"), error=function(err){return(paste(err))})
+@
+
+{\fs
+<<MakeDirhello, echo=TRUE>>=
 MakeDir(dir.name="hello")
 @
+}
 
 \noindent Again making the directoy ``all" in the ``hello" directory.
 
-<<>>=
+{\fs
+<<MakeDirall, echo=TRUE>>=
 MakeDir(dir.name="all", dir.path="hello")
 @
+}
 
-\noindent Here we make another directory ``robots" in the ``all" directory.  Note how the {\ttfamily dir.path} needs to be constructed, and how the {\ttfamily dir.name} and {\ttfamily dir.path} are related.  All of the functions have this same format.
 
-<<>>=
+\noindent Here we make another directory ``robots'' in the ``all'' directory.  Note how the {\ttfamily dir.path} needs to be constructed, and how the {\ttfamily dir.name} and {\ttfamily dir.path} are related.  All of the functions have this same format.
+
+{\fs
+<<MakeDirrobots, echo=TRUE>>=
 MakeDir(dir.name="robots", dir.path="hello/all")
 @
+}
 
-\noindent We can look inside the ``hello/all/robots" directory and see that there is nothing in there.
+\noindent We can look inside the ``hello/all/robots'' directory and see that there is nothing in there.
 
-<<>>=
+{\fs
+<<ListDirrobots, echo=TRUE>>=
 ListDir(dir.name="robots", dir.path="hello/all")
 @
+}
 
 \subsection{Sharing Directories}
 
@@ -150,15 +186,21 @@ ListDir(dir.name="robots", dir.path="hello/all")
 
 \noindent A really nice feature of {\it iPlant} is the file sharing feature.  As was said in the introduction one of iPlant's goals was to work with very large data sets.  And when data sets are too large to send via email then a sharing feature is absolutely necessary.  There are in fact two share functions, one for sharing a single file ({\ttfamily ShareFile}) and the other ({\ttfamily ShareDir}) for sharing an entire directory. When sharing a directory, all files contained within will be shared. \\  %is there an upper limit on file size?
 
-\noindent In this sample we share the ``all" directory.  
+\noindent In this sample we share the ``all'' directory.  
 
-<<>>=
+{\fs
+<<ShareDir, echo=TRUE>>=
 ShareDir(dir.name="all", dir.path="hello", shared.username="henryl")
 @
+}
 
-\noindent In the above example I share something with user ``henryl". I can also view files and directories that have been shared with me.
+\noindent In the above example I share something with user ``henryl''. I can also view files and directories that have been shared with me.
 
-\noindent {\ttfamily ListDir(dir.name="data", dir.path="", shared.username="phyllisl")}
+{\fs
+<<ListDirShareDir, echo=TRUE>>=
+ListDir(dir.name="data", dir.path="", shared.username="phyllisl")
+@
+}
 
 \noindent Several other functions use the {\ttfamily shared.username} option. For example, the {\ttfamily SubmitJob} function and the wrapper functions.  A job can be run on files that are shared with you (see Section 7).
 
@@ -169,15 +211,19 @@ ShareDir(dir.name="all", dir.path="hello", shared.username="henryl")
 
 \noindent This function renames a directory.
 
-<<>>=
+{\fs
+<<RenameDir, echo=TRUE>>=
 RenameDir("robots", "tools", "hello/all")
 @
+}
 
 \noindent And you can see that it has been changed. \\
 
-<<>>=
+{\fs
+<<ListDirRenameDir, echo=TRUE>>=
 ListDir("all", "hello")
 @
+}
 
 \noindent {\it Note}: When the directory is renamed, permissions on sharing will have to be redone.
 
@@ -188,10 +234,12 @@ ListDir("all", "hello")
 
 \noindent This function moves a directory. The following code will move the directory 'tools' from 'hello/all' to the home directory.  Verified below.
 
-<<>>=
-MoveDir("tools", dir.path="hello/all", end.path="")
+{\fs
+<<MoveDir, echo=TRUE>>=
+MoveDir("tools", "hello/all", end.path="")
 ListDir("")
 @
+}
 
 \noindent {\it Note}: When the directory is moved, permissions on sharing will have to be redone.
 
@@ -201,10 +249,12 @@ ListDir("")
 
 \noindent This function deletes a directory and all of the subdirectories.
 
-<<>>=
-DeleteDir("tools", dir.path="")
+{\fs
+<<DeleteDir, echo=TRUE>>=
+DeleteDir("tools")
 ListDir("")
 @
+}
 
 \section{Manipulating files on iPlant servers}
 
@@ -219,9 +269,11 @@ ListDir("")
 
 \noindent The following code will share the file DNA.fasta with phyllisl.
 
-<<>>=
+{\fs
+<<ShareFile, echo=TRUE>>=
 ShareFile(file.name="DNA.fasta", shared.username="phyllisl")
 @
+}
 
 \subsection{Moving Files}
 
@@ -230,12 +282,14 @@ ShareFile(file.name="DNA.fasta", shared.username="phyllisl")
 
 \noindent This function moves the file from one directory to another.
 
-<<>>=
+{\fs
+<<MoveFile, echo=TRUE>>=
 MoveFile("DNA.fasta", end.path="hello/all")
 ListDir("all", "hello")
 @
+}
 
-\noindent The move took the file DNA.fasta from the home directory into the ``hello/all" directory.  Below you can see this change:
+\noindent The move took the file DNA.fasta from the home directory into the ``hello/all'' directory.  Below you can see this change:
 
 \noindent {\it Note}: When the file is moved, permissions on sharing will have to be redone.
 
@@ -246,10 +300,12 @@ ListDir("all", "hello")
 
 \noindent This function renames a single file.
 
-<<>>=
+{\fs
+<<RenameFile, echo=TRUE>>=
 RenameFile("DNA.fasta", "lp.fasta", "hello/all")
 ListDir("all", "hello")
 @
+}
 
 \noindent {\it Note}: When the file is renamed, permissions on sharing will have to be redone.
 
@@ -259,10 +315,12 @@ ListDir("all", "hello")
 
 \noindent This function deletes a single file in the specified directory.
 
-<<>>=
+{\fs
+<<DeleteFile, echo=TRUE>>=
 DeleteFile("lp.fasta", "hello/all")
 ListDir("all", "hello")
 @
+}
 
 \noindent The file lp.fasta is no longer in the ``hello/all" directory. \\
 
@@ -276,9 +334,11 @@ ListDir("all", "hello")
 
 \noindent This function returns a sorted list of the newest versions of the public applications that are available via the Foundation API.  These applications are ones that can be used with the {\ttfamily SubmitJob} function (see Section 7).
 
-<<>>=
+{\fs
+<<ListApps, echo=TRUE>>=
 ListApps(description=FALSE)
 @
+}
 
 \noindent {\it Note}:  As said above, these applications are PUBLIC applications. Applications in the API are split into two categories, public and private.  Private applications are ones that are developed and tested and changed.  Only the user who created the private application can use it.  The other category is public applications.  After a private application has gone through extensive testing, then the application can be published and it becomes a public application which is available to all iPlant users.  In the API a public application is labeled by adding the suffix 'u1' to it.  The '1' is referred to as the version number, so if a public application is fixed and republished the suffix becomes 'u2'.
 
@@ -288,9 +348,11 @@ ListApps(description=FALSE)
 
 \noindent The {\ttfamily GetAppInfo} function returns the application with a short description and the input/output filetypes.\\
 
-<<>>=
+{\fs
+<<GetAppInfo, echo=TRUE>>=
 GetAppInfo("velveth-1.2.07u1")
 @
+}
 
 \noindent The {\ttfamily GetAppInfo} function returns a list of information about the application that is needed for the {\ttfamily SubmitJob} function. The first element gives a short description of the application. The second element in the list gives information on the application including its use permissions (public vs. private) and whether it is the newest version. The third element in the list  is a matrix with four columns of information: kind, id, file type or value, and any details. In the example above, first column ('kind') states there are six inputs for this app, the 'id' column names those inputs as 'reads5', 'reads3', etc. There are also eight parameters for the app, such as 'format2', 'kmer', etc. The third column ('Type/value') returns the type of file the application is expecting if it is input or it returns the type of input necessary for the application parameters, common ones are string, boolean, etc. The last column gives brief details on each input.
 
@@ -305,13 +367,27 @@ GetAppInfo("velveth-1.2.07u1")
 
 \noindent The following function is the main way to submit a job to the iPlant server, and can be used for any iPlant application. You can also submit jobs via the wrapper functions (for example, {\ttfamily Muscle()}, see Section 9), which call upon the {\ttfamily SubmitJob} function internally.  
 
-<<>>=
+<<UploadFileR, echo=FALSE, results=HIDE>>=
+DeleteJob(ALL=TRUE)
+tryCatch(UploadFile(local.file.name="DNA.fasta", filetype="FASTA-0"), error=function(err){return(paste(err))})
+@
+
+{\fs
+<<SubmitJobReg, echo=TRUE, eval=FALSE>>=
 UploadFile(local.file.name="DNA.fasta", filetype="FASTA-0")
 ListDir("")
 myJobM <- SubmitJob(application="Muscle-3.8.32u4", file.list=list("DNA.fasta"),
                     input.list=list("stdin"), args.list=list(c("arguments", 
                     "-phyiout -center -cluster1 upgma")), job.name="Muscle")
 @
+
+<<SubmitJobRegres, echo=FALSE, eval=TRUE, results=verbatim>>=
+ListDir("")
+myJobM <- SubmitJob(application="Muscle-3.8.32u4", file.list=list("DNA.fasta"),
+                    input.list=list("stdin"), args.list=list(c("arguments", 
+                    "-phyiout -center -cluster1 upgma")), job.name="Muscle")
+@
+}
 
 \noindent Several important argument definitions are listed below, but can also be found in the help files: 
 \noindent {\ttfamily input.list}:  This argument defines what kind of input you are passing the application. You can get application information from the {\ttfamily GetAppInfo} function ({\ttfamily GetAppInfo("Muscle-3.8.32u4")\$Information}).  In this example, the 'kind' column states there is one input for this app, and the 'id' column names that input as 'stdin'.  Input types change from application to application. \\
@@ -328,7 +404,16 @@ myJobM <- SubmitJob(application="Muscle-3.8.32u4", file.list=list("DNA.fasta"),
 
 \subsection{Submitting a job with a shared file}
 
-\noindent Jobs can also be submitted from files stored in other user's cloudspace that are shared.
+\noindent Jobs can also be submitted from files stored in other user's cloudspace that are shared.  In the below example, a file that had been previously shared (Section 3), a job can be submitted using that file.
+
+{\fs
+<<SubmitJobShare, echo=TRUE>>=
+myJobS <- SubmitJob(application="Muscle-3.8.32u4", file.list=list("muscle3.fasta"), 
+                    file.path="data", shared.username="phyllisl", 
+                    args.list=list(c("arguments", "-fastaout")), 
+                    input.list=list("stdin"), job.name="MuscleShare")
+@
+}
 
 \section{Checking Job Status and Retrieving Job output}
 
@@ -380,9 +465,11 @@ The job number is used in a few rPlant functions including, {\ttfamily CheckJobS
 % is used to refer this table in the text
 \end{table}
 
-<<>>=
+{\fs
+<<CheckJobStatus, echo=TRUE>>=
 CheckJobStatus(myJobM)
 @
+}
 
 \subsection{Listing job status}
 
@@ -390,13 +477,19 @@ CheckJobStatus(myJobM)
 
 \noindent This function lists the output files from a finished job. For example, these files are the output from our MUSCLE example above.  
 
-<<>>=
-# I include a while statement, so that we do not move forward until the job is done.
-while(CheckJobStatus(myJobM) != "FINISHED"){
-  CheckJobStatus(myJobM)
-  }
+%% I really need to explain the Wait function, it is part of rPlant, don't need while loop.
+<<Wait, result=HIDE, echo=FALSE>>=
+minWait = 5 # seconds
+maxWait = 1800 # 30 min in seconds
+
+Wait(myJobM, minWait, maxWait)
+@
+
+{\fs
+<<ListJobOutput, echo=TRUE, results=verbatim>>=
 ListJobOutput(myJobM)
 @
+}
 
 \subsection{Looking at Job History}
 
@@ -404,9 +497,11 @@ ListJobOutput(myJobM)
 
 \noindent This function displays the entire job history for the user. This is an easy way to grab old job IDs in order to retrieve files or check the status of a set of jobs.  
 
-<<>>=
+{\fs
+<<GetJobHistory, echo=TRUE>>=
 GetJobHistory()
 @
+}
 
 \subsection{Retrieve job files}
 
@@ -414,11 +509,13 @@ GetJobHistory()
 
 \noindent One very handy thing about the {\it rPlant} package is the ability to download the files directly from the iPlant servers to your computer.  The following downloads all of the output files.
 
-<<>>=
+{\fs
+<<RetrieveJob, echo=TRUE>>=
 RetrieveJob(myJobM)
 @
+}
 
-\noindent The files have been downloaded into a new directory within your working directory. If you want to download select files at a time, then these will need to be defined within the file.vec argument (for example: {\ttfamily RetrieveJob(myJobS, file.vec=c("fasta.aln"))}) 
+\noindent The files have been downloaded into a new directory within your working directory. If you want to download select files at a time, then these will need to be defined within the file.vec argument (for example: {\ttfamily RetrieveJob(myJobM, file.vec=c("fasta.aln"))}) 
 
 \subsection{Delete job}
 
@@ -426,15 +523,23 @@ RetrieveJob(myJobM)
 
 \noindent After the job has been submitted, the results downloaded, and you have no need for the job anymore, you can use the {\ttfamily DeleteJob} function to delete the job. The nice thing about this function is that not only will it delete the job number from the job history but it will also delete the job folder and all contents in the analyses folder in the user's cloudspace.
 
-<<>>=
+{\fs
+<<DeleteJob, echo=TRUE>>=
 DeleteJob(myJobM)
 @
+}
 
 \noindent You also have the option to erase ALL job history from a user's past.  This may be useful after a round of testing.  
 
-<<>>=
+{\fs
+<<DeleteJobAll, echo=TRUE, eval=FALSE>>=
 DeleteJob(ALL=TRUE)
 @
+
+<<DeleteJobAllres, echo=FALSE, eval=TRUE, results=verbatim>>=
+tryCatch(DeleteJob(ALL=TRUE), error=function(err){return(paste(err))})
+@
+}
 
 \section{Submitting Jobs With Wrappers}
 
@@ -444,11 +549,19 @@ Of the iPlant applications that have dedicated wrappers, there is a clear bias t
 
 \noindent Among the wrappers there are three which do alignments: {\ttfamily Muscle}, {\ttfamily Mafft} and {\ttfamily ClustalW}.  The alignments will do both protein and nucleotide.  Also make sure that the taxon names in the sequence files do not contain tabulators, carriage returns, spaces, ":", ",", ")", "(", ";", "]", "["''.
 
-<<>>=
+{\fs
+<<uploadfileprotein, echo=TRUE, eval=FALSE>>=
 data(PROTEIN.fasta)
 write.fasta(sequences=PROTEIN.fasta, names=names(PROTEIN.fasta), file.out="PROTEIN.fasta")
 UploadFile(local.file.name="PROTEIN.fasta", filetype="FASTA-0")
 @
+
+<<uploadfileproteinres, echo=FALSE, eval=TRUE, results=hide>>=
+data(PROTEIN.fasta)
+write.fasta(sequences=PROTEIN.fasta, names=names(PROTEIN.fasta), file.out="PROTEIN.fasta")
+tryCatch(UploadFile(local.file.name="PROTEIN.fasta", filetype="FASTA-0"), error=function(err){return(paste(err))})
+@
+}
 
 \subsection{Muscle}
 
@@ -524,6 +637,7 @@ myJobCWPPIR <- ClustalW("PROTEIN.fasta", type="PROTEIN", aln.filetype="PIR",
 \newpage
 
 \bibliography{refs}
+\bibliographystyle{jasa}
 
 \end{document}
 
