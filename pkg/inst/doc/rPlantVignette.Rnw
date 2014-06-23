@@ -66,7 +66,7 @@ password <- "enter your secret password"
 Validate(username, password, api="agave")
 @
 
-<<inputres, echo=FALSE, eval=TRUE, results=verbatim>>=
+<<inputres, echo=FALSE, eval=TRUE, results=hide>>=
 require(rPlant)
 # username <- "bleplant"
 # password <- "Chl0r0phyll"
@@ -234,6 +234,10 @@ ListDir("all", "hello")
 
 \noindent This function moves a directory. The following code will move the directory 'tools' from 'hello/all' to the home directory.  Verified below.
 
+<<DeleteDirHidden2, echo=FALSE, results=HIDE>>=
+tryCatch(DeleteDir(dir.name="tools"), error=function(err){return(paste(err))})
+@
+
 {\fs
 <<MoveDir, echo=TRUE>>=
 MoveDir("tools", "hello/all", end.path="")
@@ -360,8 +364,7 @@ GetAppInfo("velveth-1.2.07u1")
 
 \subsection{Submitting Job}
 
-\noindent {\ttfamily SubmitJob(application, file.path="", file.list=NULL, input.list, args.list=NULL, job.name, nprocs=1, \\
-\noindent private.APP=FALSE, suppress.Warnings=FALSE, shared.username=NULL, print.curl=FALSE, email=TRUE)}\\
+\noindent {\ttfamily SubmitJob(application, file.path="", file.list=NULL, input.list, args.list=NULL, job.name, nprocs=1, private.APP=FALSE, suppress.Warnings=FALSE, shared.username=NULL, print.curl=FALSE, email=TRUE)}\\
 
 \noindent An important benefit of using {\it rPlant} is the ability to create batch-scripted files that automate job submittal and retrieval. For example, a user could submit parallel alignment jobs of different gene regions or multiple jobs with the same data and different parameter values. The results could then be automatically downloaded upon completion. \\
 
@@ -392,7 +395,7 @@ myJobM <- SubmitJob(application="Muscle-3.8.32u4", file.list=list("DNA.fasta"),
 \noindent Several important argument definitions are listed below, but can also be found in the help files: 
 \noindent {\ttfamily input.list}:  This argument defines what kind of input you are passing the application. You can get application information from the {\ttfamily GetAppInfo} function ({\ttfamily GetAppInfo("Muscle-3.8.32u4")\$Information}).  In this example, the 'kind' column states there is one input for this app, and the 'id' column names that input as 'stdin'.  Input types change from application to application. \\
 
-\noindent {\ttfamily file.list}: Similar to {\ttfamily input.list}, the {\ttfamily file.list} argument defines which files are being passed to the application. The named file must be on the DE within the {\ttfamily file.path} and be formatted to the correct specification (for example, \ttfamily{GetAppInfo("Muscle-3.8.32u4")\$Information}). If it the file types don't match then the application will fail. \\
+\noindent {\ttfamily file.list}: Similar to {\ttfamily input.list}, the {\ttfamily file.list} argument defines which files are being passed to the application. The named file must be on the DE within the {\ttfamily file.path} and be formatted to the correct specification (for example, {\ttfamily GetAppInfo("Muscle-3.8.32u4")\$Information}). If it the file types don't match then the application will fail. \\
 
 \noindent {\ttfamily args.list}:  The {\ttfamily args.list} is where application flagging options can be entered. These typically change default options. Using information from the {\ttfamily GetAppInfo} function, the 'kind' column states there is one parameter for this app, the 'id' column gives the name of that parameter is ``arguments", and the  ``fileType/value" column tells me it is a string. This is where the fourth column 'details' comes in handy; it tells me that the parameter input is ``program arguments and options", which means it can accept a string. For example: {\ttfamily args.list=list(c(arguments, "-phyiout -center -cluster1 upgma"))} \\
 
@@ -555,13 +558,13 @@ data(PROTEIN.fasta)
 write.fasta(sequences=PROTEIN.fasta, names=names(PROTEIN.fasta), file.out="PROTEIN.fasta")
 UploadFile(local.file.name="PROTEIN.fasta", filetype="FASTA-0")
 @
+}
 
-<<uploadfileproteinres, echo=FALSE, eval=TRUE, results=hide>>=
+<<uploadfileproteinres, echo=FALSE, eval=TRUE, results=verbatim>>=
 data(PROTEIN.fasta)
 write.fasta(sequences=PROTEIN.fasta, names=names(PROTEIN.fasta), file.out="PROTEIN.fasta")
 tryCatch(UploadFile(local.file.name="PROTEIN.fasta", filetype="FASTA-0"), error=function(err){return(paste(err))})
 @
-}
 
 \subsection{Muscle}
 
