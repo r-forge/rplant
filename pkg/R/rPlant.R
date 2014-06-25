@@ -1078,10 +1078,16 @@ Pems <- function(name, path="", print.curl=FALSE, suppress.Warnings=FALSE) {
   } else {
     used <- c("you", "admin_proxy", "ipcservices", "rodsBoot", "QuickShare",
               "ibp-proxy", "ipcservices", "ipc_admin", "admin2", 
-              "proxy-de-tools", "de-irods")
-    len <- length(eval(parse(text=tmp_string))) - 12 # 12 is total # of other perms on F
+              "proxy-de-tools", "de-irods", "rodsadmin")
+    len <- 0
     total <- length(eval(parse(text=tmp_string))) - 1
     first <- 2 # The other users start at position 11
+    for (i in first:total) { # Check permissions
+      if (!eval(parse(text=paste(tmp_string, "[[", i, "]]$username", sep=""))) %in% used) {
+        len = len + 1
+      }
+    }
+
   }
   
   if (len == 0){# If the object is not shared, still return something
