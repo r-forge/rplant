@@ -122,7 +122,7 @@ SupportFile()
 
 \section{Manipulating directories on iPlant servers}
 
-\noindent Now that the file DNA.fasta has been uploaded onto the iPlant servers we can look at the file (or at least see which directory the file is in) by using the {\ttfamily ListDir} function.  There are a few other directory manipulation functions, they are: {\ttfamily MakeDir}, {\ttfamily ShareDir}, {\ttfamily RenameDir}, {\ttfamily MoveDir} and {\ttfamily DeleteDir}.
+\noindent Now that the file DNA.fasta has been uploaded onto the iPlant servers we can look at the file (or at least see which directory the file is in) by using the {\ttfamily ListDir} function.  There are a few other directory manipulation functions, they are: {\ttfamily MakeDir}, {\ttfamily ShareDir}, {\ttfamily PermissionsDir}, {\ttfamily RenameDir}, {\ttfamily MoveDir} and {\ttfamily DeleteDir}.
 
 \subsection{Listing directories}
 
@@ -190,7 +190,7 @@ ListDir(dir.name="robots", dir.path="hello/all")
 
 {\fs
 <<ShareDir, echo=TRUE>>=
-ShareDir(dir.name="all", dir.path="hello", shared.username="henryl")
+ShareDir(dir.name="all", dir.path="hello", shared.username="kamichels")
 @
 }
 
@@ -203,6 +203,18 @@ ListDir(dir.name="data", dir.path="", shared.username="phyllisl")
 }
 
 \noindent Several other functions use the {\ttfamily shared.username} option. For example, the {\ttfamily SubmitJob} function and the wrapper functions.  A job can be run on files that are shared with you (see Section 7).
+
+\subsection{Checking Permissions on Directories}
+
+\noindent {\ttfamily PermissionsDir(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE)} \\
+
+\noindent When using the sharing feature of rPlant, a user needs a function which will check the permissions of a directory.  This includes the users with whom the directory is shared and what the permissions are included.  Below confirms the sharing performed earlier with ``kamichels''.  \\ 
+
+{\fs
+<<PermsDir, echo=TRUE>>=
+PermissionsDir(dir.name="all", dir.path="hello")
+@
+}
 
 \subsection{Renaming Directories}
 
@@ -262,7 +274,7 @@ ListDir("")
 
 \section{Manipulating files on iPlant servers}
 
-\noindent The file manipulation tools available in this package are very similar to directory manipulation tools.  The file manipulation functions are: {\ttfamily ShareFile}, {\ttfamily RenameFile}, {\ttfamily MoveFile} and {\ttfamily DeleteFile}.
+\noindent The file manipulation tools available in this package are very similar to directory manipulation tools.  The file manipulation functions are: {\ttfamily ShareFile}, {\ttfamily PermissionsFile}, {\ttfamily RenameFile}, {\ttfamily MoveFile} and {\ttfamily DeleteFile}.
 
 \subsection{Sharing Files}
 
@@ -276,6 +288,18 @@ ListDir("")
 {\fs
 <<ShareFile, echo=TRUE>>=
 ShareFile(file.name="DNA.fasta", shared.username="phyllisl")
+@
+}
+
+\subsection{Checking Permissions on a File}
+
+\noindent {\ttfamily PermissionsFile(file.name, file.path="", print.curl=FALSE, suppress.Warnings=FALSE)} \\
+
+\noindent When using the sharing feature of rPlant, a user needs a function which will check the permissions of a file.  This includes the users with whom the file is shared and what the permissions are included.  Below confirms the sharing performed earlier with ``phyllisl''.  \\ 
+
+{\fs
+<<PermsFile, echo=TRUE>>=
+PermissionsFile(file.name="DNA.fasta")
 @
 }
 
@@ -371,8 +395,10 @@ GetAppInfo("velveth-1.2.07u1")
 \noindent The following function is the main way to submit a job to the iPlant server, and can be used for any iPlant application. You can also submit jobs via the wrapper functions (for example, {\ttfamily Muscle()}, see Section 9), which call upon the {\ttfamily SubmitJob} function internally.  
 
 <<UploadFileR, echo=FALSE, results=HIDE>>=
-DeleteJob(ALL=TRUE)
-tryCatch(UploadFile(local.file.name="DNA.fasta", filetype="FASTA-0"), error=function(err){return(paste(err))})
+tryCatch(DeleteJob(ALL=TRUE), error=function(err){return(paste(err))})
+data(DNA.fasta)
+write.fasta(sequences = DNA.fasta, names = names(DNA.fasta), file.out = "DNA.fasta")
+tryCatch(UploadFile(local.file.name="DNA.fasta"), error=function(err){return(paste(err))})
 @
 
 {\fs
@@ -640,7 +666,7 @@ myJobCWPPIR <- ClustalW("PROTEIN.fasta", type="PROTEIN", aln.filetype="PIR",
 \newpage
 
 \bibliography{refs}
-\bibliographystyle{jasa}
+% \bibliographystyle{jasa}
 
 \end{document}
 
