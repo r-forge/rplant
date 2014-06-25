@@ -245,7 +245,7 @@ Validate <- function(user, pwd, api="agave", print.curl=FALSE) {
       assign(x     = "webshare",   
              value = paste(web_BASE, "files/v2/pems/", user, sep=""),    
              envir=rplant.env)
-      assign(x     = "webtransforms",   
+      assign(x     = "webtransform",   
              value = paste(web_BASE, "transforms/v2/", sep=""),    
              envir = rplant.env)
       assign(x     = "webappslist",   
@@ -1071,11 +1071,17 @@ Pems <- function(name, path="", print.curl=FALSE, suppress.Warnings=FALSE) {
   if (!suppress.Warnings){Error(tmp)}
 
   if (rplant.env$api == "a"){
+    used <- c()
     len <- length(eval(parse(text=tmp_string))) - 1
+    total <- len
     first <- 2 # We don't want to return the user themself, so start at 2
   } else {
+    used <- c("you", "admin_proxy", "ipcservices", "rodsBoot", "QuickShare",
+              "ibp-proxy", "ipcservices", "ipc_admin", "admin2", 
+              "proxy-de-tools", "de-irods")
     len <- length(eval(parse(text=tmp_string))) - 12 # 12 is total # of other perms on F
-    first <- 11 # The other users start at position 11
+    total <- length(eval(parse(text=tmp_string))) - 1
+    first <- 2 # The other users start at position 11
   }
   
   if (len == 0){# If the object is not shared, still return something
@@ -1090,47 +1096,49 @@ Pems <- function(name, path="", print.curl=FALSE, suppress.Warnings=FALSE) {
     res[1, 3] <- "None"
   } else {
     cnt = 1
-    for (i in first:(first + len - 1)) { # Check permissions
-      if (i != first){res[cnt,1] <- ""}
-      res[cnt, 2] <- eval(parse(text=paste(tmp_string, "[[", i, "]]$username", 
-                                           sep="")))
-      if (eval(parse(text=paste(tmp_string, "[[", i, "]]$permission$read", 
-                                sep=""))) == TRUE) {
-        R <- TRUE
-      } else {
-        R <- FALSE
-      }
-      if (eval(parse(text=paste(tmp_string, "[[", i, "]]$permission$write", 
-                                sep=""))) == TRUE) {
-        W <- TRUE        
-      } else {
-        W <- FALSE
-      }
-      if (eval(parse(text=paste(tmp_string, "[[", i, "]]$permission$execute", 
-                                sep=""))) == TRUE) {
-        E <- TRUE        
-      } else {
-        E <- FALSE
-      }
+    for (i in first:total) { # Check permissions
+      if (!eval(parse(text=paste(tmp_string, "[[", i, "]]$username", sep=""))) %in% used) {
+        if (cnt != 1){res[cnt,1] <- ""}
+        res[cnt, 2] <- eval(parse(text=paste(tmp_string, "[[", i, "]]$username", 
+                                             sep="")))
+        if (eval(parse(text=paste(tmp_string, "[[", i, "]]$permission$read", 
+                                  sep=""))) == TRUE) {
+          R <- TRUE
+        } else {
+          R <- FALSE
+        }
+        if (eval(parse(text=paste(tmp_string, "[[", i, "]]$permission$write", 
+                                  sep=""))) == TRUE) {
+          W <- TRUE        
+        } else {
+          W <- FALSE
+        }
+        if (eval(parse(text=paste(tmp_string, "[[", i, "]]$permission$execute", 
+                                  sep=""))) == TRUE) {
+          E <- TRUE        
+        } else {
+          E <- FALSE
+        }
 
-      if ((R == TRUE) && (E == TRUE) && (W == TRUE)) {
-        str <- "All"
-      } else if ((R == TRUE) && (E == TRUE) && (W == FALSE)) {
-        str <- "R/E"
-      } else if ((R == TRUE) && (E == FALSE) && (W == TRUE)) {
-        str <- "R/W"
-      } else if ((R == TRUE) && (E == FALSE) && (W == FALSE)) {
-        str <- "R"
-      } else if ((R == FALSE) && (E == TRUE) && (W == TRUE)) {
-        str <- "W/E"
-      } else if ((R == FALSE) && (E == TRUE) && (W == FALSE)) {
-        str <- "E"
-      } else if ((R == FALSE) && (E == FALSE) && (W == TRUE)) {
-        str <- "W"
-      }
+        if ((R == TRUE) && (E == TRUE) && (W == TRUE)) {
+          str <- "All"
+        } else if ((R == TRUE) && (E == TRUE) && (W == FALSE)) {
+          str <- "R/E"
+        } else if ((R == TRUE) && (E == FALSE) && (W == TRUE)) {
+          str <- "R/W"
+        } else if ((R == TRUE) && (E == FALSE) && (W == FALSE)) {
+          str <- "R"
+        } else if ((R == FALSE) && (E == TRUE) && (W == TRUE)) {
+          str <- "W/E"
+        } else if ((R == FALSE) && (E == TRUE) && (W == FALSE)) {
+          str <- "E"
+        } else if ((R == FALSE) && (E == FALSE) && (W == TRUE)) {
+          str <- "W"
+        }
 
-      res[cnt, 3] <- str
-      cnt = cnt + 1
+        res[cnt, 3] <- str
+        cnt = cnt + 1
+      }
     }
   }
   return(res)
@@ -1384,7 +1392,7 @@ SupportFile <- function(print.curl=FALSE, suppress.Warnings=FALSE) {
   #   Returns all supported file types.
   Time()
   Renew()
-  res <- tryCatch(expr  = fromJSON(getForm(uri          = rplant.env$webtransforms, 
+  res <- tryCatch(expr  = fromJSON(getForm(uri          = rplant.env$webtransform, 
                                            .checkparams = FALSE,
                                            curl         = rplant.env$curl.call)), 
                   error = function(err) {
@@ -1394,7 +1402,7 @@ SupportFile <- function(print.curl=FALSE, suppress.Warnings=FALSE) {
   if (!suppress.Warnings){Error(res)}
 
   if (print.curl) {
-    curl.string <- paste(rplant.env$first, "-X GET", rplant.env$webtransforms)
+    curl.string <- paste(rplant.env$first, "-X GET", rplant.env$webtransform)
     print(curl.string)
   }
 
@@ -1463,15 +1471,24 @@ ListDir <- function(dir.name="", dir.path="", print.curl=FALSE,
   whichHiddens <- grep("^[.]\\D+", nms)
   if(show.hidden)
     toIgnore <- c(toIgnore, whichHiddens)
-  tmpIgnore <- tmp$result[-toIgnore]
+  if (length(toIgnore) != 0) {
+    alr <- as.matrix(1:length(tmp$result))[-toIgnore]
+  } else {
+    alr <- as.matrix(1:length(tmp$result))
+  }
+  tmpIgnore <- vector("list",length(alr))
+  cnt <- 1
+  for (i in alr){
+   tmpIgnore[[cnt]] <- tmp$result[[i]]
+   cnt = cnt + 1
+  }
 
-  res <- matrix(nrow=length(tmp$result)-length(toIgnore), ncol=3)
-  colnames(res) <- c("name", "type", "permissions")
+  res <- matrix(nrow=length(tmp$result)-length(toIgnore), ncol=2)
+  colnames(res) <- c("name", "type")
 
   for (i in sequence(dim(res)[1])) {
     res[i, 1] <- tmpIgnore[[i]]$name
     res[i, 2] <- tmpIgnore[[i]]$type
-    res[i, 3] <- tmpIgnore[[i]]$permissions
   }
   return(res)
 }
@@ -1948,6 +1965,13 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
     # Compare the input.list to actual inputs of the application.
     #   If they don't match throw an error.
     test.input <- rep(0, length(input.list))
+
+#   for (j in 1:length(input.list)){
+#     if (!input.list[[j]] % in % input){
+#       test.input[j] <- 1
+#       break;
+#     }
+#   }
 
     for (j in 1:length(input.list)){
       cnt = 0
