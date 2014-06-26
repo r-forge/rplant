@@ -423,13 +423,13 @@ Check <- function(name, path="", suppress.Warnings=FALSE,
         if (dir.exist$status == "error"){# Path does not exist, show appropriate error
           if ((dir.exist$message == "File does not exist") || 
               (dir.exist$message == "File/folder does not exist")){
-            return(stop(paste("file.path '", path, "' not proper directory", sep=""),
+            return(stop(paste("path '", path, "' not proper directory", sep=""),
                         call. = FALSE))
           } else {
             return(stop("improper username/password combination", call. = FALSE))
           }
         } else {# If no error, then no directory
-          return(stop(paste("file.path '", path, "' not proper directory", sep=""), 
+          return(stop(paste("path '", path, "' not proper directory", sep=""), 
                       call. = FALSE))
         }
       }
@@ -444,12 +444,12 @@ Check <- function(name, path="", suppress.Warnings=FALSE,
     # Check whether object exists or not
     if (check){# If check=TRUE and object IS in directory return error
       if (length(obj.exist$result) != 0){
-        return(stop(paste("file '", name, "' already exists in '", path,
+        return(stop(paste("object '", name, "' already exists in '", path,
                           "' directory", sep=""), call. = FALSE))
       }
     } else {# If check=FALSE and object IS NOT in directory return error
       if (length(obj.exist$result) == 0){
-        return(stop(paste("file '", name, "' doesn't exist in '", path, 
+        return(stop(paste("object '", name, "' doesn't exist in '", path, 
                           "' directory", sep=""), call. = FALSE))
       }
     }
@@ -2273,7 +2273,7 @@ DeleteOne <- function(job.id, print.curl=FALSE) {
                        nchar(JS$result$archivePath)-nchar(dir.name)-1)
    
     # Check that folder hasn't already been deleted
-    Check(dir.name, dir.path)
+#   Check(dir.name, dir.path)
 
     # Delete the directory
     tmp <- tryCatch(expr  = fromJSON(httpDELETE(paste(rplant.env$webio, dir.path, 
@@ -2283,7 +2283,6 @@ DeleteOne <- function(job.id, print.curl=FALSE) {
                               return(paste(err))
                             }
                     )
-    Error(tmp)
 
     # Delete the job
     tmp <- tryCatch(expr  = fromJSON(httpDELETE(web, curl = rplant.env$curl.call)),
@@ -2291,7 +2290,6 @@ DeleteOne <- function(job.id, print.curl=FALSE) {
                               return(paste(err))
                             }
                     )
-    Error(tmp)
   
     if (print.curl) {
       curl.string <- paste(rplant.env$first, "-X DELETE", web)
