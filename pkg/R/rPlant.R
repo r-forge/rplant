@@ -498,7 +498,7 @@ Wait <- function(job.id, minWaitsec, maxWaitsec, print=FALSE){
     #   you could just schedule the next check currentWait sec in the future 
     Sys.sleep(currentWait) 
   }
-
+  Sys.sleep(5)
   if (print == TRUE) {
     message(paste("Job number: '", job.id, "' has status: ", currentStatus, sep=""))
   }
@@ -1073,8 +1073,8 @@ Pems <- function(name, path="", print.curl=FALSE, suppress.Warnings=FALSE) {
   if (rplant.env$api == "a"){
     used <- c()
     len <- length(eval(parse(text=tmp_string))) - 1
-    total <- len
     first <- 2 # We don't want to return the user themself, so start at 2
+    total <- first + len - 1
   } else {
     used <- c("you", "admin_proxy", "ipcservices", "rodsBoot", "QuickShare",
               "ibp-proxy", "ipcservices", "ipc_admin", "admin2", 
@@ -2116,8 +2116,8 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
   cat("Job submitted. \n")
   cat(paste("You can check your job using CheckJobStatus(", 
             res$result$id, ")", sep=""), "\n")
-  return(res$result$id)
-  # return(list(res$result$id, job.name))
+  # return(res$result$id)
+  return(list(res$result$id, job.name))
 }
 
 #####################
@@ -2271,9 +2271,6 @@ DeleteOne <- function(job.id, print.curl=FALSE) {
 
     dir.path <- substr(JS$result$archivePath, nchar(rplant.env$user) + 3, 
                        nchar(JS$result$archivePath)-nchar(dir.name)-1)
-   
-    # Check that folder hasn't already been deleted
-#   Check(dir.name, dir.path)
 
     # Delete the directory
     tmp <- tryCatch(expr  = fromJSON(httpDELETE(paste(rplant.env$webio, dir.path, 
@@ -2440,7 +2437,8 @@ RetrieveJob <- function(job.id, file.vec=NULL, print.curl=FALSE, verbose=FALSE) 
   Error(JS)
 
   if ((JS$res$status == "ARCHIVING_FINISHED") || (JS$res$status == "FINISHED")) {
-    # Create a local folder in current R working directory
+    # Create a local folder in current R working directory, the folder's name
+    #   is the job name given to the job previously.
     dir.path <- file.path(getwd(), JS$result[[2]])
     if(!file.exists(dir.path)){
       if (.Platform$OS.type=="windows") {
