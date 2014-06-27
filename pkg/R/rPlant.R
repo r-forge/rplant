@@ -479,26 +479,44 @@ Wait <- function(job.id, minWaitsec, maxWaitsec, print=FALSE){
   #   Returns nothing unless printing
   currentStatus= ''
   currentWait = minWaitsec
-  while (( currentStatus != 'FAILED' ) && (currentStatus != 'ARCHIVING_FINISHED') && 
-         (currentStatus != 'FINISHED')) {
-    # cache the status from previous inquiry
-    oldStatus = currentStatus
-    currentStatus = CheckJobStatus( job.id )
+  if (rplant.env$api == 'f'){
+    # For the Foundation API the job isn't done until 'ARCHIVING_FINISHED'
+    while (( currentStatus != 'FAILED' ) && (currentStatus != 'ARCHIVING_FINISHED')) {
+      # cache the status from previous inquiry
+      oldStatus = currentStatus
+      currentStatus = CheckJobStatus( job.id )
 
-    if (currentStatus == oldStatus) {# status hasn't changed from last time we asked so
-      currentWait = currentWait * 1.10 # wait 10% longer to poll in the future
+      if (currentStatus == oldStatus) {  # Status hasn't changed from last time we asked
+        currentWait = currentWait * 1.10 #   so wait 10% longer to poll in the future
 
-      if (currentWait > maxWaitsec) {
-        currentWait = maxWaitsec # but don't wait too long
+        if (currentWait > maxWaitsec) {
+          currentWait = maxWaitsec       #   but don't wait too long
+        }
+      } else {
+        currentWait = minWaitsec # status changed so reset wait counter to min value
       }
-    } else {
-      currentWait = minWaitsec # status changed so reset wait counter to min value
+      # Sit idle for proscribed time. If you are using an event-based programming 
+      #   model, you could just schedule the next check currentWait sec in the future 
+      Sys.sleep(currentWait) 
     }
-    # Sit idle for proscribed time. If you are using an event-based programming model, 
-    #   you could just schedule the next check currentWait sec in the future 
-    Sys.sleep(currentWait) 
+  } else {
+    # For the Avega API the job isn't done until 'FINISHED'
+    while (( currentStatus != 'FAILED' ) && (currentStatus != 'FINISHED')) {
+      oldStatus = currentStatus
+      currentStatus = CheckJobStatus( job.id )
+
+      if (currentStatus == oldStatus) {
+        currentWait = currentWait * 1.10
+        if (currentWait > maxWaitsec) {
+          currentWait = maxWaitsec
+        }
+      } else {
+        currentWait = minWaitsec
+      }
+      Sys.sleep(currentWait) 
+    }
   }
-  Sys.sleep(15)
+
   if (print == TRUE) {
     message(paste("Job number: '", job.id, "' has status: ", currentStatus, sep=""))
   }
