@@ -857,21 +857,25 @@ RetrieveJob(myJobPPMuPP[[1]], c("outtree.nwk"))
 {\fs
 <<uploadfilegwas, echo=TRUE, eval=FALSE>>=
 data(geno_test.tfam)
-write(t(as.matrix(geno_test.tfam)), file="geno_test.tfam", ncolumns=length(geno_test.tfam), sep="\t")
+write.table(geno_test.tfam, file = "geno_test.tfam", row.names=FALSE, 
+            col.names=FALSE, quote=FALSE, sep="\t")
 UploadFile(local.file.name="geno_test.tfam")
 
 data(geno_test.tped)
-write(t(as.matrix(geno_test.tped)), file="geno_test.tped", ncolumns=length(geno_test.tped), sep="\t")
+write.table(geno_test.tped, file = "geno_test.tped", row.names=FALSE, 
+            col.names=FALSE, quote=FALSE, sep="\t")
 UploadFile(local.file.name="geno_test.tped")
 @
 
 <<uploadfilegwasres, echo=FALSE, eval=TRUE, results=verbatim>>=
 data(geno_test.tfam)
-write(t(as.matrix(geno_test.tfam)), file="geno_test.tfam", ncolumns=length(geno_test.tfam), sep="\t")
+write.table(geno_test.tfam, file = "geno_test.tfam", row.names=FALSE, 
+            col.names=FALSE, quote=FALSE, sep="\t")
 tryCatch(UploadFile(local.file.name="geno_test.tfam"), error=function(err){return(paste(err))})
 
 data(geno_test.tped)
-write(t(as.matrix(geno_test.tped)), file="geno_test.tped", ncolumns=length(geno_test.tped), sep="\t")
+write.table(geno_test.tped, file = "geno_test.tped", row.names=FALSE, 
+            col.names=FALSE, quote=FALSE, sep="\t")
 tryCatch(UploadFile(local.file.name="geno_test.tped"), error=function(err){return(paste(err))})
 @
 }
