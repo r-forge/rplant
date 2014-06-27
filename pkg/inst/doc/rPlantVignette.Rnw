@@ -209,7 +209,7 @@ ListDir(dir.name="data", dir.path="", shared.username="phyllisl")
 
 \noindent {\ttfamily PermissionsDir(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE)} \\
 
-\noindent When using the sharing feature of rPlant, a user needs a function which will check the permissions of a directory.  This includes the users with whom the directory is shared and what the permissions are included.  Below confirms the sharing performed earlier with ``kamichels''.  \\ 
+\noindent When using the sharing feature of rPlant, a user needs a function which will check the permissions of a directory.  This includes the users with whom the directory is shared and what the permissions are included.  Below confirms the sharing performed earlier with ``kamichels''.
 
 {\fs
 <<PermsDir, echo=TRUE>>=
@@ -296,7 +296,7 @@ ShareFile(file.name="DNA.fasta", shared.username="phyllisl")
 
 \noindent {\ttfamily PermissionsFile(file.name, file.path="", print.curl=FALSE, suppress.Warnings=FALSE)} \\
 
-\noindent When using the sharing feature of rPlant, a user needs a function which will check the permissions of a file.  This includes the users with whom the file is shared and what the permissions are included.  Below confirms the sharing performed earlier with ``phyllisl''.  \\ 
+\noindent When using the sharing feature of rPlant, a user needs a function which will check the permissions of a file.  This includes the users with whom the file is shared and what the permissions are included.  Below confirms the sharing performed earlier with ``phyllisl''.
 
 {\fs
 <<PermsFile, echo=TRUE>>=
@@ -375,7 +375,7 @@ ListApps(description=FALSE)
 
 \noindent {\ttfamily GetAppInfo(application, return.json=FALSE, print.curl=FALSE)}\\
 
-\noindent The {\ttfamily GetAppInfo} function returns the application with a short description and the input/output filetypes.\\
+\noindent The {\ttfamily GetAppInfo} function returns the application with a short description and the input/output filetypes.
 
 {\fs
 <<GetAppInfo, echo=TRUE>>=
@@ -503,7 +503,7 @@ CheckJobStatus(myJobS[[1]])
 
 \subsection{Killing Job}
 
-\noindent If you don't want a job to run any more, then simply stop it by using the {\ttfamily KillJob} function.  Generally this is used if a job is {\ttfamily QUEUED}, it must be stopped first to delete it. \\
+\noindent If you don't want a job to run any more, then simply stop it by using the {\ttfamily KillJob} function.  Generally this is used if a job is {\ttfamily QUEUED}, it must be stopped first to delete it.
 
 {\fs
 <<KillJob, echo=TRUE>>=
