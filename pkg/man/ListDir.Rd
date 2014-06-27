@@ -54,7 +54,7 @@ DeleteDir(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE)
 \dontrun{PermissionsDir(dir.name="new", dir.path="data")}
 
 # Lists the contents of a user's subdirectory "new"
-\dontrun{ListDir(dir.path="data/new")}
+\dontrun{ListDir(dir.name="new". dir.path="data")}
 
 # Rename the directory
 \dontrun{RenameDir(dir.name="new", dir.path="data", new.dir.name="newest")}
