@@ -50,7 +50,7 @@ DeleteJob(job.id, print.curl=FALSE, ALL=FALSE)
 	\item{history}{This option is only on the \code{CheckJobStatus} function.  If TRUE, then will show entire history of job.}
 }
 \details{
-	The function \code{SubmitJob}, takes inputs and arguments and submits a job on the Agave (or Foundation if using the older version) API. The \code{SubmitJob} function will run the \code{application} with the file inputs \code{file.list} that are in the directory \code{file.path}. The files within \code{file.list} need to match the expected file types for the application (defined in \code{input.list} argument). The appropriate options for the \code{application} need to be outlined in \code{input.list} and potentially \code{args.list}. The \code{SubmitJob} function outputs the \code{job.id} and with that \code{job.id} you can run \code{CheckJobStatus(job.id)} to check the status of your job. The stages are: 
+	The function \code{SubmitJob}, takes inputs and arguments and submits a job on the Agave (or Foundation if using the older version) API. The \code{SubmitJob} function will run the \code{application} with the file inputs \code{file.list} that are in the directory \code{file.path}. The files within \code{file.list} need to match the expected file types for the application (defined in \code{input.list} argument). The appropriate options for the \code{application} need to be outlined in \code{input.list} and potentially \code{args.list}. The \code{SubmitJob} function outputs the \code{job.id} and the \code{job name}.  With that \code{job.id} you can run \code{CheckJobStatus(job.id)} to check the status of your job, and the \code{job name} can be used in workflows. The stages for \code{CheckJobStatus} are: 
 
 \tabular{l}{
 	\code{PENDING}            \cr 
@@ -79,7 +79,7 @@ For the \code{SubmitJob} function the \code{application} must match an applicati
 A few things to note: 1) depending on the application, the \code{input.list} can be shorter than the the number of inputs, for example, using the "velveth-1.2.07u1" application, the input list could be \code{input.list=list("reads1", "reads2", "reads3")}; 2) the \code{file.list} should always be the same length as \code{input.list}; 3) for \code{args.list} use \code{GetAppInfo} function, when the 'kind' column is 'parameters', those are the inputs for \code{args.list}.  For \code{velveth-1.2.07u1} the \code{args.list} is as follows, \code{list(c("format1", value), c("kmer", value), c("Output", value))}. The list can be as long as the number of options.
 }
 \value{
-	A job ID is provided for jobs submitted via job.submit.  If an error, then a message stating the error should also be reported. 
+	A list containing the job id and the job name is provided for jobs submitted.  If an error, then a message stating the error should also be reported.
 }
 \seealso{
 	\code{\link{ListApps}, \link{Validate}, \link{UploadFile}}
