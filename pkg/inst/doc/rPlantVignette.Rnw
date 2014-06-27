@@ -448,7 +448,7 @@ myJobS <- SubmitJob(application="Muscle-3.8.32u4", file.list=list("muscle3.fasta
 \section{Checking Job Status and Retrieving Job output}
 
 \noindent Once the job is submitted, it is assigned a job identification number (job.id) that we can use to check the status and download any results files. The job.id is returned with the SubmitJob function, so if you create an object when you submit a job then you can use that object as an identifier as well.  Otherwise, you can copy/paste a job ID into any of the functions as a character string.  
-The job number is used in a few rPlant functions including, {\ttfamily CheckJobStatus}, {\ttfamily ListJobOutput}, {\ttfamily RetrieveJob} and {\ttfamily DeleteJob}. If you need to get job IDs from older jobs, you can use the function {\ttfamily GetJobHistory()}. 
+The job number is used in a few rPlant functions including, {\ttfamily CheckJobStatus}, {\ttfamily KillJob}, {\ttfamily ListJobOutput}, {\ttfamily RetrieveJob} and {\ttfamily DeleteJob}. If you need to get job IDs from older jobs, you can use the function {\ttfamily GetJobHistory()}. 
 
 \subsection{Checking job status}
 
@@ -497,7 +497,17 @@ The job number is used in a few rPlant functions including, {\ttfamily CheckJobS
 
 {\fs
 <<CheckJobStatus, echo=TRUE>>=
-CheckJobStatus(myJobM[[1]])
+CheckJobStatus(myJobS[[1]])
+@
+}
+
+\subsection{Killing Job}
+
+\noindent If you don't want a job to run any more, then simply stop it by using the {\ttfamily KillJob} function. \\
+
+{\fs
+<<KillJob, echo=TRUE>>=
+KillJob(myJobM[[1]])
 @
 }
 
@@ -512,12 +522,12 @@ CheckJobStatus(myJobM[[1]])
 minWait = 5 # seconds
 maxWait = 1800 # 30 min in seconds
 
-Wait(myJobM[[1]], minWait, maxWait)
+Wait(myJobS[[1]], minWait, maxWait)
 @
 
 {\fs
 <<ListJobOutput, echo=TRUE, results=verbatim>>=
-ListJobOutput(myJobM[[1]])
+ListJobOutput(myJobS[[1]])
 @
 }
 
@@ -525,7 +535,7 @@ ListJobOutput(myJobM[[1]])
 
 \noindent {\ttfamily GetJobHistory(return.json=FALSE, print.curl=FALSE)} \\
 
-\noindent This function displays the entire job history for the user. This is an easy way to grab old job IDs in order to retrieve files or check the status of a set of jobs.  
+\noindent This function displays the entire job history for the user. This is an easy way to grab old job IDs in order to retrieve files or check the status of a set of jobs.  You can see that one finished and one was stopped.  
 
 {\fs
 <<GetJobHistory, echo=TRUE>>=
@@ -541,7 +551,7 @@ GetJobHistory()
 
 {\fs
 <<RetrieveJob, echo=TRUE>>=
-RetrieveJob(myJobM[[1]])
+RetrieveJob(myJobS[[1]])
 @
 }
 
@@ -555,7 +565,7 @@ RetrieveJob(myJobM[[1]])
 
 {\fs
 <<DeleteJob, echo=TRUE>>=
-DeleteJob(myJobM[[1]])
+DeleteJob(myJobS[[1]])
 @
 }
 
@@ -1011,6 +1021,17 @@ plot(Tree)
 @
 }
 \end{center}
+
+<<last, echo=FALSE, eval=TRUE>>=
+DeleteDir("hello")
+DeleteFile("DNA.fasta")
+DeleteFile("PROTEIN.fasta")
+DeleteFile("geno_test.tfam")
+DeleteFile("geno_test.tped")
+DeleteFile("simulation1.map")
+DeleteFile("simulation1.ped")
+DeleteJob(ALL = TRUE)
+@
 
 \newpage
 
