@@ -1451,7 +1451,8 @@ SupportFile <- function(print.curl=FALSE, suppress.Warnings=FALSE) {
 #####################
 
 ListDir <- function(dir.name="", dir.path="", print.curl=FALSE, 
-                    shared.username=NULL, suppress.Warnings=FALSE, show.hidden=FALSE) {
+                    shared.username=NULL, suppress.Warnings=FALSE,
+                    show.hidden=FALSE) {
   # This function lists all files in the 'dir.name' contained in 'dir.path'
   #   A user can also list files shared with them from the shared user.
   #
@@ -1491,10 +1492,11 @@ ListDir <- function(dir.name="", dir.path="", print.curl=FALSE,
   for(i in sequence(length(tmp$result))){
     nms <- c(nms, tmp$result[[i]]$name)
   }
-  toIgnore <- grep("^[.]$", nms)  #always ignore home directory
+
+  toIgnore <- grep("^\\.+$", nms) # always ignore home directory
   whichHiddens <- grep("^[.]\\D+", nms)
   if(show.hidden)
-    toIgnore <- c(toIgnore, whichHiddens)
+    toIgnore <- union(toIgnore, whichHiddens)
   if (length(toIgnore) != 0) {
     alr <- as.matrix(1:length(tmp$result))[-toIgnore]
   } else {
