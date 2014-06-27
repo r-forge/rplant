@@ -34,6 +34,9 @@ FaST_LMM(input.file.list="", ALL.file.path="", print.curl=FALSE,
 
 Not all information on the FaST-LMM model is here, see the FaST-LMM website \url{http://fastlmm.codeplex.com/}, or the FaST-LMM manual for more information.
 }
+\value{
+	A list containing the job id and the job name is provided for jobs submitted.  If an error, then a message stating the error should also be reported.
+}
 \seealso{
 	\code{\link{SubmitJob}, \link{Validate}, \link{UploadFile}}
 }
