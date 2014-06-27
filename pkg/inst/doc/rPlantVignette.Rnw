@@ -503,7 +503,7 @@ CheckJobStatus(myJobS[[1]])
 
 \subsection{Killing Job}
 
-\noindent If you don't want a job to run any more, then simply stop it by using the {\ttfamily KillJob} function. \\
+\noindent If you don't want a job to run any more, then simply stop it by using the {\ttfamily KillJob} function.  Generally this is used if a job is {\ttfamily QUEUED}, it must be stopped first to delete it. \\
 
 {\fs
 <<KillJob, echo=TRUE>>=
@@ -853,21 +853,53 @@ RetrieveJob(myJobPPMuPP[[1]], c("outtree.nwk"))
 @
 
 \subsection{Genome Wide Association Study models}
+
 {\fs
 <<uploadfilegwas, echo=TRUE, eval=FALSE>>=
-UploadFile("simulation1.map")
-UploadFile("simulation1.ped")
-UploadFile("geno_test.tfam")
-UploadFile("geno_test.tped")
+data(geno_test.tfam)
+write(t(as.matrix(geno_test.tfam)), file="geno_test.tfam", ncolumns=length(geno_test.tfam), sep="\t")
+UploadFile(local.file.name="geno_test.tfam")
+
+data(geno_test.tped)
+write(t(as.matrix(geno_test.tped)), file="geno_test.tped", ncolumns=length(geno_test.tped), sep="\t")
+UploadFile(local.file.name="geno_test.tped")
 @
 
 <<uploadfilegwasres, echo=FALSE, eval=TRUE, results=verbatim>>=
-tryCatch(UploadFile(local.file.name="simulation1.map"), error=function(err){return(paste(err))})
-tryCatch(UploadFile(local.file.name="simulation1.ped"), error=function(err){return(paste(err))})
+data(geno_test.tfam)
+write(t(as.matrix(geno_test.tfam)), file="geno_test.tfam", ncolumns=length(geno_test.tfam), sep="\t")
 tryCatch(UploadFile(local.file.name="geno_test.tfam"), error=function(err){return(paste(err))})
+
+data(geno_test.tped)
+write(t(as.matrix(geno_test.tped)), file="geno_test.tped", ncolumns=length(geno_test.tped), sep="\t")
 tryCatch(UploadFile(local.file.name="geno_test.tped"), error=function(err){return(paste(err))})
 @
 }
+
+\subsection{PLINK Conversion}
+
+\noindent {\ttfamily PLINKConversion(file.list="", file.path="", output.type="--recode", job.name=NULL, shared.username=NULL, print.curl=FALSE, version="plink-1.07u1", suppress.Warnings=FALSE)} \\
+
+\noindent This function converts the standard PLINK file formats (Regular (ped/map), Transposed (tped/tfam), and Binary (bed/bim/fam)) to various other PLINK file formats.
+
+{\fs
+<<PLINKConversionR, echo=TRUE>>=
+myJobPLINKCT <- PLINKConversion(file.list=list("geno_test.tfam","geno_test.tped"), job.name="PCT", 
+                                out.basename="plinkout")
+@
+
+<<PLINKwait, echo=FALSE>>=
+Wait(myJobPLINKCT[[1]], minWait, maxWait)
+@
+
+<<PLINKConversionT, echo=TRUE>>=
+myJobPLINKCR <- PLINKConversion(file.list=list("plinkout.map","plinkout.ped"),
+                                file.path=paste("analyses/", myJobPLINKCT[[2]], sep=""),
+                                output.type="--recode --transpose", job.name="PCR")
+@
+}
+
+\noindent There are many output files possible, \url{http://pngu.mgh.harvard.edu/~purcell/plink/reference.shtml#output}
 
 \subsection{PLINK}
 
@@ -878,28 +910,14 @@ tryCatch(UploadFile(local.file.name="geno_test.tped"), error=function(err){retur
 {\fs
 <<PLINK, echo=TRUE>>=
 myJobPLINKT <- PLINK(file.list=list("geno_test.tfam","geno_test.tped"), job.name="PLINKT")
-myJobPLINKR <- PLINK(file.list=list("simulation1.map","simulation1.ped"), job.name="PLINKR")
+myJobPLINKR <- PLINK(file.list=list("plinkout.map","plinkout.ped"),
+                     file.path=paste("analyses/", myJobPLINKCT[[2]], sep=""), job.name="PLINKR")
 @
 }
 
 \noindent There are many output files possible, \url{http://pngu.mgh.harvard.edu/~purcell/plink/reference.shtml#output}
 
-\subsection{PLINK Conversion}
 
-\noindent {\ttfamily PLINKConversion(file.list="", file.path="", output.type="--recode", job.name=NULL, shared.username=NULL, print.curl=FALSE, version="plink-1.07u1", suppress.Warnings=FALSE)} \\
-
-\noindent This function converts the standard PLINK file formats (Regular (ped/map), Transposed (tped/tfam), and Binary (bed/bim/fam)) to various other PLINK file formats.
-
-{\fs
-<<PLINKConversion, echo=TRUE>>=
-myJobPLINKCT <- PLINKConversion(file.list=list("geno_test.tfam","geno_test.tped"), job.name="PCT", 
-                                out.basename="plinkout")
-myJobPLINKCR <- PLINKConversion(file.list=list("simulation1.map","simulation1.ped"), 
-                                output.type="--recode --transpose", job.name="PCR")
-@
-}
-
-\noindent There are many output files possible, \url{http://pngu.mgh.harvard.edu/~purcell/plink/reference.shtml#output}
 
 \subsection{FaST-LMM (Factored Spectrally Transformed Linear Mixed Models)}
 
@@ -911,7 +929,8 @@ myJobPLINKCR <- PLINKConversion(file.list=list("simulation1.map","simulation1.pe
 <<FaST-LMM, echo=TRUE>>=
 myJobFaST_LMMT <- FaST_LMM(input.file.list=list("geno_test.tfam","geno_test.tped"), 
                            job.name="FaST_LMMT")
-myJobFaST_LMMR <- FaST_LMM(input.file.list=list("simulation1.map","simulation1.ped"), 
+myJobFaST_LMMR <- FaST_LMM(input.file.list=list("plinkout.map","plinkout.ped"),
+                           ALL.file.path=paste("analyses/", myJobPLINKCT[[2]], sep=""), 
                            job.name="FaST_LMMR")
 @
 }
@@ -1023,14 +1042,12 @@ plot(Tree)
 \end{center}
 
 <<last, echo=FALSE, eval=TRUE>>=
-DeleteDir("hello")
-DeleteFile("DNA.fasta")
-DeleteFile("PROTEIN.fasta")
-DeleteFile("geno_test.tfam")
-DeleteFile("geno_test.tped")
-DeleteFile("simulation1.map")
-DeleteFile("simulation1.ped")
-DeleteJob(ALL = TRUE)
+tryCatch(DeleteDir("hello"), error=function(err){return(paste(err))})
+tryCatch(DeleteFile("DNA.fasta"), error=function(err){return(paste(err))})
+tryCatch(DeleteFile("PROTEIN.fasta"), error=function(err){return(paste(err))})
+tryCatch(DeleteFile("geno_test.tfam"), error=function(err){return(paste(err))})
+tryCatch(DeleteFile("geno_test.tped"), error=function(err){return(paste(err))})
+tryCatch(DeleteJob(ALL = TRUE), error=function(err){return(paste(err))})
 @
 
 \newpage
