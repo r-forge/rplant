@@ -68,12 +68,13 @@ Validate(username, password, api="agave")
 
 <<inputres, echo=FALSE, eval=TRUE, results=hide>>=
 require(rPlant)
+require(ape)
 # username <- "bleplant"
 # password <- "Chl0r0phyll"
 username <- "henryl"
 password <- "Blizzard1"
-tryCatch(Validate(username, password, api="agave"), error=function(err){return(paste(err))})
-tryCatch(Validate(username, password, api="agave"), error=function(err){return(paste(err))})
+tryCatch(Validate(username, password, api="foundation"), error=function(err){return(paste(err))})
+tryCatch(Validate(username, password, api="foundation"), error=function(err){return(paste(err))})
 @
 }
 
@@ -317,7 +318,7 @@ ListDir("all", "hello")
 @
 }
 
-\noindent The move took the file DNA.fasta from the home directory into the ``hello/all'' directory.  Below you can see this change:
+\noindent The move took the file DNA.fasta from the home directory into the ``hello/all'' directory. \\
 
 \noindent {\it Note}: When the file is moved, permissions on sharing will have to be redone.
 
@@ -496,7 +497,7 @@ The job number is used in a few rPlant functions including, {\ttfamily CheckJobS
 
 {\fs
 <<CheckJobStatus, echo=TRUE>>=
-CheckJobStatus(myJobM)
+CheckJobStatus(myJobM[[1]])
 @
 }
 
@@ -511,12 +512,12 @@ CheckJobStatus(myJobM)
 minWait = 5 # seconds
 maxWait = 1800 # 30 min in seconds
 
-Wait(myJobM, minWait, maxWait)
+Wait(myJobM[[1]], minWait, maxWait)
 @
 
 {\fs
 <<ListJobOutput, echo=TRUE, results=verbatim>>=
-ListJobOutput(myJobM)
+ListJobOutput(myJobM[[1]])
 @
 }
 
@@ -540,7 +541,7 @@ GetJobHistory()
 
 {\fs
 <<RetrieveJob, echo=TRUE>>=
-RetrieveJob(myJobM)
+RetrieveJob(myJobM[[1]])
 @
 }
 
@@ -554,7 +555,7 @@ RetrieveJob(myJobM)
 
 {\fs
 <<DeleteJob, echo=TRUE>>=
-DeleteJob(myJobM)
+DeleteJob(myJobM[[1]])
 @
 }
 
@@ -572,9 +573,9 @@ tryCatch(DeleteJob(ALL=TRUE), error=function(err){return(paste(err))})
 
 \section{Submitting Jobs With Wrappers}
 
-\noindent We have ten dedicated wrapper functions for iPlant applications that will ease submitting jobs. These wrappers will use many application defaults and/or change flags into wrapper function arguments.  Of course, if a user needs more flexibility in flagging options, then they can still submit jobs using the {\ttfamily SubmitJob} function. 
+\noindent We have ten dedicated wrapper functions for iPlant applications that will ease submitting jobs. These wrappers will use many application defaults and/or change flags into wrapper function arguments.  Of course, if a user needs more flexibility in flagging options, then they can still submit jobs using the {\ttfamily SubmitJob} function. \\
 
-Of the iPlant applications that have dedicated wrappers, there is a clear bias towards phylogenetic applications because the authors are evolutionary biologists and regularly use these programs. Writing wrapper functions is not programmatically difficult, but it does require familiarity with the individual programs and their associated data sets. We would like to encourage any users who are using programs without wrappers to submit patches adding wrapper functions or request to be a developer. You can make these feature requests at the R-Forge site: \url{https://r-forge.r-project.org/tracker/?group_id=1328}. \\
+\noindent Of the iPlant applications that have dedicated wrappers, there is a clear bias towards phylogenetic applications because the authors are evolutionary biologists and regularly use these programs. Writing wrapper functions is not programmatically difficult, but it does require familiarity with the individual programs and their associated data sets. We would like to encourage any users who are using programs without wrappers to submit patches adding wrapper functions or request to be a developer. You can make these feature requests at the R-Forge site: \url{https://r-forge.r-project.org/tracker/?group_id=1328}. \\
 
 \noindent Among the wrappers there are three which do alignments: {\ttfamily Muscle}, {\ttfamily Mafft} and {\ttfamily ClustalW}.  The alignments will do both protein and nucleotide.  Also make sure that the taxon names in the sequence files do not contain tabulators, carriage returns, spaces, ":", ",", ")", "(", ";", "]", "["''.
 
@@ -584,20 +585,20 @@ data(PROTEIN.fasta)
 write.fasta(sequences=PROTEIN.fasta, names=names(PROTEIN.fasta), file.out="PROTEIN.fasta")
 UploadFile(local.file.name="PROTEIN.fasta", filetype="FASTA-0")
 @
-}
 
 <<uploadfileproteinres, echo=FALSE, eval=TRUE, results=verbatim>>=
 data(PROTEIN.fasta)
 write.fasta(sequences=PROTEIN.fasta, names=names(PROTEIN.fasta), file.out="PROTEIN.fasta")
 tryCatch(UploadFile(local.file.name="PROTEIN.fasta", filetype="FASTA-0"), error=function(err){return(paste(err))})
 @
+}
 
 \subsection{Muscle}
 
 \noindent {\ttfamily Muscle(file.name, file.path="", job.name=NULL, args=NULL, version="Muscle-3.8.32u4", print.curl=FALSE, aln.filetype="PHYLIP\_INT", shared.username=NULL, \\
 \noindent suppress.Warnings=FALSE)} \\
 
-\noindent MUSCLE is a program for creating multiple alignments of amino acid or nucleotide sequences. A range of options is provided that give you the choice of optimizing accuracy, speed, or some compromise between the two.  The manual is also available here: \url{http://www.drive5.com/muscle/muscle\_userguide3.8.html} \\
+\noindent MUSCLE is a program for creating multiple alignments of amino acid or nucleotide sequences. A range of options is provided that give you the choice of optimizing accuracy, speed, or some compromise between the two.  The manual is also available here: \url{http://www.drive5.com/muscle/muscle\_userguide3.8.html}
 
 <<>>=
 myJobMuDP <- Muscle("DNA.fasta", aln.filetype="PHYLIP_INT", job.name="muscleDNAphyINT")
@@ -660,13 +661,362 @@ myJobCWPPIR <- ClustalW("PROTEIN.fasta", type="PROTEIN", aln.filetype="PIR",
 
 \noindent {\ttfamily ClustalW} outputs six alignments (all named: clustalw.fa): CLUSTALW \url{http://meme.nbcr.net/meme/doc/clustalw-format.html}, PHYLIP\_INT \url{http://www.bioperl.org/wiki/PHYLIP\_multiple\_alignment\_format}, NEXUS \url{http://en.wikipedia.org/wiki/Nexus\_file}, GCG \url{http://www.genomatix.de/online\_help/help/sequence\_formats.html#GCG}, GDE \url{http://www.cse.unsw.edu.au/~binftools/birch/GDE/overview/GDE.file\_formats.html},  and PIR \url{http://www.bioinformatics.nl/tools/crab\_pir.html}.
 
-\noindent After this vignette has run out all of these analyses, we can kill any running processes and then delete all the jobs from our user history. If these were real analyses, you would need to finish the runs and save any output files.  
+<<WaitAll1, results=HIDE, echo=FALSE>>=
+Wait(myJobMuDP[[1]], minWait, maxWait)
+Wait(myJobMuDF[[1]], minWait, maxWait)
+Wait(myJobMuDPP[[1]], minWait, maxWait)
+Wait(myJobMuDPS[[1]], minWait, maxWait)
+Wait(myJobMuDC[[1]], minWait, maxWait)
+Wait(myJobMuDM[[1]], minWait, maxWait)
+Wait(myJobMuPP[[1]], minWait, maxWait)
+Wait(myJobMuPF[[1]], minWait, maxWait)
+Wait(myJobMuPPP[[1]], minWait, maxWait)
+Wait(myJobMuPPS[[1]], minWait, maxWait)
+Wait(myJobMuPC[[1]], minWait, maxWait)
+Wait(myJobMuPM[[1]], minWait, maxWait)
+Wait(myJobMaDF[[1]], minWait, maxWait)
+Wait(myJobMaDC[[1]], minWait, maxWait)
+Wait(myJobMaPF[[1]], minWait, maxWait)
+Wait(myJobMaPC[[1]], minWait, maxWait)
+Wait(myJobCWDP[[1]], minWait, maxWait)
+Wait(myJobCWDC[[1]], minWait, maxWait)
+Wait(myJobCWDN[[1]], minWait, maxWait)
+Wait(myJobCWDGCG[[1]], minWait, maxWait)
+Wait(myJobCWDGDE[[1]], minWait, maxWait)
+Wait(myJobCWDPIR[[1]], minWait, maxWait)
+Wait(myJobCWPP[[1]], minWait, maxWait)
+Wait(myJobCWPC[[1]], minWait, maxWait)
+Wait(myJobCWPN[[1]], minWait, maxWait)
+Wait(myJobCWPGCG[[1]], minWait, maxWait)
+Wait(myJobCWPGDE[[1]], minWait, maxWait)
+Wait(myJobCWPPIR[[1]], minWait, maxWait)
+@
 
+\subsection{FastTree}
+
+\noindent {\ttfamily Fasttree <- function(file.name, file.path="", job.name=NULL, args=NULL, type="DNA", model=NULL, gamma=FALSE, stat=FALSE, print.curl=FALSE, version="fasttreeDispatcher-1.0.0u1", shared.username=NULL, suppress.Warnings=FALSE)} \\
+
+\noindent {\ttfamily FastTree} infers approximately-maximum-likelihood phylogenetic trees from alignments of nucleotide or protein sequences. See \url{http://meta.microbesonline.org/fasttree/}
+
+{\fs
+<<FasttreeDNA, echo=TRUE>>=
+myJobFaDMuP <- Fasttree("phylip_interleaved.aln", file.path=paste("analyses/",myJobMuDP[[2]], 
+                        sep=""), job.name="fasttreeMUSCLEdnaPHY")
+myJobFaDCWP <- Fasttree("clustalw2.fa", file.path=paste("analyses/",myJobCWDP[[2]], sep=""), 
+                        job.name="fasttreeCLUSTALWdnaPHY")
+myJobFaDMuF <- Fasttree("fasta.aln", file.path=paste("analyses/",myJobMuDF[[2]], sep=""), 
+                        job.name="fasttreeMUSCLEdnaFASTA")
+myJobFaDCWF <- Fasttree("mafft.fa", file.path=paste("analyses/",myJobMaDF[[2]], sep=""), 
+                        job.name="fasttreeMAFFTdnaFASTA")
+@
+}
+
+{\fs
+<<FasttreeProtein, echo=TRUE>>=
+myJobFaPMuP <- Fasttree("phylip_interleaved.aln", file.path=paste("analyses/",myJobMuPP[[2]], 
+                       sep=""), type="PROTEIN", 
+                       job.name="fasttreeMUSCLEproteinPHY")
+myJobFaPCWP <- Fasttree("clustalw2.fa", type="PROTEIN", file.path=paste("analyses/",myJobCWPP[[2]], 
+                        sep=""), job.name="fasttreeCLUSTALWproteinPHY")
+myJobFaPMuF <- Fasttree("fasta.aln", file.path=paste("analyses/",myJobMuPF[[2]], sep=""), 
+                        type="PROTEIN", job.name="fasttreeMUSCLEproteinFASTA")
+myJobFaPCWF <- Fasttree("mafft.fa", file.path=paste("analyses/",myJobMaPF[[2]], sep=""), 
+                        type="PROTEIN", job.name="fasttreeMAFFTproteinFASTA")
+@
+}
+
+\noindent {\ttfamily Fasttree} outputs trees in Newick format \url{http://en.wikipedia.org/wiki/Newick_format}. The placement of the root is not biologically meaningful. The local support values are given as names for the internal nodes, and range from 0 to 1, not from 0 to 100 or 0 to 1,000. If all sequences are unique, then the tree will be fully resolved (the root will have three children and other internal nodes will have two children). If there are multiple sequences that are identical to each other, then there will be a multifurcation. Also, there are no support values for the parent nodes of redundant sequences. 
+
+\subsection{RAxML (Randomized Accelerated Maximum Likelihood)}
+
+\noindent {\ttfamily RAxML(file.name, file.path="", job.name=NULL, type="DNA", model=NULL, bootstrap=NULL, algorithm="d", multipleModelFileName=NULL, args=NULL, numcat=25, nprocs=12, \\
+\noindent version="raxml-lonestar-7.2.8u1", print.curl=FALSE, shared.username=NULL, \\
+\noindent substitution\_matrix=NULL, empirical.frequencies=FALSE, suppress.Warnings=FALSE) } \\
+
+\noindent {\ttfamily RAxML} is a program for sequential and parallel Maximum Likelihood based inference of large phylogenetic tress.  It has originall been derived from from fastDNAml which in turn was derived from Joe Felsentein's dnaml which is part of the PHYLIP package. See \url{http://sco.h-its.org/exelixis/oldPage/RAxML-Manual.7.0.4.pdf} for details.
+
+{\fs
+<<RAxMLDNA, echo=TRUE>>=
+myJobRDMuP <- RAxML("phylip_interleaved.aln", file.path=paste("analyses/",myJobMuDP[[2]], 
+                    sep=""), job.name="raxmlMUSCLEdnaPHY")
+myJobRDCWP <- RAxML("clustalw2.fa", file.path=paste("analyses/",myJobCWDP[[2]], sep=""), 
+                    job.name="raxmlCLUSTALWdnaPHY")
+@
+}
+
+{\fs
+<<RAxMLProtein, echo=TRUE>>=
+myJobRPMuP <- RAxML("phylip_interleaved.aln", file.path=paste("analyses/",myJobMuPP[[2]], 
+                    sep=""), type="PROTEIN", job.name="raxmlMUSCLEproteinPHY")
+myJobRPCWP <- RAxML("clustalw2.fa", file.path=paste("analyses/",myJobCWPP[[2]], sep=""), 
+                    type="PROTEIN", job.name="raxmlCLUSTALWproteinPHY")
+@
+}
+
+\noindent For this application there are numerous output files.  See pg 16-17 of the manual for complete details.  RAxML outputs trees in Newick format \url{http://en.wikipedia.org/wiki/Newick\_format}.
+
+\subsection{PHYLIP-Parsimony 3.69}
+
+\noindent {\ttfamily PHYLIP\_Pars(file.name, file.path="", job.name=NULL, type="DNA", print.curl=FALSE, shared.username=NULL, suppress.Warnings=FALSE) } \\
+
+\noindent {\ttfamily PHYLIP} is a free package of programs for inferring phylogenies. It is distributed as source code, documentation files, and a number of different types of executables. The web page: \url{http://evolution.genetics.washington.edu/phylip/doc/main.html}, by Joe Felsenstein of the Department of Genome Sciences and the Department of Biology at the University of Washington, contain information on PHYLIP.  PHYLIP (the PHYLogeny Inference Package) is a package of programs for inferring phylogenies (evolutionary trees).  Methods that are available in the package include parsimony, distance matrix, and likelihood methods, including bootstrapping and consensus trees.
+
+{\fs
+<<phylipDNA, echo=TRUE>>=
+myJobPDMuPP <- PHYLIP_Pars("phylip_pars.aln", file.path=paste("analyses/",myJobMuDPP[[2]], 
+                           sep=""), job.name="phylipMUSCLEdnaPHYpars")
+@
+}
+
+{\fs
+<<phylipProtein, echo=TRUE>>=
+myJobPPMuPP <- PHYLIP_Pars("phylip_pars.aln", file.path=paste("analyses/",myJobMuPPP[[2]], 
+                           sep=""), type="PROTEIN", job.name="phylipMUSCLEproteinPHYpars")
+@
+}
+
+\noindent {\ttfamily PHYLIP Parsimon}y outputs trees in Newick format \url{http://en.wikipedia.org/wiki/Newick_format}.
+
+<<WaitAll2, results=HIDE, echo=FALSE>>=
+Wait(myJobFaDMuP[[1]], minWait, maxWait)
+Wait(myJobFaDCWP[[1]], minWait, maxWait)
+Wait(myJobFaDMuF[[1]], minWait, maxWait)
+Wait(myJobFaDCWF[[1]], minWait, maxWait)
+Wait(myJobFaPMuP[[1]], minWait, maxWait)
+Wait(myJobFaPCWP[[1]], minWait, maxWait)
+Wait(myJobFaPMuF[[1]], minWait, maxWait)
+Wait(myJobFaPCWF[[1]], minWait, maxWait)
+Wait(myJobRDMuP[[1]], minWait, maxWait)
+Wait(myJobRDCWP[[1]], minWait, maxWait)
+Wait(myJobRDMuP[[1]], minWait, maxWait)
+Wait(myJobRDCWP[[1]], minWait, maxWait)
+Wait(myJobRPMuP[[1]], minWait, maxWait)
+Wait(myJobRPCWP[[1]], minWait, maxWait)
+Wait(myJobPDMuPP[[1]], minWait, maxWait)
+Wait(myJobPPMuPP[[1]], minWait, maxWait)
+Wait(myJobCWPPIR[[1]], minWait, maxWait)
+@
+
+<<RetrieveJobs, results=HIDE, echo=FALSE>>=
+RetrieveJob(myJobMuDP[[1]], c("phylip_interleaved.aln"))
+RetrieveJob(myJobMuDF[[1]], c("fasta.aln"))
+RetrieveJob(myJobMuDPP[[1]], c("phylip_pars.aln"))
+RetrieveJob(myJobMuDPS[[1]], c("phylip_sequential.aln"))
+RetrieveJob(myJobMuDC[[1]], c("clustalw.aln"))
+RetrieveJob(myJobMuDM[[1]], c("msf.aln"))
+RetrieveJob(myJobMuPP[[1]], c("phylip_interleaved.aln"))
+RetrieveJob(myJobMuPF[[1]], c("fasta.aln"))
+RetrieveJob(myJobMuPPP[[1]], c("phylip_pars.aln"))
+RetrieveJob(myJobMuPPS[[1]], c("phylip_sequential.aln"))
+RetrieveJob(myJobMuPC[[1]], c("clustalw.aln"))
+RetrieveJob(myJobMuPM[[1]], c("msf.aln"))
+RetrieveJob(myJobMaDF[[1]], c("mafft.fa"))
+RetrieveJob(myJobMaDC[[1]], c("mafft.fa"))
+RetrieveJob(myJobMaPF[[1]], c("mafft.fa"))
+RetrieveJob(myJobMaPC[[1]], c("mafft.fa"))
+RetrieveJob(myJobCWDP[[1]], c("clustalw2.fa"))
+RetrieveJob(myJobCWDC[[1]], c("clustalw2.fa"))
+RetrieveJob(myJobCWDN[[1]], c("clustalw2.fa"))
+RetrieveJob(myJobCWDGCG[[1]], c("clustalw2.fa"))
+RetrieveJob(myJobCWDGDE[[1]], c("clustalw2.fa"))
+RetrieveJob(myJobCWDPIR[[1]], c("clustalw2.fa"))
+RetrieveJob(myJobCWPP[[1]], c("clustalw2.fa"))
+RetrieveJob(myJobCWPC[[1]], c("clustalw2.fa"))
+RetrieveJob(myJobCWPN[[1]], c("clustalw2.fa"))
+RetrieveJob(myJobCWPGCG[[1]], c("clustalw2.fa"))
+RetrieveJob(myJobCWPGDE[[1]], c("clustalw2.fa"))
+RetrieveJob(myJobCWPPIR[[1]], c("clustalw2.fa"))
+RetrieveJob(myJobFaDMuP[[1]], c("fasttree.nwk"))
+RetrieveJob(myJobFaDCWP[[1]], c("fasttree.nwk"))
+RetrieveJob(myJobFaDMuF[[1]], c("fasttree.nwk"))
+RetrieveJob(myJobFaDCWF[[1]], c("fasttree.nwk"))
+RetrieveJob(myJobFaPMuP[[1]], c("fasttree.nwk"))
+RetrieveJob(myJobFaPCWP[[1]], c("fasttree.nwk"))
+RetrieveJob(myJobFaPMuF[[1]], c("fasttree.nwk"))
+RetrieveJob(myJobFaPCWF[[1]], c("fasttree.nwk"))
+RetrieveJob(myJobRDMuP[[1]], c("RAxML_bestTree.nwk"))
+RetrieveJob(myJobRDCWP[[1]], c("RAxML_bestTree.nwk"))
+RetrieveJob(myJobRPMuP[[1]], c("RAxML_bestTree.nwk"))
+RetrieveJob(myJobRPCWP[[1]], c("RAxML_bestTree.nwk"))
+RetrieveJob(myJobPDMuPP[[1]], c("outtree.nwk"))
+RetrieveJob(myJobPPMuPP[[1]], c("outtree.nwk"))
+@
+
+\subsection{Genome Wide Association Study models}
+{\fs
+<<uploadfilegwas, echo=TRUE, eval=FALSE>>=
+UploadFile("simulation1.map")
+UploadFile("simulation1.ped")
+UploadFile("geno_test.tfam")
+UploadFile("geno_test.tped")
+@
+
+<<uploadfilegwasres, echo=FALSE, eval=TRUE, results=verbatim>>=
+tryCatch(UploadFile(local.file.name="simulation1.map"), error=function(err){return(paste(err))})
+tryCatch(UploadFile(local.file.name="simulation1.ped"), error=function(err){return(paste(err))})
+tryCatch(UploadFile(local.file.name="geno_test.tfam"), error=function(err){return(paste(err))})
+tryCatch(UploadFile(local.file.name="geno_test.tped"), error=function(err){return(paste(err))})
+@
+}
+
+\subsection{PLINK}
+
+\noindent {\ttfamily PLINK(file.list="", file.path="", job.name=NULL, association.method="--assoc", no.sex=TRUE, args=NULL, print.curl=FALSE, multi.adjust=TRUE, version="plink-1.07u1", shared.username=NULL, suppress.Warnings=FALSE)} \\
+
+\noindent {\ttfamily PLINK} is an open-source whole genome association analysis toolset, designed to perform a range of basic, large-scale analyses in a computationally efficient manner, check \url{http://pngu.mgh.harvard.edu/~purcell/plink/} for details.
+
+{\fs
+<<PLINK, echo=TRUE>>=
+myJobPLINKT <- PLINK(file.list=list("geno_test.tfam","geno_test.tped"), job.name="PLINKT")
+myJobPLINKR <- PLINK(file.list=list("simulation1.map","simulation1.ped"), job.name="PLINKR")
+@
+}
+
+\noindent There are many output files possible, \url{http://pngu.mgh.harvard.edu/~purcell/plink/reference.shtml#output}
+
+\subsection{PLINK Conversion}
+
+\noindent {\ttfamily PLINKConversion(file.list="", file.path="", output.type="--recode", job.name=NULL, shared.username=NULL, print.curl=FALSE, version="plink-1.07u1", suppress.Warnings=FALSE)} \\
+
+\noindent This function converts the standard PLINK file formats (Regular (ped/map), Transposed (tped/tfam), and Binary (bed/bim/fam)) to various other PLINK file formats.
+
+{\fs
+<<PLINKConversion, echo=TRUE>>=
+myJobPLINKCT <- PLINKConversion(file.list=list("geno_test.tfam","geno_test.tped"), job.name="PCT", 
+                                out.basename="plinkout")
+myJobPLINKCR <- PLINKConversion(file.list=list("simulation1.map","simulation1.ped"), 
+                                output.type="--recode --transpose", job.name="PCR")
+@
+}
+
+\noindent There are many output files possible, \url{http://pngu.mgh.harvard.edu/~purcell/plink/reference.shtml#output}
+
+\subsection{FaST-LMM (Factored Spectrally Transformed Linear Mixed Models)}
+
+\noindent {\ttfamily FaST\_LMM(input.file.list="", ALL.file.path="", print.curl=FALSE, sim.file.list=NULL, pheno.file.name=NULL, mpheno=1, args=NULL, covar.file.name=NULL, job.name=NULL, version="FaST-LMM-1.09u1", shared.username=NULL, suppress.Warnings=FALSE)} \\
+
+\noindent {\ttfamily FaST-LMM (Factored Spectrally Transformed Linear Mixed Models)} is a program for performing genome-wide association studies (GWAS) on large data sets.  FaST-LMM is described more fully at \url{http://www.nature.com/nmeth/journal/v8/n10/abs/nmeth.1681.html}, and also at \url{http://fastlmm.codeplex.com/}
+
+{\fs
+<<FaST-LMM, echo=TRUE>>=
+myJobFaST_LMMT <- FaST_LMM(input.file.list=list("geno_test.tfam","geno_test.tped"), 
+                           job.name="FaST_LMMT")
+myJobFaST_LMMR <- FaST_LMM(input.file.list=list("simulation1.map","simulation1.ped"), 
+                           job.name="FaST_LMMR")
+@
+}
+
+\noindent Not all information on the FaST-LMM model is here, see the FaST-LMM website \url{http://fastlmm.codeplex.com/}, or the FaST-LMM manual for more information.
+
+\section{Creating workflows}
+
+\noindent Finally, each of these steps can be combined to generate multi-step analyses. This has the benefit of reducing errors that can occur when manually running each application and, more importantly, ensures that results are reproducible. In the following example, a user starts with unaligned sequences on her or his local computer and ends with aligned sequences and a phylogenetic tree with all applications running on the iPlant servers. \\
+
+\subsection{Workflow One}
+
+\noindent This first workflow takes an amino acid fasta file, uses {\ttfamily MUSCLE} to get a {\ttfamily PHYLIP\_PARS} alignment type.  A couple things about this alignment; it is only available from {\ttfamily MUSCLE} and this alignment is very specific to the {\ttfamily PHYLIP 3.69} model.  The {\ttfamily PHYLIP} model then produces a tree.  Note: this is the only way to do this workflow.
+
+{\fs
+<<workflow1, echo=TRUE>>=
+myJobW1MP <- Muscle("PROTEIN.fasta", aln.filetype="PHYLIP_PARS", job.name="muscleWORKFLOW1protein")
+Wait(myJobW1MP[[1]], minWait, maxWait)
+myJobW1PPP <- PHYLIP_Pars("phylip_pars.aln", file.path=paste("analyses/",myJobW1MP[[2]],
+                          sep=""), type="PROTEIN", job.name="phylipWORKFLOW1protein")
+Wait(myJobW1PPP[[1]], minWait, maxWait)
+RetrieveJob(myJobW1PPP[[1]], c("outtree.nwk"))
+read.tree(paste(getwd(), myJobW1PPP[[2]], "outtree.nwk", sep="/")) -> Tree
+@
+}
+
+\begin{center}
+\setkeys{Gin}{width=0.59\textwidth}
+{\fs
+<<PHYLIPtreePLOT, echo=FALSE, fig=TRUE, eps = FALSE, height=6, width=6>>=
+plot(Tree)
+@
+}
+\end{center}
+
+\subsection{Workflow Two}
+
+\noindent The second workflow takes the same amino acid fasta file and this time it uses {\ttfamily Mafft} to get a {\ttfamily FASTA} alignment type.  {\ttfamily MUSCLE} also can output a fasta alignment.  The {\ttfamily FastTree} model is then used to make the tree.
+
+{\fs
+<<workflow2, echo=TRUE>>=
+myJobW2CWD <- Mafft("PROTEIN.fasta", type="PROTEIN", job.name="mafftPROTEINfasta")
+Wait(myJobW2CWD[[1]], minWait, maxWait)
+myJobW2FaD <- Fasttree("mafft.fa", type="PROTEIN", file.path=paste("analyses/",myJobW2CWD[[2]], 
+                       sep=""), job.name="fasttreeCLUSTALWfasta")
+Wait(myJobW2FaD[[1]], minWait, maxWait)
+RetrieveJob(myJobW2FaD[[1]], c("fasttree.nwk"))
+read.tree(paste(getwd(), myJobW2FaD[[2]], "fasttree.nwk", sep="/")) -> Tree
+@
+}
+
+\begin{center}
+\setkeys{Gin}{width=0.59\textwidth}
+{\fs
+<<FASTTREE1treePLOT, echo=FALSE, fig=TRUE, eps = FALSE, height=6, width=6>>=
+plot(Tree)
+@
+}
+\end{center}
+
+\subsection{Workflow Three}
+
+\noindent The third workflow is again dealing with {\ttfamily FastTree}.  {\ttfamily FastTree} can take either a FASTA alignment or a phylip interleaved alignment as inputs.  Now {\ttfamily ClustalW} takes a nucleotide fasta file to get a {\ttfamily PHYLIP INTERLEAVED} alignment type.  {\ttfamily MUSCLE} also can output that alignment.  The {\ttfamily FastTree} model is then used to make the tree.
+
+{\fs
+<<workflow3, echo=TRUE>>=
+myJobW3MuP <- ClustalW("DNA.fasta", job.name="clustalwDNAfasta")
+Wait(myJobW3MuP[[1]], minWait, maxWait)
+myJobW3FaP <- Fasttree("clustalw2.fa", file.path=paste("analyses/",myJobW3MuP[[2]], sep=""), 
+                        job.name="fasttreeMUSCLEdna")
+Wait(myJobW3FaP[[1]], minWait, maxWait)
+RetrieveJob(myJobW3FaP[[1]], c("fasttree.nwk"))
+read.tree(paste(getwd(), myJobW3FaP[[2]], "fasttree.nwk", sep="/")) -> Tree
+@
+}
+
+\begin{center}
+\setkeys{Gin}{width=0.59\textwidth}
+{\fs
+<<FASTTREE2treePLOT, echo=FALSE, fig=TRUE, eps = FALSE, height=6, width=6>>=
+plot(Tree)
+@
+}
+\end{center}
+
+\subsection{Workflow Four}
+
+\noindent The fourth workflow is using {\ttfamily RAxML}.  {\ttfamily MUSCLE} takes a nucleotide fasta file to get a {\ttfamily PHYLIP INTERLEAVED} alignment type.  {\ttfamily ClustalW} also can output that alignment.  The {\ttfamily RAxML} model is then used to make the tree.
+
+{\fs
+<<workflow4, echo=TRUE>>=
+myJobW4MuP <- Muscle("DNA.fasta", aln.filetype="PHYLIP_INT", job.name="muscleWORKFLOW4dna")
+Wait(myJobW4MuP[[1]], minWait, maxWait)
+myJobW4RP <- RAxML("phylip_interleaved.aln", file.path=paste("analyses/",myJobW4MuP[[2]], sep=""), 
+                    job.name="raxmlWORKFLOW4dna")
+Wait(myJobW4RP[[1]], minWait, maxWait)
+RetrieveJob(myJobW4RP[[1]], c("RAxML_bestTree.nwk"))
+read.tree(paste(getwd(), myJobW4RP[[2]], "RAxML_bestTree.nwk", sep="/")) -> Tree
+@
+}
+
+\begin{center}
+\setkeys{Gin}{width=0.59\textwidth}
+{\fs
+<<RAxMLtreePLOT, echo=FALSE, fig=TRUE, eps = FALSE, height=6, width=6>>=
+plot(Tree)
+@
+}
+\end{center}
 
 \newpage
 
+
 \bibliography{refs}
-% \bibliographystyle{jasa}
+\bibliographystyle{jasa}
 
 \end{document}
 
