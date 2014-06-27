@@ -24,6 +24,9 @@ PHYLIP_Pars(file.name, file.path="", job.name=NULL, type="DNA",
 
 	PHYLIP Parsimony outputs trees in Newick format \url{http://en.wikipedia.org/wiki/Newick_format}.
 }
+\value{
+	A list containing the job id and the job name is provided for jobs submitted.  If an error, then a message stating the error should also be reported.
+}
 \seealso{
 	\code{\link{SubmitJob}, \link{Validate}, \link{UploadFile}}
 }
