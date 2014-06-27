@@ -498,7 +498,7 @@ Wait <- function(job.id, minWaitsec, maxWaitsec, print=FALSE){
     #   you could just schedule the next check currentWait sec in the future 
     Sys.sleep(currentWait) 
   }
-  Sys.sleep(5)
+  Sys.sleep(15)
   if (print == TRUE) {
     message(paste("Job number: '", job.id, "' has status: ", currentStatus, sep=""))
   }
