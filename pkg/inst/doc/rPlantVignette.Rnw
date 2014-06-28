@@ -140,6 +140,7 @@ ListDir(dir.name="", suppress.Warnings=TRUE)
 
 \noindent {\it Note}: Some functions contain an option, {\ttfamily suppress.Warnings}.  If you are absolutely sure that the commands you are entering are correct then to speed up the process have {\ttfamily suppress.Warnings=TRUE}.  But be careful, if used inappropriately then files could get overwritten or the files might not even exist and you will get no warning about it. %Probably a good idea to add a sentence or two about what types of warnings are being suppressed.
 
+\subsection{Making directories}
 
 \noindent {\ttfamily MakeDir(dir.name, dir.path="", print.curl=FALSE, suppress.Warnings=FALSE)} \\
 
@@ -176,7 +177,7 @@ MakeDir(dir.name="robots", dir.path="hello/all")
 
 {\fs
 <<ListDirrobots, echo=TRUE>>=
-ListDir(dir.name="robots", dir.path="hello/all")
+ListDir(dir.name="robots", dir.path="hello/all", show.hidden=TRUE)
 @
 }
 
@@ -610,6 +611,7 @@ tryCatch(UploadFile(local.file.name="PROTEIN.fasta", filetype="FASTA-0"), error=
 
 \noindent MUSCLE is a program for creating multiple alignments of amino acid or nucleotide sequences. A range of options is provided that give you the choice of optimizing accuracy, speed, or some compromise between the two.  The manual is also available here: \url{http://www.drive5.com/muscle/muscle\_userguide3.8.html}
 
+{\fs
 <<>>=
 myJobMuDP <- Muscle("DNA.fasta", aln.filetype="PHYLIP_INT", job.name="muscleDNAphyINT")
 myJobMuDF <- Muscle("DNA.fasta", aln.filetype="FASTA", job.name="muscleDNAfasta")
@@ -624,6 +626,7 @@ myJobMuPPS <- Muscle("PROTEIN.fasta", aln.filetype="PHYLIP_SEQ", job.name="muscl
 myJobMuPC <- Muscle("PROTEIN.fasta", aln.filetype="CLUSTALW", job.name="musclePROTEINclustalw")
 myJobMuPM <- Muscle("PROTEIN.fasta", aln.filetype="MSF", job.name="muscleDNAmsf")
 @
+}
 
 \noindent MUSCLE outputs six alignments: fasta.aln (\url{http://en.wikipedia.org/wiki/FASTA\_format}), phylip\_sequential.aln, phylip\_interleaved.aln, phylip\_pars.aln (\url{http://www.bioperl.org/wiki/PHYLIP\_multiple\_alignment\_format}), clustalw.aln (\url{http://meme.nbcr.net/meme/doc/clustalw-format.html}) and msf.aln (\url{http://en.wikipedia.org/wiki/MSF}).
 
@@ -633,13 +636,15 @@ myJobMuPM <- Muscle("PROTEIN.fasta", aln.filetype="MSF", job.name="muscleDNAmsf"
 
 \noindent MAFFT is a multiple sequence alignment program for unix-like operating systems.  It offers a range of multiple alignment methods, L-INS-i (accurate; for alignment of about 200 sequences), FFT-NS-2 (fast; for alignment of about 10,000 sequences), etc.  See \url{http://mafft.cbrc.jp/alignment/software/}.  The manual is also available here: \url{http://mafft.cbrc.jp/alignment/software/manual/manual.html}.
 
+{\fs
 <<>>=
 myJobMaDF <- Mafft("DNA.fasta", job.name="mafftDNAfasta")
 myJobMaDC <- Mafft("DNA.fasta", aln.filetype="CLUSTALW", job.name="mafftDNAclustalw")
 myJobMaPF <- Mafft("PROTEIN.fasta", type="PROTEIN", job.name="mafftPROTEINfasta")
 myJobMaPC <- Mafft("PROTEIN.fasta", type="PROTEIN", aln.filetype="CLUSTALW",
-                    job.name="mafftPROTEINclustalw")
+                   job.name="mafftPROTEINclustalw")
 @
+}
 
 \noindent MAFFT outputs two alignments (both named: mafft.fa): {\ttfamily FASTA} (\url{http://en.wikipedia.org/wiki/FASTA\_format}) and {\ttfamily CLUSTALW} (\url{http://meme.nbcr.net/meme/doc/clustalw-format.html}).
 
@@ -649,6 +654,7 @@ myJobMaPC <- Mafft("PROTEIN.fasta", type="PROTEIN", aln.filetype="CLUSTALW",
 
 \noindent An approach for performing multiple alignments of large numbers of amino acid or nucleotide sequences is described. The method is based on first deriving a phylogenetic tree from a matrix of all pairwise sequence similarity scores, obtained using a fast pairwise alignment algorithm.  See details on \url{http://www.clustal.org/clustal2/}.
 
+{\fs
 <<>>=
 myJobCWDP <- ClustalW("DNA.fasta", job.name="clustalwDNAphylip")
 myJobCWDC <- ClustalW("DNA.fasta", aln.filetype="CLUSTALW", job.name="clustalwDNAclustalw")
@@ -668,6 +674,7 @@ myJobCWPGDE <- ClustalW("PROTEIN.fasta", type="PROTEIN", aln.filetype="GDE",
 myJobCWPPIR <- ClustalW("PROTEIN.fasta", type="PROTEIN", aln.filetype="PIR",
                        job.name="clustalwPROTEINpir")
 @
+}
 
 \noindent {\ttfamily ClustalW} outputs six alignments (all named: clustalw.fa): CLUSTALW \url{http://meme.nbcr.net/meme/doc/clustalw-format.html}, PHYLIP\_INT \url{http://www.bioperl.org/wiki/PHYLIP\_multiple\_alignment\_format}, NEXUS \url{http://en.wikipedia.org/wiki/Nexus\_file}, GCG \url{http://www.genomatix.de/online\_help/help/sequence\_formats.html#GCG}, GDE \url{http://www.cse.unsw.edu.au/~binftools/birch/GDE/overview/GDE.file\_formats.html},  and PIR \url{http://www.bioinformatics.nl/tools/crab\_pir.html}.
 
@@ -776,9 +783,7 @@ myJobRPCWP <- RAxML("clustalw2.fa", file.path=paste("analyses/",myJobCWPP[[2]], 
 myJobPDMuPP <- PHYLIP_Pars("phylip_pars.aln", file.path=paste("analyses/",myJobMuDPP[[2]], 
                            sep=""), job.name="phylipMUSCLEdnaPHYpars")
 @
-}
 
-{\fs
 <<phylipProtein, echo=TRUE>>=
 myJobPPMuPP <- PHYLIP_Pars("phylip_pars.aln", file.path=paste("analyses/",myJobMuPPP[[2]], 
                            sep=""), type="PROTEIN", job.name="phylipMUSCLEproteinPHYpars")
@@ -853,6 +858,8 @@ RetrieveJob(myJobPPMuPP[[1]], c("outtree.nwk"))
 @
 
 \subsection{Genome Wide Association Study models}
+
+\noindent Upload the sample files.  They are in the transposed PLINK format \url{http://pngu.mgh.harvard.edu/~purcell/plink/data.shtml#tr}.
 
 {\fs
 <<uploadfilegwas, echo=TRUE, eval=FALSE>>=
