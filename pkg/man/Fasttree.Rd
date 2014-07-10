@@ -48,13 +48,13 @@ Fasttree(file.name, file.path="", job.name=NULL, args=NULL,
 \dontrun{myJobMaP <- Mafft("PROTEIN.fasta", type="PROTEIN", job.name="mafftAAfasta")}
 \dontrun{minWait = 5 # seconds}
 \dontrun{maxWait = 1800 # 30 min in seconds}
-\dontrun{Wait(myJobMaP[[1]], minWait, maxWait)}
+\dontrun{Wait(myJobMaP$id, minWait, maxWait)}
 \dontrun{myJobFaP <- Fasttree("mafft.fa", type="PROTEIN",
-         file.path=paste("analyses/", myJobMaP[[2]], sep=""), job.name="fasttreeCWaa")}
-\dontrun{Wait(myJobFaP[[1]], minWait, maxWait)}
-\dontrun{RetrieveJob(myJobFaP[[1]], c("fasttree.nwk"))}
+         file.path=paste("analyses/", myJobMaP$name, sep=""), job.name="fasttreeCWaa")}
+\dontrun{Wait(myJobFaP$id, minWait, maxWait)}
+\dontrun{RetrieveJob(myJobFaP$id, c("fasttree.nwk"))}
 
 \dontrun{require(ape)}
-\dontrun{read.tree(paste(getwd(), myJobFaP[[2]], "fasttree.nwk", sep="/")) -> Tree}
+\dontrun{read.tree(paste(getwd(), myJobFaP$name, "fasttree.nwk", sep="/")) -> Tree}
 \dontrun{plot(Tree)}
 }	
