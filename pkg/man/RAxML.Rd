@@ -55,13 +55,13 @@ RAxML(file.name, file.path="", job.name=NULL, type="DNA",
 \dontrun{myJobCWP <- ClustalW("PROTEIN.fasta", type="PROTEIN", job.name="clustalwAAphy")}
 \dontrun{minWait = 5 # seconds}
 \dontrun{maxWait = 1800 # 30 min in seconds}
-\dontrun{Wait(myJobCWP[[1]], minWait, maxWait)}
+\dontrun{Wait(myJobCWP$id, minWait, maxWait)}
 \dontrun{myJobRaxP <- RAxML("clustalw2.fa", type="PROTEIN", file.path=paste("analyses/", 
-                            myJobCWP[[2]], sep=""), job.name="raxmlAA")}
-\dontrun{Wait(myJobRaxP[[1]], minWait, maxWait)}
-\dontrun{RetrieveJob(myJobRaxP[[1]], c("RAxML_bestTree.nwk"))}
+                            myJobCWP$name, sep=""), job.name="raxmlAA")}
+\dontrun{Wait(myJobRaxP$id, minWait, maxWait)}
+\dontrun{RetrieveJob(myJobRaxP$id, c("RAxML_bestTree.nwk"))}
 
 \dontrun{require(ape)}
-\dontrun{read.tree(paste(getwd(), myJobRaxP[[2]], "RAxML_bestTree.nwk", sep="/")) -> Tree}
+\dontrun{read.tree(paste(getwd(), myJobRaxP$name, "RAxML_bestTree.nwk", sep="/")) -> Tree}
 \dontrun{plot(Tree)}
 }	
