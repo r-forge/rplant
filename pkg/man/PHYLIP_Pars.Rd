@@ -38,13 +38,13 @@ PHYLIP_Pars(file.name, file.path="", job.name=NULL, type="DNA",
 \dontrun{myJobMuD <- Muscle("DNA.fasta", aln.filetype="PHYLIP_PARS", job.name="musclePHYdna")}
 \dontrun{minWait = 5 # seconds}
 \dontrun{maxWait = 1800 # 30 min in seconds}
-\dontrun{Wait(myJobMuD[[1]], minWait, maxWait)}
-\dontrun{myJobPhyD <- PHYLIP_Pars("phylip_pars.aln", file.path=paste("analyses/",myJobMuD[[2]],
+\dontrun{Wait(myJobMuD$id, minWait, maxWait)}
+\dontrun{myJobPhyD <- PHYLIP_Pars("phylip_pars.aln", file.path=paste("analyses/",myJobMuD$name,
                                   sep=""), job.name="phylipDNA")}
-\dontrun{Wait(myJobPhyD[[1]], minWait, maxWait)}
-\dontrun{RetrieveJob(myJobPhyD[[1]], c("outtree.nwk"))}
+\dontrun{Wait(myJobPhyD$id, minWait, maxWait)}
+\dontrun{RetrieveJob(myJobPhyD$id, c("outtree.nwk"))}
 
 \dontrun{require(ape)}
-\dontrun{read.tree(paste(getwd(), myJobPhyD[[2]], "outtree.nwk", sep="/")) -> Tree}
+\dontrun{read.tree(paste(getwd(), myJobPhyD$name, "outtree.nwk", sep="/")) -> Tree}
 \dontrun{plot(Tree)}
 }	
