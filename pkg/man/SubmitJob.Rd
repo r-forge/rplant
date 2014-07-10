@@ -97,23 +97,23 @@ A few things to note: 1) depending on the application, the \code{input.list} can
                             "-phyiout")), job.name="muscleDNA")}
 
 # Check the status of any job
-\dontrun{CheckJobStatus(myJob[[1]])}
+\dontrun{CheckJobStatus(myJob$id)}
              
 # Lists and output files a job has created
-\dontrun{ListJobOutput(myJob[[1]])}
+\dontrun{ListJobOutput(myJob$id)}
 
 # Might want to kill job if incorrect running
-\dontrun{KillJob(myJob[[1]])}
+\dontrun{KillJob(myJob$id)}
 # Need to wait for job to be done 
-\dontrun{Wait(myJob[[1]], 5, 1800, print=TRUE)}
+\dontrun{Wait(myJob$id, 5, 1800, print=TRUE)}
  
 # Download output files
-\dontrun{RetrieveJob(myJob[[1]], ListJobOutput(myJob[[1]], print.total=FALSE))}
+\dontrun{RetrieveJob(myJob$id, ListJobOutput(myJob$id, print.total=FALSE))}
      
 # View job history
 \dontrun{GetJobHistory()}
 
 # Delete Job
-\dontrun{DeleteJob(myJob[[1]])}
+\dontrun{DeleteJob(myJob$id)}
 \dontrun{DeleteJob(ALL=TRUE)}
 }
