@@ -498,7 +498,7 @@ The job number is used in a few rPlant functions including, {\ttfamily CheckJobS
 
 {\fs
 <<CheckJobStatus, echo=TRUE>>=
-CheckJobStatus(myJobS[[1]])
+CheckJobStatus(myJobS$id)
 @
 }
 
@@ -508,7 +508,7 @@ CheckJobStatus(myJobS[[1]])
 
 {\fs
 <<KillJob, echo=TRUE>>=
-KillJob(myJobM[[1]])
+KillJob(myJobM$id)
 @
 }
 
@@ -523,12 +523,12 @@ KillJob(myJobM[[1]])
 minWait = 5 # seconds
 maxWait = 1800 # 30 min in seconds
 
-Wait(myJobS[[1]], minWait, maxWait)
+Wait(myJobS$id, minWait, maxWait)
 @
 
 {\fs
 <<ListJobOutput, echo=TRUE, results=verbatim>>=
-ListJobOutput(myJobS[[1]])
+ListJobOutput(myJobS$id)
 @
 }
 
@@ -552,7 +552,7 @@ GetJobHistory()
 
 {\fs
 <<RetrieveJob, echo=TRUE>>=
-RetrieveJob(myJobS[[1]])
+RetrieveJob(myJobS$id)
 @
 }
 
@@ -566,7 +566,7 @@ RetrieveJob(myJobS[[1]])
 
 {\fs
 <<DeleteJob, echo=TRUE>>=
-DeleteJob(myJobS[[1]])
+DeleteJob(myJobS$id)
 @
 }
 
@@ -679,34 +679,34 @@ myJobCWPPIR <- ClustalW("PROTEIN.fasta", type="PROTEIN", aln.filetype="PIR",
 \noindent {\ttfamily ClustalW} outputs six alignments (all named: clustalw.fa): CLUSTALW \url{http://meme.nbcr.net/meme/doc/clustalw-format.html}, PHYLIP\_INT \url{http://www.bioperl.org/wiki/PHYLIP\_multiple\_alignment\_format}, NEXUS \url{http://en.wikipedia.org/wiki/Nexus\_file}, GCG \url{http://www.genomatix.de/online\_help/help/sequence\_formats.html#GCG}, GDE \url{http://www.cse.unsw.edu.au/~binftools/birch/GDE/overview/GDE.file\_formats.html},  and PIR \url{http://www.bioinformatics.nl/tools/crab\_pir.html}.
 
 <<WaitAll1, results=HIDE, echo=FALSE>>=
-Wait(myJobMuDP[[1]], minWait, maxWait)
-Wait(myJobMuDF[[1]], minWait, maxWait)
-Wait(myJobMuDPP[[1]], minWait, maxWait)
-Wait(myJobMuDPS[[1]], minWait, maxWait)
-Wait(myJobMuDC[[1]], minWait, maxWait)
-Wait(myJobMuDM[[1]], minWait, maxWait)
-Wait(myJobMuPP[[1]], minWait, maxWait)
-Wait(myJobMuPF[[1]], minWait, maxWait)
-Wait(myJobMuPPP[[1]], minWait, maxWait)
-Wait(myJobMuPPS[[1]], minWait, maxWait)
-Wait(myJobMuPC[[1]], minWait, maxWait)
-Wait(myJobMuPM[[1]], minWait, maxWait)
-Wait(myJobMaDF[[1]], minWait, maxWait)
-Wait(myJobMaDC[[1]], minWait, maxWait)
-Wait(myJobMaPF[[1]], minWait, maxWait)
-Wait(myJobMaPC[[1]], minWait, maxWait)
-Wait(myJobCWDP[[1]], minWait, maxWait)
-Wait(myJobCWDC[[1]], minWait, maxWait)
-Wait(myJobCWDN[[1]], minWait, maxWait)
-Wait(myJobCWDGCG[[1]], minWait, maxWait)
-Wait(myJobCWDGDE[[1]], minWait, maxWait)
-Wait(myJobCWDPIR[[1]], minWait, maxWait)
-Wait(myJobCWPP[[1]], minWait, maxWait)
-Wait(myJobCWPC[[1]], minWait, maxWait)
-Wait(myJobCWPN[[1]], minWait, maxWait)
-Wait(myJobCWPGCG[[1]], minWait, maxWait)
-Wait(myJobCWPGDE[[1]], minWait, maxWait)
-Wait(myJobCWPPIR[[1]], minWait, maxWait)
+Wait(myJobMuDP$id, minWait, maxWait)
+Wait(myJobMuDF$id, minWait, maxWait)
+Wait(myJobMuDPP$id, minWait, maxWait)
+Wait(myJobMuDPS$id, minWait, maxWait)
+Wait(myJobMuDC$id, minWait, maxWait)
+Wait(myJobMuDM$id, minWait, maxWait)
+Wait(myJobMuPP$id, minWait, maxWait)
+Wait(myJobMuPF$id, minWait, maxWait)
+Wait(myJobMuPPP$id, minWait, maxWait)
+Wait(myJobMuPPS$id, minWait, maxWait)
+Wait(myJobMuPC$id, minWait, maxWait)
+Wait(myJobMuPM$id, minWait, maxWait)
+Wait(myJobMaDF$id, minWait, maxWait)
+Wait(myJobMaDC$id, minWait, maxWait)
+Wait(myJobMaPF$id, minWait, maxWait)
+Wait(myJobMaPC$id, minWait, maxWait)
+Wait(myJobCWDP$id, minWait, maxWait)
+Wait(myJobCWDC$id, minWait, maxWait)
+Wait(myJobCWDN$id, minWait, maxWait)
+Wait(myJobCWDGCG$id, minWait, maxWait)
+Wait(myJobCWDGDE$id, minWait, maxWait)
+Wait(myJobCWDPIR$id, minWait, maxWait)
+Wait(myJobCWPP$id, minWait, maxWait)
+Wait(myJobCWPC$id, minWait, maxWait)
+Wait(myJobCWPN$id, minWait, maxWait)
+Wait(myJobCWPGCG$id, minWait, maxWait)
+Wait(myJobCWPGDE$id, minWait, maxWait)
+Wait(myJobCWPPIR$id, minWait, maxWait)
 @
 
 \subsection{FastTree}
@@ -717,27 +717,27 @@ Wait(myJobCWPPIR[[1]], minWait, maxWait)
 
 {\fs
 <<FasttreeDNA, echo=TRUE>>=
-myJobFaDMuP <- Fasttree("phylip_interleaved.aln", file.path=paste("analyses/",myJobMuDP[[2]], 
+myJobFaDMuP <- Fasttree("phylip_interleaved.aln", file.path=paste("analyses/",myJobMuDP$name, 
                         sep=""), job.name="fasttreeMUSCLEdnaPHY")
-myJobFaDCWP <- Fasttree("clustalw2.fa", file.path=paste("analyses/",myJobCWDP[[2]], sep=""), 
+myJobFaDCWP <- Fasttree("clustalw2.fa", file.path=paste("analyses/",myJobCWDP$name, sep=""), 
                         job.name="fasttreeCLUSTALWdnaPHY")
-myJobFaDMuF <- Fasttree("fasta.aln", file.path=paste("analyses/",myJobMuDF[[2]], sep=""), 
+myJobFaDMuF <- Fasttree("fasta.aln", file.path=paste("analyses/",myJobMuDF$name, sep=""), 
                         job.name="fasttreeMUSCLEdnaFASTA")
-myJobFaDCWF <- Fasttree("mafft.fa", file.path=paste("analyses/",myJobMaDF[[2]], sep=""), 
+myJobFaDCWF <- Fasttree("mafft.fa", file.path=paste("analyses/",myJobMaDF$name, sep=""), 
                         job.name="fasttreeMAFFTdnaFASTA")
 @
 }
 
 {\fs
 <<FasttreeProtein, echo=TRUE>>=
-myJobFaPMuP <- Fasttree("phylip_interleaved.aln", file.path=paste("analyses/",myJobMuPP[[2]], 
+myJobFaPMuP <- Fasttree("phylip_interleaved.aln", file.path=paste("analyses/",myJobMuPP$name, 
                        sep=""), type="PROTEIN", 
                        job.name="fasttreeMUSCLEproteinPHY")
-myJobFaPCWP <- Fasttree("clustalw2.fa", type="PROTEIN", file.path=paste("analyses/",myJobCWPP[[2]], 
+myJobFaPCWP <- Fasttree("clustalw2.fa", type="PROTEIN", file.path=paste("analyses/",myJobCWPP$name, 
                         sep=""), job.name="fasttreeCLUSTALWproteinPHY")
-myJobFaPMuF <- Fasttree("fasta.aln", file.path=paste("analyses/",myJobMuPF[[2]], sep=""), 
+myJobFaPMuF <- Fasttree("fasta.aln", file.path=paste("analyses/",myJobMuPF$name, sep=""), 
                         type="PROTEIN", job.name="fasttreeMUSCLEproteinFASTA")
-myJobFaPCWF <- Fasttree("mafft.fa", file.path=paste("analyses/",myJobMaPF[[2]], sep=""), 
+myJobFaPCWF <- Fasttree("mafft.fa", file.path=paste("analyses/",myJobMaPF$name, sep=""), 
                         type="PROTEIN", job.name="fasttreeMAFFTproteinFASTA")
 @
 }
@@ -754,18 +754,18 @@ myJobFaPCWF <- Fasttree("mafft.fa", file.path=paste("analyses/",myJobMaPF[[2]], 
 
 {\fs
 <<RAxMLDNA, echo=TRUE>>=
-myJobRDMuP <- RAxML("phylip_interleaved.aln", file.path=paste("analyses/",myJobMuDP[[2]], 
+myJobRDMuP <- RAxML("phylip_interleaved.aln", file.path=paste("analyses/",myJobMuDP$name, 
                     sep=""), job.name="raxmlMUSCLEdnaPHY")
-myJobRDCWP <- RAxML("clustalw2.fa", file.path=paste("analyses/",myJobCWDP[[2]], sep=""), 
+myJobRDCWP <- RAxML("clustalw2.fa", file.path=paste("analyses/",myJobCWDP$name, sep=""), 
                     job.name="raxmlCLUSTALWdnaPHY")
 @
 }
 
 {\fs
 <<RAxMLProtein, echo=TRUE>>=
-myJobRPMuP <- RAxML("phylip_interleaved.aln", file.path=paste("analyses/",myJobMuPP[[2]], 
+myJobRPMuP <- RAxML("phylip_interleaved.aln", file.path=paste("analyses/",myJobMuPP$name, 
                     sep=""), type="PROTEIN", job.name="raxmlMUSCLEproteinPHY")
-myJobRPCWP <- RAxML("clustalw2.fa", file.path=paste("analyses/",myJobCWPP[[2]], sep=""), 
+myJobRPCWP <- RAxML("clustalw2.fa", file.path=paste("analyses/",myJobCWPP$name, sep=""), 
                     type="PROTEIN", job.name="raxmlCLUSTALWproteinPHY")
 @
 }
@@ -780,12 +780,12 @@ myJobRPCWP <- RAxML("clustalw2.fa", file.path=paste("analyses/",myJobCWPP[[2]], 
 
 {\fs
 <<phylipDNA, echo=TRUE>>=
-myJobPDMuPP <- PHYLIP_Pars("phylip_pars.aln", file.path=paste("analyses/",myJobMuDPP[[2]], 
+myJobPDMuPP <- PHYLIP_Pars("phylip_pars.aln", file.path=paste("analyses/",myJobMuDPP$name, 
                            sep=""), job.name="phylipMUSCLEdnaPHYpars")
 @
 
 <<phylipProtein, echo=TRUE>>=
-myJobPPMuPP <- PHYLIP_Pars("phylip_pars.aln", file.path=paste("analyses/",myJobMuPPP[[2]], 
+myJobPPMuPP <- PHYLIP_Pars("phylip_pars.aln", file.path=paste("analyses/",myJobMuPPP$name, 
                            sep=""), type="PROTEIN", job.name="phylipMUSCLEproteinPHYpars")
 @
 }
@@ -793,68 +793,68 @@ myJobPPMuPP <- PHYLIP_Pars("phylip_pars.aln", file.path=paste("analyses/",myJobM
 \noindent {\ttfamily PHYLIP Parsimon}y outputs trees in Newick format \url{http://en.wikipedia.org/wiki/Newick_format}.
 
 <<WaitAll2, results=HIDE, echo=FALSE>>=
-Wait(myJobFaDMuP[[1]], minWait, maxWait)
-Wait(myJobFaDCWP[[1]], minWait, maxWait)
-Wait(myJobFaDMuF[[1]], minWait, maxWait)
-Wait(myJobFaDCWF[[1]], minWait, maxWait)
-Wait(myJobFaPMuP[[1]], minWait, maxWait)
-Wait(myJobFaPCWP[[1]], minWait, maxWait)
-Wait(myJobFaPMuF[[1]], minWait, maxWait)
-Wait(myJobFaPCWF[[1]], minWait, maxWait)
-Wait(myJobRDMuP[[1]], minWait, maxWait)
-Wait(myJobRDCWP[[1]], minWait, maxWait)
-Wait(myJobRDMuP[[1]], minWait, maxWait)
-Wait(myJobRDCWP[[1]], minWait, maxWait)
-Wait(myJobRPMuP[[1]], minWait, maxWait)
-Wait(myJobRPCWP[[1]], minWait, maxWait)
-Wait(myJobPDMuPP[[1]], minWait, maxWait)
-Wait(myJobPPMuPP[[1]], minWait, maxWait)
-Wait(myJobCWPPIR[[1]], minWait, maxWait)
+Wait(myJobFaDMuP$id, minWait, maxWait)
+Wait(myJobFaDCWP$id, minWait, maxWait)
+Wait(myJobFaDMuF$id, minWait, maxWait)
+Wait(myJobFaDCWF$id, minWait, maxWait)
+Wait(myJobFaPMuP$id, minWait, maxWait)
+Wait(myJobFaPCWP$id, minWait, maxWait)
+Wait(myJobFaPMuF$id, minWait, maxWait)
+Wait(myJobFaPCWF$id, minWait, maxWait)
+Wait(myJobRDMuP$id, minWait, maxWait)
+Wait(myJobRDCWP$id, minWait, maxWait)
+Wait(myJobRDMuP$id, minWait, maxWait)
+Wait(myJobRDCWP$id, minWait, maxWait)
+Wait(myJobRPMuP$id, minWait, maxWait)
+Wait(myJobRPCWP$id, minWait, maxWait)
+Wait(myJobPDMuPP$id, minWait, maxWait)
+Wait(myJobPPMuPP$id, minWait, maxWait)
+Wait(myJobCWPPIR$id, minWait, maxWait)
 @
 
 <<RetrieveJobs, results=HIDE, echo=FALSE>>=
-RetrieveJob(myJobMuDP[[1]], c("phylip_interleaved.aln"))
-RetrieveJob(myJobMuDF[[1]], c("fasta.aln"))
-RetrieveJob(myJobMuDPP[[1]], c("phylip_pars.aln"))
-RetrieveJob(myJobMuDPS[[1]], c("phylip_sequential.aln"))
-RetrieveJob(myJobMuDC[[1]], c("clustalw.aln"))
-RetrieveJob(myJobMuDM[[1]], c("msf.aln"))
-RetrieveJob(myJobMuPP[[1]], c("phylip_interleaved.aln"))
-RetrieveJob(myJobMuPF[[1]], c("fasta.aln"))
-RetrieveJob(myJobMuPPP[[1]], c("phylip_pars.aln"))
-RetrieveJob(myJobMuPPS[[1]], c("phylip_sequential.aln"))
-RetrieveJob(myJobMuPC[[1]], c("clustalw.aln"))
-RetrieveJob(myJobMuPM[[1]], c("msf.aln"))
-RetrieveJob(myJobMaDF[[1]], c("mafft.fa"))
-RetrieveJob(myJobMaDC[[1]], c("mafft.fa"))
-RetrieveJob(myJobMaPF[[1]], c("mafft.fa"))
-RetrieveJob(myJobMaPC[[1]], c("mafft.fa"))
-RetrieveJob(myJobCWDP[[1]], c("clustalw2.fa"))
-RetrieveJob(myJobCWDC[[1]], c("clustalw2.fa"))
-RetrieveJob(myJobCWDN[[1]], c("clustalw2.fa"))
-RetrieveJob(myJobCWDGCG[[1]], c("clustalw2.fa"))
-RetrieveJob(myJobCWDGDE[[1]], c("clustalw2.fa"))
-RetrieveJob(myJobCWDPIR[[1]], c("clustalw2.fa"))
-RetrieveJob(myJobCWPP[[1]], c("clustalw2.fa"))
-RetrieveJob(myJobCWPC[[1]], c("clustalw2.fa"))
-RetrieveJob(myJobCWPN[[1]], c("clustalw2.fa"))
-RetrieveJob(myJobCWPGCG[[1]], c("clustalw2.fa"))
-RetrieveJob(myJobCWPGDE[[1]], c("clustalw2.fa"))
-RetrieveJob(myJobCWPPIR[[1]], c("clustalw2.fa"))
-RetrieveJob(myJobFaDMuP[[1]], c("fasttree.nwk"))
-RetrieveJob(myJobFaDCWP[[1]], c("fasttree.nwk"))
-RetrieveJob(myJobFaDMuF[[1]], c("fasttree.nwk"))
-RetrieveJob(myJobFaDCWF[[1]], c("fasttree.nwk"))
-RetrieveJob(myJobFaPMuP[[1]], c("fasttree.nwk"))
-RetrieveJob(myJobFaPCWP[[1]], c("fasttree.nwk"))
-RetrieveJob(myJobFaPMuF[[1]], c("fasttree.nwk"))
-RetrieveJob(myJobFaPCWF[[1]], c("fasttree.nwk"))
-RetrieveJob(myJobRDMuP[[1]], c("RAxML_bestTree.nwk"))
-RetrieveJob(myJobRDCWP[[1]], c("RAxML_bestTree.nwk"))
-RetrieveJob(myJobRPMuP[[1]], c("RAxML_bestTree.nwk"))
-RetrieveJob(myJobRPCWP[[1]], c("RAxML_bestTree.nwk"))
-RetrieveJob(myJobPDMuPP[[1]], c("outtree.nwk"))
-RetrieveJob(myJobPPMuPP[[1]], c("outtree.nwk"))
+RetrieveJob(myJobMuDP$id, c("phylip_interleaved.aln"))
+RetrieveJob(myJobMuDF$id, c("fasta.aln"))
+RetrieveJob(myJobMuDPP$id, c("phylip_pars.aln"))
+RetrieveJob(myJobMuDPS$id, c("phylip_sequential.aln"))
+RetrieveJob(myJobMuDC$id, c("clustalw.aln"))
+RetrieveJob(myJobMuDM$id, c("msf.aln"))
+RetrieveJob(myJobMuPP$id, c("phylip_interleaved.aln"))
+RetrieveJob(myJobMuPF$id, c("fasta.aln"))
+RetrieveJob(myJobMuPPP$id, c("phylip_pars.aln"))
+RetrieveJob(myJobMuPPS$id, c("phylip_sequential.aln"))
+RetrieveJob(myJobMuPC$id, c("clustalw.aln"))
+RetrieveJob(myJobMuPM$id, c("msf.aln"))
+RetrieveJob(myJobMaDF$id, c("mafft.fa"))
+RetrieveJob(myJobMaDC$id, c("mafft.fa"))
+RetrieveJob(myJobMaPF$id, c("mafft.fa"))
+RetrieveJob(myJobMaPC$id, c("mafft.fa"))
+RetrieveJob(myJobCWDP$id, c("clustalw2.fa"))
+RetrieveJob(myJobCWDC$id, c("clustalw2.fa"))
+RetrieveJob(myJobCWDN$id, c("clustalw2.fa"))
+RetrieveJob(myJobCWDGCG$id, c("clustalw2.fa"))
+RetrieveJob(myJobCWDGDE$id, c("clustalw2.fa"))
+RetrieveJob(myJobCWDPIR$id, c("clustalw2.fa"))
+RetrieveJob(myJobCWPP$id, c("clustalw2.fa"))
+RetrieveJob(myJobCWPC$id, c("clustalw2.fa"))
+RetrieveJob(myJobCWPN$id, c("clustalw2.fa"))
+RetrieveJob(myJobCWPGCG$id, c("clustalw2.fa"))
+RetrieveJob(myJobCWPGDE$id, c("clustalw2.fa"))
+RetrieveJob(myJobCWPPIR$id, c("clustalw2.fa"))
+RetrieveJob(myJobFaDMuP$id, c("fasttree.nwk"))
+RetrieveJob(myJobFaDCWP$id, c("fasttree.nwk"))
+RetrieveJob(myJobFaDMuF$id, c("fasttree.nwk"))
+RetrieveJob(myJobFaDCWF$id, c("fasttree.nwk"))
+RetrieveJob(myJobFaPMuP$id, c("fasttree.nwk"))
+RetrieveJob(myJobFaPCWP$id, c("fasttree.nwk"))
+RetrieveJob(myJobFaPMuF$id, c("fasttree.nwk"))
+RetrieveJob(myJobFaPCWF$id, c("fasttree.nwk"))
+RetrieveJob(myJobRDMuP$id, c("RAxML_bestTree.nwk"))
+RetrieveJob(myJobRDCWP$id, c("RAxML_bestTree.nwk"))
+RetrieveJob(myJobRPMuP$id, c("RAxML_bestTree.nwk"))
+RetrieveJob(myJobRPCWP$id, c("RAxML_bestTree.nwk"))
+RetrieveJob(myJobPDMuPP$id, c("outtree.nwk"))
+RetrieveJob(myJobPPMuPP$id, c("outtree.nwk"))
 @
 
 \subsection{Genome Wide Association Study models}
@@ -900,12 +900,12 @@ myJobPLINKCT <- PLINKConversion(file.list=list("geno_test.tfam","geno_test.tped"
 @
 
 <<PLINKwait, echo=FALSE>>=
-Wait(myJobPLINKCT[[1]], minWait, maxWait)
+Wait(myJobPLINKCT$id, minWait, maxWait)
 @
 
 <<PLINKConversionT, echo=TRUE>>=
 myJobPLINKCR <- PLINKConversion(file.list=list("plinkout.map","plinkout.ped"),
-                                file.path=paste("analyses/", myJobPLINKCT[[2]], sep=""),
+                                file.path=paste("analyses/", myJobPLINKCT$name, sep=""),
                                 output.type="--recode --transpose", job.name="PCR")
 @
 }
@@ -922,7 +922,7 @@ myJobPLINKCR <- PLINKConversion(file.list=list("plinkout.map","plinkout.ped"),
 <<PLINK, echo=TRUE>>=
 myJobPLINKT <- PLINK(file.list=list("geno_test.tfam","geno_test.tped"), job.name="PLINKT")
 myJobPLINKR <- PLINK(file.list=list("plinkout.map","plinkout.ped"),
-                     file.path=paste("analyses/", myJobPLINKCT[[2]], sep=""), job.name="PLINKR")
+                     file.path=paste("analyses/", myJobPLINKCT$name, sep=""), job.name="PLINKR")
 @
 }
 
@@ -941,7 +941,7 @@ myJobPLINKR <- PLINK(file.list=list("plinkout.map","plinkout.ped"),
 myJobFaST_LMMT <- FaST_LMM(input.file.list=list("geno_test.tfam","geno_test.tped"), 
                            job.name="FaST_LMMT")
 myJobFaST_LMMR <- FaST_LMM(input.file.list=list("plinkout.map","plinkout.ped"),
-                           ALL.file.path=paste("analyses/", myJobPLINKCT[[2]], sep=""), 
+                           ALL.file.path=paste("analyses/", myJobPLINKCT$name, sep=""), 
                            job.name="FaST_LMMR")
 @
 }
@@ -959,12 +959,12 @@ myJobFaST_LMMR <- FaST_LMM(input.file.list=list("plinkout.map","plinkout.ped"),
 {\fs
 <<workflow1, echo=TRUE>>=
 myJobW1MP <- Muscle("PROTEIN.fasta", aln.filetype="PHYLIP_PARS", job.name="muscleWORKFLOW1protein")
-Wait(myJobW1MP[[1]], minWait, maxWait)
-myJobW1PPP <- PHYLIP_Pars("phylip_pars.aln", file.path=paste("analyses/",myJobW1MP[[2]],
+Wait(myJobW1MP$id, minWait, maxWait)
+myJobW1PPP <- PHYLIP_Pars("phylip_pars.aln", file.path=paste("analyses/",myJobW1MP$name,
                           sep=""), type="PROTEIN", job.name="phylipWORKFLOW1protein")
-Wait(myJobW1PPP[[1]], minWait, maxWait)
-RetrieveJob(myJobW1PPP[[1]], c("outtree.nwk"))
-read.tree(paste(getwd(), myJobW1PPP[[2]], "outtree.nwk", sep="/")) -> Tree
+Wait(myJobW1PPP$id, minWait, maxWait)
+RetrieveJob(myJobW1PPP$id, c("outtree.nwk"))
+read.tree(paste(getwd(), myJobW1PPP$name, "outtree.nwk", sep="/")) -> Tree
 @
 }
 
@@ -984,12 +984,12 @@ plot(Tree)
 {\fs
 <<workflow2, echo=TRUE>>=
 myJobW2CWD <- Mafft("PROTEIN.fasta", type="PROTEIN", job.name="mafftPROTEINfasta")
-Wait(myJobW2CWD[[1]], minWait, maxWait)
-myJobW2FaD <- Fasttree("mafft.fa", type="PROTEIN", file.path=paste("analyses/",myJobW2CWD[[2]], 
+Wait(myJobW2CWD$id, minWait, maxWait)
+myJobW2FaD <- Fasttree("mafft.fa", type="PROTEIN", file.path=paste("analyses/",myJobW2CWD$name, 
                        sep=""), job.name="fasttreeCLUSTALWfasta")
-Wait(myJobW2FaD[[1]], minWait, maxWait)
-RetrieveJob(myJobW2FaD[[1]], c("fasttree.nwk"))
-read.tree(paste(getwd(), myJobW2FaD[[2]], "fasttree.nwk", sep="/")) -> Tree
+Wait(myJobW2FaD$id, minWait, maxWait)
+RetrieveJob(myJobW2FaD$id, c("fasttree.nwk"))
+read.tree(paste(getwd(), myJobW2FaD$name, "fasttree.nwk", sep="/")) -> Tree
 @
 }
 
@@ -1009,12 +1009,12 @@ plot(Tree)
 {\fs
 <<workflow3, echo=TRUE>>=
 myJobW3MuP <- ClustalW("DNA.fasta", job.name="clustalwDNAfasta")
-Wait(myJobW3MuP[[1]], minWait, maxWait)
-myJobW3FaP <- Fasttree("clustalw2.fa", file.path=paste("analyses/",myJobW3MuP[[2]], sep=""), 
+Wait(myJobW3MuP$id, minWait, maxWait)
+myJobW3FaP <- Fasttree("clustalw2.fa", file.path=paste("analyses/",myJobW3MuP$name, sep=""), 
                         job.name="fasttreeMUSCLEdna")
-Wait(myJobW3FaP[[1]], minWait, maxWait)
-RetrieveJob(myJobW3FaP[[1]], c("fasttree.nwk"))
-read.tree(paste(getwd(), myJobW3FaP[[2]], "fasttree.nwk", sep="/")) -> Tree
+Wait(myJobW3FaP$id, minWait, maxWait)
+RetrieveJob(myJobW3FaP$id, c("fasttree.nwk"))
+read.tree(paste(getwd(), myJobW3FaP$name, "fasttree.nwk", sep="/")) -> Tree
 @
 }
 
@@ -1034,12 +1034,12 @@ plot(Tree)
 {\fs
 <<workflow4, echo=TRUE>>=
 myJobW4MuP <- Muscle("DNA.fasta", aln.filetype="PHYLIP_INT", job.name="muscleWORKFLOW4dna")
-Wait(myJobW4MuP[[1]], minWait, maxWait)
-myJobW4RP <- RAxML("phylip_interleaved.aln", file.path=paste("analyses/",myJobW4MuP[[2]], sep=""), 
+Wait(myJobW4MuP$id, minWait, maxWait)
+myJobW4RP <- RAxML("phylip_interleaved.aln", file.path=paste("analyses/",myJobW4MuP$name, sep=""), 
                     job.name="raxmlWORKFLOW4dna")
-Wait(myJobW4RP[[1]], minWait, maxWait)
-RetrieveJob(myJobW4RP[[1]], c("RAxML_bestTree.nwk"))
-read.tree(paste(getwd(), myJobW4RP[[2]], "RAxML_bestTree.nwk", sep="/")) -> Tree
+Wait(myJobW4RP$id, minWait, maxWait)
+RetrieveJob(myJobW4RP$id, c("RAxML_bestTree.nwk"))
+read.tree(paste(getwd(), myJobW4RP$name, "RAxML_bestTree.nwk", sep="/")) -> Tree
 @
 }
 
