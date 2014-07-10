@@ -2137,7 +2137,11 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
   cat(paste("You can check your job using CheckJobStatus(", 
             res$result$id, ")", sep=""), "\n")
   # return(res$result$id)
-  return(list(res$result$id, job.name))
+  output <- vector("list", 2)
+  names(output) <- c("id", "name")
+  output$id <- res$result$id
+  output$name <- job.name
+  return(output)
 }
 
 #####################
