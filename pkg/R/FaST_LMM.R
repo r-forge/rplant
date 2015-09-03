@@ -1,9 +1,16 @@
 FaST_LMM <- function(input.file.list="", ALL.file.path="", print.curl=FALSE,
                      sim.file.list=NULL, pheno.file.name=NULL, mpheno=1,
                      args=NULL, covar.file.name=NULL, job.name=NULL, 
-                     version="FaST-LMM-1.09u1", shared.username=NULL,
-                     suppress.Warnings=FALSE, out.basename=NULL, email=TRUE) {
+                     shared.username=NULL, suppress.Warnings=FALSE,
+                      out.basename=NULL, email=TRUE) {
 
+  if (rplant.env$api == "a") {
+    privAPP=TRUE
+    version="FaST-LMM-beta-2.07"
+  } else {
+    privAPP=FALSE
+    version="FaST-LMM-1.09u1"
+  }
 
   input.len <- length(input.file.list)
   input.list <- list()
@@ -79,7 +86,7 @@ FaST_LMM <- function(input.file.list="", ALL.file.path="", print.curl=FALSE,
   options <- append(options, list(c("arguments",args)))
   # Submit
   myJob<-SubmitJob(application=version, args.list=options, job.name=job.name,
-                   file.list=input.file.list, file.path=ALL.file.path, email=email,
+                   file.list=input.file.list, file.path=ALL.file.path, email=email, private.APP=privAPP,
                    input.list=input.list, shared.username=shared.username,
                    print.curl=print.curl, suppress.Warnings=suppress.Warnings)
 

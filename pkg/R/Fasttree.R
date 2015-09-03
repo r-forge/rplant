@@ -1,7 +1,7 @@
-Fasttree <- function(file.name, file.path="", job.name=NULL, args=NULL, 
-                     type="DNA", model=NULL, gamma=FALSE, stat=FALSE,
-                     print.curl=FALSE, version="fasttreeDispatcher-1.0.0u1", 
-                     shared.username=NULL, suppress.Warnings=FALSE, email=TRUE) {
+Fasttree <- function(file.name, file.path="", job.name=NULL, out.name=NULL, 
+                     args=NULL, type="DNA", model=NULL, gamma=FALSE, stat=FALSE,
+                     print.curl=FALSE, shared.username=NULL, email=TRUE,
+                     suppress.Warnings=FALSE) {
 
   # FastTree infers approximately-maximum-likelihood phylogenetic trees 
   #   from alignments of nucleotide or protein sequences.
@@ -42,10 +42,10 @@ Fasttree <- function(file.name, file.path="", job.name=NULL, args=NULL,
 
     model <- match.arg(model, c("GTRCAT", "JCCAT"))
 
-    if (is.null(job.name)){
-      job.name <- paste(rplant.env$user, "_Fasttreedna_", model, "_viaR",
-                        sep="")
-    }
+#   if (is.null(job.name)){
+#     job.name <- paste(rplant.env$user, "_Fasttreedna_", model, "_viaR",
+#                       sep="")
+#   }
 
   } else {
 
@@ -55,16 +55,14 @@ Fasttree <- function(file.name, file.path="", job.name=NULL, args=NULL,
 
     model <- match.arg(model, c("JTTCAT", "WAGCAT"))
 
-    if (is.null(job.name)){
-      job.name <- paste(rplant.env$user, "_Fastreeprotein_", model, "_viaR", 
-                        sep="")
-    }
+#   if (is.null(job.name)){
+#     job.name <- paste(rplant.env$user, "_Fastreeprotein_", model, "_viaR", 
+#                       sep="")
+#   }
   }
 
-  if (model == "GTRCAT"){
-    args <- append(args, "-gtr -nt")
-  } else if (model == "WAGCAT"){
-    args <- append(args, "-wag")
+  if (!is.null(args)) {
+    args <- c(args)
   }
 
   if (gamma == TRUE) {
@@ -74,26 +72,64 @@ Fasttree <- function(file.name, file.path="", job.name=NULL, args=NULL,
   if (stat == TRUE) {
     args <- append(args, "-log logfile")
   }
-  args <- paste(args, collapse=" ")  # make a single statement
+    
+  if (rplant.env$api == "f") {
 
+    privAPP=FALSE
+    version="fasttreeDispatcher-1.0.0u1"
+
+    if (model == "GTRCAT"){
+      args <- append(args, "-gtr -nt")
+    } else if (model == "WAGCAT"){
+      args <- append(args, "-wag")
+    }
+  
+    args <- paste(args, collapse=" ")  # make a single statement
+  
+    args <- list(c("arguments",args))
+
+  } else {
+
+    privAPP=TRUE
+    version="rb-FasttreeDispatcher-2.1.4" 
+
+    options=NULL
+  
+    if (model == "GTRCAT"){
+      options <- append(options, list(c("model", "-gtr -nt")))
+    } else if (model == "WAGCAT"){
+      options <- append(options, list(c("model", "-wag")))
+    }
+
+    if (!is.null(out.name)) {
+      options <- append(options, list(c("outname", out.name)))
+    }
+  
+    if (!is.null(args)){
+      args <- c(args)
+      args <- append(options, list(c("arguments",args)))
+    } else {
+      args <- options
+    }
+    
+
+  }
+  
   nprocs <- 1
   App <- GetAppInfo(version)[[3]]
   input.list <- vector("list",1)
   input.list[[1]] <- App[,2][1]
 
   if (is.null(job.name)){
-    job.name <- paste(rplant.env$user,"_",version,"_viaR", sep="")
-  }
-
-  if (!is.null(args)){
-    args <- list(c("arguments",args))
+#   job.name <- paste(rplant.env$user,"_",version,"_viaR", sep="")
+    job.name <- version
   }
 
   myJob<-SubmitJob(application=version, job.name=job.name, nprocs=nprocs,
                    file.list=list(file.name), file.path=file.path, email=email,
                    input.list=input.list, suppress.Warnings=suppress.Warnings,
                    print.curl=print.curl, shared.username=shared.username,
-                   args.list=args)
+                   args.list=args, private.APP=privAPP)
 
   return(myJob)
 }
