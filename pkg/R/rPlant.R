@@ -1,10 +1,16 @@
 # Copyright (c) 2012 by Barb Banbury, University of Tennessee, 
-# Update to Agave API 2014 by Kurt Michels, University of Arizona
+# Update on Foundation API 2013 by Kurt Michels, University of Arizona
+# Update to Agave API 2014-2015 by Kurt Michels, University of Arizona
+# Removal of Foundation API 2015 by Kurt Michels, University of Arizona
+# -- A note on removal.  I only removed any mention of the Foundation API
+#    on the help pages.  If one does api="foundation" in the Validate 
+#    function, it will work.  But the Foundation API is depracated.  I am
+#    keeping the structure of two APIs supported because some day another
+#    API will be created, then the developer only needs to replace all
+#    of the Foundation urls.
 #
 # rPlant directly interacts with iplant's command-line API for the 
 # Discovery Environment (DE)
-
-# Maybe add a CopyFile and a CopyDir function?
 
 # -- AUTHENTICATION FUNCTIONS -- #
 
@@ -16,7 +22,7 @@ utils::globalVariables(c("rplant.env"))
 #####################
 #####################
 
-Create_Keys <- function(user, pwd) {
+Create_Keys <- function(user, pwd, print.curl=FALSE) {
   # Calls the Agave API, if the user already has a key and secret for rPlant, 
   #   then it fetches them, o/w it creates the keys, and subscribes to the 
   #   correct API's.  This key and secret are required for Validation, all
@@ -44,6 +50,12 @@ Create_Keys <- function(user, pwd) {
                             return(paste(err))
                           }
                   )
+
+  if (print.curl){
+    curl.string <- paste0("curl -sku ", user, " -X POST -d clientName=rPlant -d tier=Unlimited -d description='' -d callbackUrl='' ", web)
+    print(curl.string)
+  }
+
   Error(res)
   return(list(res$result$consumerKey, res$result$consumerSecret))
 }
@@ -55,18 +67,24 @@ Create_Keys <- function(user, pwd) {
 #####################
 
 Validate <- function(user, pwd, api="agave", print.curl=FALSE) {
-  # Calls either the Foundation API or the Agave API.  Calling the Agave
-  #   API is default.  This function simply validates a user credentials 
-  #   for the API.
+  # Calls the Agave API.  Used to call both Foundation API or the Agave
+  #   API, but Foundation is deprecated.  This function simply validates
+  #   a users credentials for the API.
   #
   # Args:
   #   user: Valid iPlant username
   #   pwd: Valid iPlant password, this combo's with the iPlant username
-  #   api: Either "agave" or "foundation"
+  #   api: "agave"
   #   print.curl: Prints the associated curl statment
   #
   # Returns:
   #   An error if not valid credentials, o/w nothing
+
+# The Foundation API has been depracated, so it is no longer working.  I am
+#   only commenting out the Foundation API because some day a new API will
+#   probably be created and everything moved.  When that happens, this can
+#   be used again.  The next section details all the different parts.
+
   api <- match.arg(api, c("agave", "foundation"))
 
   if (api == "foundation"){
@@ -96,7 +114,7 @@ Validate <- function(user, pwd, api="agave", print.curl=FALSE) {
       assign(x     = "webio1",  
              value = paste(web_BASE, "io-v1/io", sep=""), 
              envir=rplant.env)
-      assign(x     = "webcheck",  
+     assign(x     = "webcheck",  
              value = paste(web_BASE, "io-v1/io/list/", user, sep=""), 
              envir=rplant.env)
       assign(x     = "weblist",  
@@ -200,7 +218,12 @@ Validate <- function(user, pwd, api="agave", print.curl=FALSE) {
                               return(paste(err))
                             }
                     )
+  
+    if (print.curl){
+      print(curl.string)
+    }
 
+    Error(res)
     # As I said the RCurl statements are not unique, here is another way to do
     #   that exact statement, using postFORM(), which the RCurl creator, Dr.
     #   Lang said he liked to use.
@@ -305,10 +328,6 @@ Validate <- function(user, pwd, api="agave", print.curl=FALSE) {
       }
     }
   }
-
-  if (print.curl){
-    print(curl.string)
-  }
 }
 
 #####################
@@ -350,8 +369,16 @@ RenewToken <- function(print.curl=FALSE) {
                                                    customrequest = "POST")), 
                     error = function(err) {
                               return(paste(err))
-                            }
+                           }
                     )
+
+    if (print.curl){
+      curl.string <- paste("curl -sku ", rplant.env$consumer_key, ":", 
+                           rplant.env$consumer_secret, " -X POST -d '", string,
+                           "' ", rplant.env$webauth, sep="")
+      print(curl.string)
+    }
+
     Error(res)
 
     if (length(res) == 4){
@@ -371,13 +398,6 @@ RenewToken <- function(print.curl=FALSE) {
                                    httpauth       = 1L, 
                                    ssl.verifypeer = FALSE),     
              envir = rplant.env)
-    }
-
-    if (print.curl){
-      curl.string <- paste("curl -sku ", rplant.env$consumer_key, ":", 
-                           rplant.env$consumer_secret, " -X POST -d '", string,
-                           "' ", rplant.env$webauth, sep="")
-      print(curl.string)
     }
   }
 }
@@ -500,7 +520,7 @@ Wait <- function(job.id, minWaitsec, maxWaitsec, print=FALSE){
       Sys.sleep(currentWait) 
     }
   } else {
-    # For the Avega API the job isn't done until 'FINISHED'
+    # For the Agave API the job isn't done until 'FINISHED'
     while (( currentStatus != 'FAILED' ) && (currentStatus != 'FINISHED')) {
       oldStatus = currentStatus
       currentStatus = CheckJobStatus( job.id )
@@ -597,7 +617,7 @@ TestApp <- function(APP){
   # Returns:
   #   Short description of application
   if (rplant.env$api == "f"){
-    first_string <- "res$result[[len]]"
+    first_string <- "res$result[[1]]"
       if (substring(APP,nchar(APP)-1,nchar(APP)-1) == "u"){
       priv.APP <- substring(APP,1,nchar(APP)-2)
     } else if (substring(APP,nchar(APP)-2,nchar(APP)-2) == "u"){
@@ -611,12 +631,16 @@ TestApp <- function(APP){
   }
 
   Renew()
-  res <- fromJSON(getForm(uri          = paste(rplant.env$webappsname, priv.APP, sep="/"),
-                          .checkparams = FALSE,
-                          curl         = rplant.env$curl.call))
-  len <- length(res$result)
+  res <- tryCatch(expr  = fromJSON(getForm(uri          = paste(rplant.env$webappsname,
+                                                                priv.APP, sep="/"),
+                                           .checkparams = FALSE, 
+                                           curl         = rplant.env$curl.call)), 
+                  error = function(err) {
+                            return(paste(err))
+                          }
+                  )
 
-  if (length(res) == 0){
+  if (length(res) == 1){
     return(list(NULL))
   } else {
     shortd <- eval(parse(text=paste(first_string, "$shortDescription", sep="")))
@@ -846,6 +870,64 @@ Rename <- function(name, new.name, path="", print.curl=FALSE, suppress.Warnings=
   if (print.curl){
     curl.string <- paste(rplant.env$first, " -X PUT -d '", 
                          paste(content, collapse = "&"), "' ", web, sep="")
+    print(curl.string)
+  }
+
+  val <- charToRaw(paste(content, collapse = "&"))
+  Renew()
+  res <- tryCatch(expr  = fromJSON(httpPUT(url     = web, 
+                                           content = val, 
+                                           curl    = rplant.env$curl.call)),
+                  error = function(err) {
+                            return(paste(err))
+                          }
+                  )
+  if (!suppress.Warnings){Error(res)}
+}
+
+#####################
+#####################
+####### Copy ########
+#####################
+#####################
+
+Copy <- function(name, org.path="", end.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
+  # This function simply moves the object 'name' from 'org.path'
+  #   to 'end.path'
+  #
+  # Args:
+  #   name: Name of object
+  #   org.path: Original or current path where object is
+  #   end.path: Path to where object will be moved
+  #   print.curl: Prints the associated curl statement
+  #   suppress.Warnings: Don't do any error checking (faster)
+  #
+  # Returns:
+  #   Returns nothing unless an error
+  if (rplant.env$api == "f") {
+    path <- "newPath="
+  } else {
+    path <- "path="
+  }
+
+  content <- c()
+  if (end.path == ""){
+    content[1] <- paste(path, rplant.env$user, name, sep="/")
+  } else {
+    content[1] <- paste(path, rplant.env$user, end.path, name, sep="/")
+  }
+  content[2] <- "action=copy"
+
+  if (org.path == ""){
+    web <- paste(rplant.env$webio, name, sep="/")
+  } else {
+    web <- paste(rplant.env$webio, org.path, name, sep="/")
+  }
+
+  if (print.curl){
+    curl.string <- paste(rplant.env$first, " -X PUT -d '", 
+                         paste(content, collapse = "&"), "' ", 
+                         web, sep="")
     print(curl.string)
   }
 
@@ -1241,13 +1323,14 @@ UploadFile <- function(local.file.name, local.file.path="", filetype=NULL,
                               return(paste(err))
                             }
                     )
-    if (!suppress.Warnings){Error(res)}
-    curl.string <- paste(rplant.env$first," -F 'fileToUpload=@", file.path, 
-                         "' ", rplant.env$webio, sep="")
-  }
+    if (print.curl==TRUE){
+      curl.string <- paste(rplant.env$first," -F 'fileToUpload=@", file.path, 
+                           "' ", rplant.env$webio, sep="")
+      print(curl.string)
+    }
 
-  if (print.curl==TRUE){
-    print(curl.string)
+    if (!suppress.Warnings){Error(res)}
+
   }
 }
 
@@ -1343,6 +1426,38 @@ RenameFile <- function(file.name, new.file.name, file.path="",
 
 #####################
 #####################
+##### CopyFile ######
+#####################
+#####################
+
+CopyFile <- function(file.name, file.path="", end.path="", 
+                     print.curl=FALSE, suppress.Warnings=FALSE) {
+  # This function simply moves the 'file.name' from 'file.path'
+  #   to 'end.path'
+  #
+  # Args:
+  #   file.name: Name of file
+  #   file.path: Original or current path where file is
+  #   end.path: Path to where file will be moved
+  #   print.curl: Prints the associated curl statement
+  #   suppress.Warnings: Don't do any error checking (faster)
+  #
+  # Returns:
+  #   Returns nothing unless an error.  Error if 'file.name'
+  #     does not exist or if 'file.name' in 'end.path' already
+  #     does exist
+
+  # Check 'file.name'
+  Check(file.name, file.path, suppress.Warnings)
+
+  # Check 'file.name' in 'end.path'
+  Check(file.name, end.path, suppress.Warnings, check=TRUE)
+
+  Copy(file.name, file.path, end.path, print.curl)
+}
+
+#####################
+#####################
 ##### MoveFile ######
 #####################
 #####################
@@ -1423,12 +1538,13 @@ SupportFile <- function(print.curl=FALSE, suppress.Warnings=FALSE) {
                             return(paste(err))
                           }
                   )
-  if (!suppress.Warnings){Error(res)}
 
   if (print.curl) {
     curl.string <- paste(rplant.env$first, "-X GET", rplant.env$webtransform)
     print(curl.string)
   }
+
+  if (!suppress.Warnings){Error(res)}
 
   file.types <- c()
   for(i in 1:length(res$result)) {
@@ -1489,32 +1605,39 @@ ListDir <- function(dir.name="", dir.path="", print.curl=FALSE,
                   error = function(err) {return(paste(err))})
   if (!suppress.Warnings){Error(tmp)}
   nms <- NULL  #create names vector to parse hiddens
+  type <- NULL
   for(i in sequence(length(tmp$result))){
     nms <- c(nms, tmp$result[[i]]$name)
+    type <- c(type, tmp$result[[i]]$type)
   }
-
+    
   toIgnore <- grep("^\\.+$", nms) # always ignore home directory
   whichHiddens <- grep("^[.]\\D+", nms)
   if(show.hidden)
     toIgnore <- union(toIgnore, whichHiddens)
-  if (length(toIgnore) != 0) {
-    alr <- as.matrix(1:length(tmp$result))[-toIgnore]
-  } else {
-    alr <- as.matrix(1:length(tmp$result))
-  }
-  tmpIgnore <- vector("list",length(alr))
-  cnt <- 1
-  for (i in alr){
-   tmpIgnore[[cnt]] <- tmp$result[[i]]
-   cnt = cnt + 1
-  }
 
-  res <- matrix(nrow=length(tmp$result)-length(toIgnore), ncol=2)
+  nms <- nms[-toIgnore]
+  type <- type[-toIgnore]
+
+  # This portion is necessary to weed out the artifact folders.  It probably
+  #   won't be implemented because it is slow.
+  # newnms <- NULL
+  # newtype <- NULL
+  # for (i in 1:length(nms)) {
+  #   path <- paste(dir.path, dir.name, nms[i], sep="/")
+  #   dir.exist <- fromJSON(getURL(url  = paste(rplant.env$webcheck, path, sep=""), curl = rplant.env$curl.call))
+  #   if (dir.exist$status != 'error') {
+  #     newnms <- append(newnms, nms[i])
+  #     newtype <- append(newtype, type[i])
+  #   }
+  # }
+
+  res <- matrix(nrow=length(nms), ncol=2)
   colnames(res) <- c("name", "type")
 
   for (i in sequence(dim(res)[1])) {
-    res[i, 1] <- tmpIgnore[[i]]$name
-    res[i, 2] <- tmpIgnore[[i]]$type
+    res[i, 1] <- nms[i]
+    res[i, 2] <- type[i]
   }
   return(res)
 }
@@ -1605,6 +1728,37 @@ RenameDir <- function(dir.name, new.dir.name, dir.path="", print.curl=FALSE, sup
   Check(new.dir.name, dir.path, suppress.Warnings, check=TRUE)
 
   Rename(dir.name, new.dir.name, dir.path, print.curl) 
+}
+
+#####################
+#####################
+######CopyDir ######
+#####################
+#####################
+
+CopyDir <- function(dir.name, dir.path="", end.path="", print.curl=FALSE, suppress.Warnings=FALSE) {
+  # This function simply moves the 'dir.name' from 'dir.path'
+  #   to 'end.path'
+  #
+  # Args:
+  #   dir.name: Name of directory
+  #   dir.path: Original or current path where directory is
+  #   end.path: Path to where directory will be moved
+  #   print.curl: Prints the associated curl statement
+  #   suppress.Warnings: Don't do any error checking (faster)
+  #
+  # Returns:
+  #   Returns nothing unless an error.  Error if 'dir.name'
+  #     does not exist or if 'dir.name' in 'end.path' already
+  #     does exist
+
+  # Check 'dir.name'
+  Check(dir.name, dir.path, suppress.Warnings)
+
+  # Check 'dir.name' in 'end.path'
+  Check(dir.name, end.path, suppress.Warnings, check=TRUE)
+
+  Copy(dir.name, dir.path, end.path, print.curl)
 }
 
 #####################
@@ -1759,12 +1913,13 @@ ListApps<- function (description=FALSE, print.curl=FALSE, suppress.Warnings=FALS
                             return(paste(err))
                           }
                   )
-  if (!suppress.Warnings){Error(tmp)}
 
   if (print.curl) {
     curl.string <- paste(rplant.env$first, "-X GET", rplant.env$webappslist)
     print(curl.string)
   }
+
+  if (!suppress.Warnings){Error(tmp)}
 
   Apps <- list()
   for (j in 1:length(tmp$result)){
@@ -1780,6 +1935,8 @@ ListApps<- function (description=FALSE, print.curl=FALSE, suppress.Warnings=FALS
     }
     if (!is.null(ans[[1]])){ # Now no duplicate so add to list
       Apps <- append(Apps,list(c(ans)))
+    } else {
+      Apps <- append(Apps,list(c(tmp$result[[j]]$id, "Private Application")))
     }
   }
   if (description == TRUE){ # If description
@@ -1860,8 +2017,38 @@ GetAppInfo <- function(application, return.json=FALSE, print.curl=FALSE) {
                                                 sep="")))))
     }
 
+    for (parameter in sequence(length(eval(parse(text=paste(tmp_string, "$parameters", 
+                                                            sep="")))))) {
+      app.info <- rbind(app.info, 
+                        c("parameters", 
+                          eval(parse(text=paste(tmp_string, 
+                                                "$parameters[[parameter]]$id", 
+                                                sep=""))), 
+                          eval(parse(text=paste(tmp_string, 
+                                                "$parameters[[parameter]]$value$type", 
+                                                sep=""))), 
+                          eval(parse(text=paste(tmp_string, 
+                                                "$parameters[[parameter]]$details$label",
+                                                sep="")))))
+
+
+#      if (eval(parse(text=paste(tmp_string,"$parameters[[parameter]]$value$type", sep=""))) == "enumeration") {
+#          for (i in c(1:length(eval(parse(text=paste(tmp_string,"$parameters[[parameter]]$value$enum_values", sep="")))))) {
+#app.info <- rbind(app.info, c("", paste("enum-choice",i), names(eval(parse(text=paste(tmp_string,"$parameters[[parameter]]$value$enum_values[[i]]", sep="")))), eval(parse(text=paste(tmp_string,"$parameters[[parameter]]$value$enum_values[[i]]", sep="")))))
+#}
+#      }
+      if (eval(parse(text=paste(tmp_string,"$parameters[[parameter]]$value$type", sep=""))) == "enumeration") {
+          for (i in c(1:length(eval(parse(text=paste(tmp_string,"$parameters[[parameter]]$value$enum_values", sep="")))))) {
+app.info <- rbind(app.info, c("", paste("enum-choice",i), names(eval(parse(text=paste(tmp_string,"$parameters[[parameter]]$value$enum_values[[i]]", sep="")))), ""))
+}
+      }
+  }
+    
     for (output in sequence(length(eval(parse(text=paste(tmp_string, "$outputs",
                                                          sep="")))))) {
+
+
+        
       app.info <- rbind(app.info, 
                         c("output", 
                           eval(parse(text=paste(tmp_string, 
@@ -1875,20 +2062,7 @@ GetAppInfo <- function(application, return.json=FALSE, print.curl=FALSE) {
                                                 sep=""))))) 
     }
 
-    for (parameter in sequence(length(eval(parse(text=paste(tmp_string, "$parameters", 
-                                                            sep="")))))) {
-      app.info <- rbind(app.info, 
-                        c("output", 
-                          eval(parse(text=paste(tmp_string, 
-                                                "$parameters[[parameter]]$id", 
-                                                sep=""))), 
-                          eval(parse(text=paste(tmp_string, 
-                                                "$parameters[[parameter]]$value$type", 
-                                                sep=""))), 
-                          eval(parse(text=paste(tmp_string, 
-                                                "$parameters[[parameter]]$details$label",
-                                                sep=""))))) 
-    }
+
     shortd <- eval(parse(text=paste(tmp_string, "$shortDescription", sep="")))
     shortn <- nchar(shortd)
     longd <- eval(parse(text=paste(tmp_string, "$longDescription", sep="")))
@@ -1908,6 +2082,7 @@ GetAppInfo <- function(application, return.json=FALSE, print.curl=FALSE) {
     }
   }
 }
+
 # -- END -- #
  
 
@@ -1923,6 +2098,11 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
                       args.list=NULL, job.name, nprocs=1, private.APP=FALSE, 
                       suppress.Warnings=FALSE, shared.username=NULL,
                       print.curl=FALSE, email=TRUE) {
+  
+  if (private.APP) {
+    suppress.Warnings=TRUE
+  }
+  
   # This takes the application name and returns basic information about the
   #   app.
   #
@@ -1953,6 +2133,11 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
   job.name <- paste(unlist(strsplit(paste(job.name, "_", format(Sys.time(), 
                     "%Y-%m-%d_%k-%M-%OS3"), sep=""), " ")), collapse="")
 
+  if (nchar(job.name) > 128) {
+    total = nchar(job.name) - 127
+    job.name = substring(job.name, total, nchar(job.name))
+  }
+
   Time()
   Renew()
   content <- c()
@@ -1962,15 +2147,13 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
     eml_string <- "callbackUrl="
     content[1] <- paste("jobName=", job.name, sep="")
     content[2] <- paste("softwareName=", application, sep="")
-    content[3] <- paste("processorCount=", nprocs, sep="")
-    content[4] <- "requestedTime=24:00:00"
+    content[3] <- "requestedTime=24:00:00"
   } else {
     tmp_string <- "tmp$result"
     eml_string <- "callbackURL="
     content[1] <- paste("name=", job.name, sep="")
     content[2] <- paste("appId=", application, sep="")
-    content[3] <- paste("nodeCount=", nprocs, sep="")
-    content[4] <- "maxRunTime=24:00:00"
+    content[3] <- "maxRunTime=24:00:00"
   }
   # Check that all of the files exist
   for (i in 1:length(file.list)){
@@ -2051,6 +2234,12 @@ SubmitJob <- function(application, file.path="", file.list=NULL, input.list,
     if (nprocs != 1){
       nprocs = 1
     }
+  }
+
+  if (rplant.env$api == "f") {
+    content[4] <- paste("processorCount=", nprocs, sep="")
+  } else {
+    content[4] <- paste("nodeCount=", nprocs, sep="")
   }
 
   # Automatically makes analyses directory; will not overwrite if already present
@@ -2195,12 +2384,13 @@ CheckJobStatus <- function(job.id, history=FALSE, print.curl=FALSE) {
                             return(paste(err))
                           }
                   )
-  Error(res)
 
   if (print.curl) {
     curl.string <- paste(rplant.env$first, web)
     print(curl.string)
   }
+
+  Error(res)
 
   if (!(((rplant.env$api == "f") && (history == TRUE)) || (history == FALSE))){
     return(res$result)
@@ -2244,7 +2434,6 @@ KillJob <- function(job.id, print.curl=FALSE) {
                             return(paste(err))
                           }
                   )
-  Error(res)
 
   if (print.curl) {
     curl.string <- paste(rplant.env$first, " -X POST -d '", 
@@ -2252,6 +2441,10 @@ KillJob <- function(job.id, print.curl=FALSE) {
                          web, sep="")
     print(curl.string)
   }
+
+  Error(res)
+
+  DeleteJob(job.id)
 }
 
 #####################
@@ -2290,21 +2483,22 @@ DeleteOne <- function(job.id, print.curl=FALSE) {
   if ((JS$result$status == "FINISHED") || (JS$result$status == "STOPPED") || 
       (JS$result$status == "ARCHIVING_FINISHED") || (JS$result$status == "FAILED")){
     # DeleteJob deletes the directory the result files are in, this finds that folder
-    dir.name <- unlist(strsplit(JS$result$archivePath, "/"))[
-                       length(unlist(strsplit(JS$result$archivePath, "/")))]
+    if (JS$result$archive == TRUE){
+      dir.name <- unlist(strsplit(JS$result$archivePath, "/"))[
+                         length(unlist(strsplit(JS$result$archivePath, "/")))]
 
-    dir.path <- substr(JS$result$archivePath, nchar(rplant.env$user) + 3, 
-                       nchar(JS$result$archivePath)-nchar(dir.name)-1)
+      dir.path <- substr(JS$result$archivePath, nchar(rplant.env$user) + 3, 
+                         nchar(JS$result$archivePath)-nchar(dir.name)-1)
 
     # Delete the directory
-    tmp <- tryCatch(expr  = fromJSON(httpDELETE(paste(rplant.env$webio, dir.path, 
-                                                      dir.name, sep="/"), 
-                                                curl = rplant.env$curl.call)),
-                    error = function(err) {
-                              return(paste(err))
-                            }
-                    )
-
+      tmp <- tryCatch(expr  = fromJSON(httpDELETE(paste(rplant.env$webio, dir.path, 
+                                                        dir.name, sep="/"), 
+                                                  curl = rplant.env$curl.call)),
+                      error = function(err) {
+                                return(paste(err))
+                              }
+                      )
+    }
     # Delete the job
     tmp <- tryCatch(expr  = fromJSON(httpDELETE(web, curl = rplant.env$curl.call)),
                     error = function(err) {
@@ -2317,12 +2511,13 @@ DeleteOne <- function(job.id, print.curl=FALSE) {
       print(curl.string)
     }
 
+    Error(tmp)
+
   } else {
     return(stop(paste("Error: Could not delete, job status:", 
                       JS$result$status), call. = FALSE))
   }
 }
-
 #####################
 #####################
 ##### DeleteALL #####
@@ -2355,7 +2550,11 @@ DeleteALL <- function() {
     message("No jobs in job history")
   } else { # Go through each job and delete it
     for (i in 1:length(res$result)){
-      DeleteOne(res$result[[i]]$id)
+      JS <- tryCatch(expr = DeleteOne(res$result[[i]]$id), 
+                 error = function(err) {
+                           return(paste(err))
+                         }
+                 )
     }
   }
 }
@@ -2594,12 +2793,13 @@ GetJobHistory <- function(return.json=FALSE, print.curl=FALSE) {
                             return(paste(err))
                           }
                   )
-  Error(res)
 
   if (print.curl) {
     curl.string <- paste(rplant.env$first, "-X GET", rplant.env$webjoblist)
     print(curl.string)
   }
+
+  Error(res)
 
   if (length(res$result) == 0){
     return("No jobs in history")

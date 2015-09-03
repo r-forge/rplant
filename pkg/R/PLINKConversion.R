@@ -1,8 +1,16 @@
 PLINKConversion <- function(file.list="", file.path="", output.type="--recode",
                             job.name=NULL, shared.username=NULL, 
-                            print.curl=FALSE, version="plink-1.07u1", 
-                            suppress.Warnings=FALSE, out.basename=NULL, email=TRUE) {
+                            print.curl=FALSE, suppress.Warnings=FALSE,
+                            out.basename=NULL, email=TRUE) {
 
+  if (rplant.env$api == "a") {
+    privAPP=TRUE
+    version="plink-beta-1.07"
+  } else {
+    privAPP=FALSE
+    version="plink-1.07u1"
+  }
+  
   input.len <- length(file.list)
   input.list <- list()
   if ((input.len) == 3){
@@ -91,7 +99,8 @@ PLINKConversion <- function(file.list="", file.path="", output.type="--recode",
   myJob<-SubmitJob(application=version, args.list=options, job.name=job.name,
                    file.list=file.list, file.path=file.path, email=email,  
                    input.list=input.list, suppress.Warnings=suppress.Warnings,
-                   shared.username=shared.username, print.curl=print.curl)
+                   shared.username=shared.username, print.curl=print.curl,
+                   private.APP=privAPP)
 
   return(myJob)
 }

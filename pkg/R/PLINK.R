@@ -1,8 +1,16 @@
 PLINK <- function(file.list="", file.path="", job.name=NULL, out.basename=NULL,
                   association.method="--assoc", no.sex=TRUE, args=NULL,
-                  print.curl=FALSE, multi.adjust=TRUE, version="plink-1.07u1", 
-                  shared.username=NULL, suppress.Warnings=FALSE, email=TRUE) {
+                  print.curl=FALSE, multi.adjust=TRUE, email=TRUE,
+                  shared.username=NULL, suppress.Warnings=FALSE) {
 
+  if (rplant.env$api == "a") {
+    privAPP=TRUE
+    version="plink-beta-1.07"
+  } else {
+    privAPP=FALSE
+    version="plink-1.07u1"
+  }
+  
   input.len <- length(file.list)
   input.list <- list()
   if ((input.len) == 3){
@@ -92,7 +100,8 @@ PLINK <- function(file.list="", file.path="", job.name=NULL, out.basename=NULL,
   myJob<-SubmitJob(application=version, args.list=options, job.name=job.name,
                    file.list=file.list, file.path=file.path, email=email,
                    input.list=input.list, shared.username=shared.username,
-                   print.curl=print.curl, suppress.Warnings=suppress.Warnings)
+                   print.curl=print.curl, suppress.Warnings=suppress.Warnings,
+                   private.APP=privAPP)
 
   return(myJob)
 
